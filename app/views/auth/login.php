@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ingresar — Colegio San Cristóbal</title>
-  <link rel="stylesheet" href="../../../public/assets/auth/css/login.css" />
+  <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/auth/css/login.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
@@ -200,6 +200,6 @@
     </div>
   </div>
 
-  <script src="../../../public/assets/auth/js/login.js"></script>
+  <script src="<?= BASE_URL ?>/ public/assets/auth/js/login.js"></script>
 </body>
 </html>
