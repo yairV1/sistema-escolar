@@ -1,0 +1,19 @@
+# Activa el motor de reescritura de URLs de Apache
+RewriteEngine On
+
+# Define la ruta base del proyecto dentro del servidor
+# Si tu proyecto está dentro de htdocs/colegio, se usa así
+RewriteBase /colegio/
+
+# Ignora archivos o carpetas reales
+# Si el recurso solicitado es un archivo real (CSS, JS, imagen, PDF, etc.), NO lo reescribe
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Ignora archivos o carpetas reales
+# Si el recurso solicitado es una carpeta real, tampoco lo reescribe
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Si no es archivo ni carpeta real, redirige todo a index.php
+# QSA = pasa los parámetros de la URL
+# L = indica que es la última regla a ejecutar
+RewriteRule ^(.*)$ index.php [QSA,L]

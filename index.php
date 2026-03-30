@@ -10,7 +10,7 @@ $requestURI = $_SERVER['REQUEST_URI'];
 
 // Quitar le prefijo de la carpeta del proyecto
 
-$request = str_replace('/colegio', '', $requestURI);
+$request = str_replace('/colegio/', '', $requestURI);
 
 // Quitar parametros tipo ?id=123
 
@@ -29,10 +29,10 @@ if ($request === '') $request = '/';
 switch ($request) {
 
     case '/':
-        require BASE_PATH . '/app/views/webSite/index.html';
+        require BASE_PATH . '/app/views/webSite/index.php';
         break;
 
     case '/login':
-        require BASE_PATH . '/app/views/auth/login.html';
+        require BASE_PATH . '/app/views/auth/login.php';
         break;
 }
