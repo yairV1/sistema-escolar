@@ -20,7 +20,7 @@
     </div>
 
     <div class="brand-side">
-      <a href="../webSite/index.html" class="back-link">
+      <a href="<?= BASE_URL ?>" class="back-link">
         <i class="fas fa-arrow-left"></i> Volver al sitio
       </a>
 

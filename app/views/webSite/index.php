@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Colegio San Cristóbal | Educando el Futuro</title>
-  <link rel="stylesheet" href="../../../public/assets/webSite/css/styleCole.css" />
+  <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/webSite/css/styleCole.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
@@ -30,7 +30,7 @@
         <li><a href="#noticias" class="nav-link">Noticias</a></li>
         <li><a href="#galeria" class="nav-link">Galería</a></li>
         <li><a href="#contacto" class="nav-link">Contacto</a></li>
-        <li><a href="../auth/login.html" class="btn-ingresar">Ingresar</a></li>
+        <li><a href="<?= BASE_URL ?>login" class="btn-ingresar">Ingresar</a></li>
       </ul>
     </div>
   </nav>
@@ -346,6 +346,6 @@
     </div>
   </footer>
 
-  <script src="../../../public/assets/webSite/js/jsCole.js"></script>
+  <script src="<?= BASE_URL ?>/public/assets/webSite/js/jsCole.js"></script>
 </body>
 </html>
