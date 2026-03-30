@@ -32,7 +32,52 @@ switch ($request) {
         require BASE_PATH . '/app/views/webSite/index.php';
         break;
 
-    case '/login':
+    case 'login':
         require BASE_PATH . '/app/views/auth/login.php';
         break;
+
+    //Aca son todas las rutas para el administrativo desde el modelo, vista y controlador
+
+    //ESTAS SON LAS VISTAS
+    
+    case 'Inicio':
+        require BASE_PATH . '/app/views/dashBoard/administracion/Inicio.php';
+        break;
+
+    case 'RegistroEstudiantes':
+        require BASE_PATH . '/app/views/dashBoard/administracion/RegistroEstudiantes.php';
+        break;
+
+    case 'RegistroDocentes':
+        require BASE_PATH . '/app/views/dashBoard/administracion/RegistroDocentes.php';
+        break;
+
+    case 'Listados':
+        require BASE_PATH . '/app/views/dashBoard/administracion/Listados.php';
+        break;
+
+    case 'Matriculas':
+        require BASE_PATH . '/app/views/dashBoard/administracion/Matriculas.php';
+        break;
+
+    case 'Estadisticas':
+        require BASE_PATH . '/app/views/dashBoard/administracion/Estadisticas.php';
+        break;
+
+    case 'Reportes':
+        require BASE_PATH . '/app/views/dashBoard/administracion/Reportes.php';
+        break;
+
+    case 'Comunicados':
+        require BASE_PATH . '/app/views/dashBoard/administracion/Comunicados.php';
+        break;
+
+    //ESTAS SON LAS RUTAS PARA EL CONTROLADOR
+
+    default:
+        // Si la ruta no coincide con ninguna de las anteriores, mostrar un error 404
+        http_response_code(404);
+        echo "404 - Página no encontrada";
+        break;
+    
 }

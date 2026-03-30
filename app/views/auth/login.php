@@ -200,6 +200,6 @@
     </div>
   </div>
 
-  <script src="<?= BASE_URL ?>/ public/assets/auth/js/login.js"></script>
+  <script src="<?= BASE_URL ?>/public/assets/auth/js/login.js"></script>
 </body>
 </html>
