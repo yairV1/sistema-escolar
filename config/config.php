@@ -17,7 +17,7 @@ $protocolo = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 
 // nombre de la carpeta del proyecto en local
 
-$baseFolder = '/colegio'; // Cambia esto si tu carpeta tiene otro nombre o si lo subes a la raíz del hosting
+$baseFolder = '/colegio/'; // Cambia esto si tu carpeta tiene otro nombre o si lo subes a la raíz del hosting
 
 // Host casual
 
