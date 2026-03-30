@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Estudiante — Colegio San Cristóbal</title>
+  <link rel="stylesheet" href="../../../../public/assets/dashBoard/estudiante/css/inicio.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ========================================================
+       NAVBAR (misma de navbar-dashboard)
+       ======================================================== -->
+  <nav class="dash-navbar" id="dashNavbar">
+    <div class="dash-nav-inner">
+
+      <div class="dash-brand">
+        <div class="dash-logo">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="dash-brand-text">
+          <span class="dash-brand-name">San <strong>Cristóbal</strong></span>
+          <span class="dash-brand-sub">Portal Académico</span>
+        </div>
+      </div>
+
+      <ul class="dash-nav-links" id="dashNavLinks">
+        <li><a href="#inicio"       class="dash-link active" data-page="inicio">      <i class="fas fa-home"></i>        <span>Inicio</span></a></li>
+        <li><a href="#materias"     class="dash-link"        data-page="materias">    <i class="fas fa-book-open"></i>   <span>Materias</span></a></li>
+        <li><a href="#horario"      class="dash-link"        data-page="horario">     <i class="fas fa-calendar-alt"></i><span>Horario</span></a></li>
+        <li><a href="#boletin"      class="dash-link"        data-page="boletin">     <i class="fas fa-chart-line"></i>  <span>Boletín</span><span class="nav-badge" id="badgeBoletin">1</span></a></li>
+        <li><a href="#tareas"       class="dash-link"        data-page="tareas">      <i class="fas fa-tasks"></i>       <span>Tareas</span><span class="nav-badge" id="badgeTareas">3</span></a></li>
+        <li><a href="#asistencia"   class="dash-link"        data-page="asistencia">  <i class="fas fa-user-check"></i>  <span>Asistencia</span></a></li>
+        <li><a href="#comunicados"  class="dash-link"        data-page="comunicados"> <i class="fas fa-bell"></i>        <span>Comunicados</span><span class="nav-badge alert" id="badgeComunicados">2</span></a></li>
+      </ul>
+
+      <div class="dash-actions">
+        <button class="dash-icon-btn" id="searchBtn" title="Buscar (Ctrl+K)"><i class="fas fa-search"></i></button>
+        <button class="dash-icon-btn has-notif" id="notiBtn" title="Notificaciones"><i class="fas fa-bell"></i><span class="icon-dot"></span></button>
+        <div class="dash-profile" id="dashProfile">
+          <button class="dash-avatar-btn" id="avatarBtn" aria-expanded="false">
+            <div class="dash-avatar"><span>JS</span></div>
+            <div class="dash-avatar-info">
+              <span class="avatar-name">Juan Suárez</span>
+              <span class="avatar-role">Estudiante · 11°A</span>
+            </div>
+            <i class="fas fa-chevron-down avatar-chevron" id="avatarChevron"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-header">
+              <div class="dropdown-avatar">JS</div>
+              <div>
+                <p class="dropdown-name">Juan Suárez</p>
+                <p class="dropdown-email">jsuarez@sancristobal.edu.co</p>
+                <span class="dropdown-badge">Estudiante</span>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <ul class="dropdown-menu">
+              <li><a href="#perfil"        class="dropdown-item"><i class="fas fa-user-circle"></i><span>Mi perfil</span></a></li>
+              <li><a href="#configuracion" class="dropdown-item"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+              <li><a href="#ayuda"         class="dropdown-item"><i class="fas fa-question-circle"></i><span>Centro de ayuda</span></a></li>
+            </ul>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-logout" id="btnLogout"><i class="fas fa-sign-out-alt"></i><span>Cerrar sesión</span></button>
+          </div>
+        </div>
+        <button class="dash-hamburger" id="dashHamburger" aria-label="Menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Búsqueda -->
+    <div class="search-bar-wrap" id="searchBarWrap">
+      <div class="search-bar-inner">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar materias, comunicados, tareas…" autocomplete="off" />
+        <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Drawer móvil -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="dash-logo small"><i class="fas fa-graduation-cap"></i></div>
+      <span class="dash-brand-name">San <strong>Cristóbal</strong></span>
+      <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="drawer-user">
+      <div class="drawer-avatar">JS</div>
+      <div>
+        <p class="drawer-user-name">Juan Suárez</p>
+        <p class="drawer-user-role">Estudiante · 11°A</p>
+      </div>
+    </div>
+    <ul class="drawer-links">
+      <li><a href="#inicio"      class="drawer-link active"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+      <li><a href="#materias"    class="drawer-link"><i class="fas fa-book-open"></i><span>Materias</span></a></li>
+      <li><a href="#horario"     class="drawer-link"><i class="fas fa-calendar-alt"></i><span>Horario</span></a></li>
+      <li><a href="#boletin"     class="drawer-link"><i class="fas fa-chart-line"></i><span>Boletín</span><span class="drawer-badge">1</span></a></li>
+      <li><a href="#tareas"      class="drawer-link"><i class="fas fa-tasks"></i><span>Tareas</span><span class="drawer-badge">3</span></a></li>
+      <li><a href="#asistencia"  class="drawer-link"><i class="fas fa-user-check"></i><span>Asistencia</span></a></li>
+      <li><a href="#comunicados" class="drawer-link"><i class="fas fa-bell"></i><span>Comunicados</span><span class="drawer-badge alert">2</span></a></li>
+      <li><a href="#perfil"      class="drawer-link"><i class="fas fa-user-circle"></i><span>Mi perfil</span></a></li>
+    </ul>
+    <button class="drawer-logout" id="drawerLogout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+  </div>
+  <div class="dash-overlay" id="dashOverlay"></div>
+
+  <!-- ========================================================
+       CONTENIDO PRINCIPAL — DASHBOARD
+       ======================================================== -->
+  <main class="dashboard-main">
+    <div class="dashboard-container">
+
+      <!-- ══════════════════════════════════════════
+           SECCIÓN 1 — BIENVENIDA
+           ══════════════════════════════════════════ -->
+      <section class="welcome-section reveal">
+        <div class="welcome-left">
+          <div class="welcome-tag">
+            <span class="tag-dot"></span>
+            Período 2025 · 1er semestre
+          </div>
+          <h1 class="welcome-title">
+            Bienvenido de nuevo,<br>
+            <span class="welcome-name">Juan Suárez</span>
+          </h1>
+          <p class="welcome-sub">Grado <strong>11°A</strong> · Jornada mañana · Colegio San Cristóbal</p>
+          <div class="welcome-quick">
+            <div class="quick-item">
+              <i class="fas fa-calendar-day"></i>
+              <span id="fechaHoy">Lunes, 28 de marzo de 2025</span>
+            </div>
+            <div class="quick-item">
+              <i class="fas fa-clock"></i>
+              <span id="horaActual">06:45 am</span>
+            </div>
+          </div>
+        </div>
+        <div class="welcome-right">
+          <div class="welcome-illustration">
+            <div class="illus-circle c1"></div>
+            <div class="illus-circle c2"></div>
+            <div class="illus-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           SECCIÓN 2 — TARJETAS RESUMEN (KPIs)
+           ══════════════════════════════════════════ -->
+      <section class="kpi-grid reveal">
+
+        <div class="kpi-card" data-color="green">
+          <div class="kpi-icon-wrap green">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Promedio general</span>
+            <strong class="kpi-value" data-count="4.3" data-decimals="1">4.3</strong>
+            <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> +0.2 vs período anterior</span>
+          </div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill green" style="width:86%"></div>
+          </div>
+        </div>
+
+        <div class="kpi-card" data-color="blue">
+          <div class="kpi-icon-wrap blue">
+            <i class="fas fa-book-open"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Materias inscritas</span>
+            <strong class="kpi-value">8</strong>
+            <span class="kpi-sub">Grado 11° · Período activo</span>
+          </div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill blue" style="width:100%"></div>
+          </div>
+        </div>
+
+        <div class="kpi-card" data-color="orange">
+          <div class="kpi-icon-wrap orange">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Asistencia general</span>
+            <strong class="kpi-value" data-count="96" data-suffix="%">96%</strong>
+            <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> Por encima del mínimo (80%)</span>
+          </div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill orange" style="width:96%"></div>
+          </div>
+        </div>
+
+        <div class="kpi-card" data-color="red">
+          <div class="kpi-icon-wrap red">
+            <i class="fas fa-tasks"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Tareas pendientes</span>
+            <strong class="kpi-value">3</strong>
+            <span class="kpi-trend down"><i class="fas fa-exclamation-circle"></i> 2 con fecha esta semana</span>
+          </div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill red" style="width:38%"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           SECCIÓN 3 — FILA CENTRAL
+           Próxima clase + Materias inscritas
+           ══════════════════════════════════════════ -->
+      <div class="mid-grid reveal">
+
+        <!-- Próxima clase -->
+        <div class="next-class-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-clock"></i> Próxima clase</h2>
+            <span class="card-badge green">Hoy</span>
+          </div>
+          <div class="next-class-body">
+            <div class="next-class-time">
+              <div class="time-block">
+                <span class="time-label">Inicia</span>
+                <strong class="time-val">07:00</strong>
+              </div>
+              <div class="time-divider"><i class="fas fa-arrow-right"></i></div>
+              <div class="time-block">
+                <span class="time-label">Termina</span>
+                <strong class="time-val">08:30</strong>
+              </div>
+            </div>
+            <div class="next-class-info">
+              <div class="next-materia">
+                <div class="materia-color" style="background:#2d7a4f"></div>
+                <div>
+                  <h3>Matemáticas</h3>
+                  <p>Docente: Prof. Ricardo Mendez</p>
+                  <p>Aula: Salón 11-A · Bloque Norte</p>
+                </div>
+              </div>
+            </div>
+            <div class="next-class-footer">
+              <div class="countdown-wrap">
+                <i class="fas fa-hourglass-half"></i>
+                <span id="countdownText">Comienza en <strong>15 min</strong></span>
+              </div>
+              <button class="btn-sm-green">
+                <i class="fas fa-calendar-alt"></i> Ver horario
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Materias inscritas -->
+        <div class="materias-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-book-open"></i> Mis materias</h2>
+            <a href="#materias" class="card-link">Ver todas <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <ul class="materias-list">
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#2d7a4f"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Matemáticas</span>
+                <span class="materia-prof">Prof. R. Mendez</span>
+              </div>
+              <span class="materia-nota green">4.5</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#3182ce"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Ciencias Naturales</span>
+                <span class="materia-prof">Prof. A. Torres</span>
+              </div>
+              <span class="materia-nota blue">4.2</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#6b46c1"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Español y Literatura</span>
+                <span class="materia-prof">Prof. M. Castaño</span>
+              </div>
+              <span class="materia-nota purple">4.0</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#dd6b20"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Historia y Sociales</span>
+                <span class="materia-prof">Prof. L. Vargas</span>
+              </div>
+              <span class="materia-nota orange">3.8</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#e53e3e"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Inglés</span>
+                <span class="materia-prof">Prof. C. Ramírez</span>
+              </div>
+              <span class="materia-nota red">3.6</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#0891b2"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Física</span>
+                <span class="materia-prof">Prof. J. Betancur</span>
+              </div>
+              <span class="materia-nota teal">4.3</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#c8a84b"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Educación Física</span>
+                <span class="materia-prof">Prof. H. Sánchez</span>
+              </div>
+              <span class="materia-nota gold">4.8</span>
+            </li>
+            <li class="materia-item">
+              <div class="materia-dot" style="background:#7c3aed"></div>
+              <div class="materia-data">
+                <span class="materia-nombre">Tecnología e Informática</span>
+                <span class="materia-prof">Prof. N. Ospina</span>
+              </div>
+              <span class="materia-nota violet">4.1</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           SECCIÓN 4 — FILA INFERIOR
+           Últimas calificaciones + Tareas + Comunicados
+           ══════════════════════════════════════════ -->
+      <div class="bottom-grid reveal">
+
+        <!-- Últimas calificaciones -->
+        <div class="calificaciones-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-star"></i> Últimas calificaciones</h2>
+            <a href="#boletin" class="card-link">Ver boletín <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="calificaciones-list">
+
+            <div class="cal-item">
+              <div class="cal-left">
+                <div class="cal-icon" style="background:#e8f5ee;color:#2d7a4f">
+                  <i class="fas fa-calculator"></i>
+                </div>
+                <div>
+                  <p class="cal-materia">Matemáticas</p>
+                  <p class="cal-desc">Parcial 2 · Cálculo diferencial</p>
+                  <p class="cal-fecha"><i class="fas fa-calendar-alt"></i> 25 Mar 2025</p>
+                </div>
+              </div>
+              <div class="cal-nota excellent">4.8</div>
+            </div>
+
+            <div class="cal-item">
+              <div class="cal-left">
+                <div class="cal-icon" style="background:#eff6ff;color:#3182ce">
+                  <i class="fas fa-flask"></i>
+                </div>
+                <div>
+                  <p class="cal-materia">Ciencias Naturales</p>
+                  <p class="cal-desc">Quiz · Sistemas del cuerpo</p>
+                  <p class="cal-fecha"><i class="fas fa-calendar-alt"></i> 24 Mar 2025</p>
+                </div>
+              </div>
+              <div class="cal-nota good">4.0</div>
+            </div>
+
+            <div class="cal-item">
+              <div class="cal-left">
+                <div class="cal-icon" style="background:#fef3c7;color:#d97706">
+                  <i class="fas fa-globe-americas"></i>
+                </div>
+                <div>
+                  <p class="cal-materia">Historia y Sociales</p>
+                  <p class="cal-desc">Taller · Revolución Industrial</p>
+                  <p class="cal-fecha"><i class="fas fa-calendar-alt"></i> 22 Mar 2025</p>
+                </div>
+              </div>
+              <div class="cal-nota average">3.5</div>
+            </div>
+
+            <div class="cal-item">
+              <div class="cal-left">
+                <div class="cal-icon" style="background:#faf5ff;color:#6b46c1">
+                  <i class="fas fa-book"></i>
+                </div>
+                <div>
+                  <p class="cal-materia">Español y Literatura</p>
+                  <p class="cal-desc">Ensayo · Realismo mágico</p>
+                  <p class="cal-fecha"><i class="fas fa-calendar-alt"></i> 20 Mar 2025</p>
+                </div>
+              </div>
+              <div class="cal-nota good">4.2</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tareas pendientes -->
+        <div class="tareas-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-tasks"></i> Tareas pendientes</h2>
+            <span class="card-badge red">3 pendientes</span>
+          </div>
+          <div class="tareas-list">
+
+            <div class="tarea-item urgente">
+              <div class="tarea-prioridad urgente"></div>
+              <div class="tarea-body">
+                <div class="tarea-top">
+                  <span class="tarea-materia" style="color:#e53e3e;background:#fff5f5">Inglés</span>
+                  <span class="tarea-vence urgente"><i class="fas fa-fire"></i> Hoy</span>
+                </div>
+                <p class="tarea-nombre">Reading comprehension — Chapter 7</p>
+                <p class="tarea-desc">Responder preguntas de comprensión lectora y escribir un párrafo de opinión.</p>
+              </div>
+              <button class="tarea-check" title="Marcar como entregada">
+                <i class="fas fa-check"></i>
+              </button>
+            </div>
+
+            <div class="tarea-item proxima">
+              <div class="tarea-prioridad proxima"></div>
+              <div class="tarea-body">
+                <div class="tarea-top">
+                  <span class="tarea-materia" style="color:#d97706;background:#fef3c7">Física</span>
+                  <span class="tarea-vence proxima"><i class="fas fa-clock"></i> Mañana</span>
+                </div>
+                <p class="tarea-nombre">Laboratorio — Leyes de Newton</p>
+                <p class="tarea-desc">Informe del experimento realizado en el laboratorio. Mínimo 3 páginas.</p>
+              </div>
+              <button class="tarea-check" title="Marcar como entregada">
+                <i class="fas fa-check"></i>
+              </button>
+            </div>
+
+            <div class="tarea-item normal">
+              <div class="tarea-prioridad normal"></div>
+              <div class="tarea-body">
+                <div class="tarea-top">
+                  <span class="tarea-materia" style="color:#2d7a4f;background:#e8f5ee">Matemáticas</span>
+                  <span class="tarea-vence normal"><i class="fas fa-calendar"></i> 2 Abr</span>
+                </div>
+                <p class="tarea-nombre">Ejercicios — Límites y derivadas</p>
+                <p class="tarea-desc">Resolver ejercicios 1–20 del capítulo 5. Mostrar procedimiento completo.</p>
+              </div>
+              <button class="tarea-check" title="Marcar como entregada">
+                <i class="fas fa-check"></i>
+              </button>
+            </div>
+
+          </div>
+          <a href="#tareas" class="card-footer-link">
+            Ver todas las tareas <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- Comunicados recientes -->
+        <div class="comunicados-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-bell"></i> Comunicados recientes</h2>
+            <span class="card-badge red">2 nuevos</span>
+          </div>
+          <div class="comunicados-list">
+
+            <div class="comunic-item unread">
+              <div class="comunic-icon red">
+                <i class="fas fa-exclamation"></i>
+              </div>
+              <div class="comunic-body">
+                <div class="comunic-top">
+                  <span class="comunic-tipo urgente">Urgente</span>
+                  <span class="comunic-fecha">Hoy, 7:00 am</span>
+                </div>
+                <p class="comunic-titulo">Cambio de horario — Viernes 29</p>
+                <p class="comunic-desc">Las clases del viernes 29 de marzo se reorganizan por actividad institucional. Consultar horario actualizado.</p>
+              </div>
+            </div>
+
+            <div class="comunic-item unread">
+              <div class="comunic-icon green">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="comunic-body">
+                <div class="comunic-top">
+                  <span class="comunic-tipo evento">Evento</span>
+                  <span class="comunic-fecha">Ayer, 3:00 pm</span>
+                </div>
+                <p class="comunic-titulo">Festival de ciencias — Inscripciones abiertas</p>
+                <p class="comunic-desc">Participa en el Festival de Ciencias 2025. Inscripciones hasta el 5 de abril en coordinación académica.</p>
+              </div>
+            </div>
+
+            <div class="comunic-item read">
+              <div class="comunic-icon gray">
+                <i class="fas fa-info"></i>
+              </div>
+              <div class="comunic-body">
+                <div class="comunic-top">
+                  <span class="comunic-tipo info">Informativo</span>
+                  <span class="comunic-fecha">25 Mar</span>
+                </div>
+                <p class="comunic-titulo">Entrega de boletines período 1</p>
+                <p class="comunic-desc">Los boletines del primer período serán entregados el sábado 5 de abril a los padres de familia.</p>
+              </div>
+            </div>
+
+          </div>
+          <a href="#comunicados" class="card-footer-link">
+            Ver todos los comunicados <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../public/assets/dashBoard/estudiante/js/inicio.js"></script>
+</body>
+</html>

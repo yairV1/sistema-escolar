@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Colegio San Cristóbal</title>
+  <link rel="stylesheet" href="../../../../public/assets/layouts/estudiante/css/nan.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ========== NAVBAR DASHBOARD ========== -->
+  <nav class="dash-navbar" id="dashNavbar">
+    <div class="dash-nav-inner">
+
+      <!-- ── LADO IZQUIERDO: Logo + nombre ── -->
+      <div class="dash-brand">
+        <div class="dash-logo">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="dash-brand-text">
+          <span class="dash-brand-name">San <strong>Cristóbal</strong></span>
+          <span class="dash-brand-sub">Portal Académico</span>
+        </div>
+      </div>
+
+      <!-- ── CENTRO: Links de navegación ── -->
+      <ul class="dash-nav-links" id="dashNavLinks">
+
+        <li class="dash-nav-item">
+          <a href="#inicio" class="dash-link active" data-page="inicio">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+
+        <li class="dash-nav-item">
+          <a href="#materias" class="dash-link" data-page="materias">
+            <i class="fas fa-book-open"></i>
+            <span>Materias</span>
+          </a>
+        </li>
+
+        <li class="dash-nav-item">
+          <a href="#horario" class="dash-link" data-page="horario">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Horario</span>
+          </a>
+        </li>
+
+        <li class="dash-nav-item">
+          <a href="#boletin" class="dash-link" data-page="boletin">
+            <i class="fas fa-chart-line"></i>
+            <span>Boletín</span>
+            <!-- Badge de notificación -->
+            <span class="nav-badge" id="badgeBoletin">1</span>
+          </a>
+        </li>
+
+        <li class="dash-nav-item">
+          <a href="#tareas" class="dash-link" data-page="tareas">
+            <i class="fas fa-tasks"></i>
+            <span>Tareas</span>
+            <span class="nav-badge" id="badgeTareas">3</span>
+          </a>
+        </li>
+
+        <li class="dash-nav-item">
+          <a href="#asistencia" class="dash-link" data-page="asistencia">
+            <i class="fas fa-user-check"></i>
+            <span>Asistencia</span>
+          </a>
+        </li>
+
+        <li class="dash-nav-item">
+          <a href="#comunicados" class="dash-link" data-page="comunicados">
+            <i class="fas fa-bell"></i>
+            <span>Comunicados</span>
+            <span class="nav-badge alert" id="badgeComunicados">2</span>
+          </a>
+        </li>
+
+      </ul>
+
+      <!-- ── LADO DERECHO: Perfil + acciones ── -->
+      <div class="dash-actions">
+
+        <!-- Búsqueda -->
+        <button class="dash-icon-btn" id="searchBtn" aria-label="Buscar" title="Buscar">
+          <i class="fas fa-search"></i>
+        </button>
+
+        <!-- Notificaciones -->
+        <button class="dash-icon-btn has-notif" id="notiBtn" aria-label="Notificaciones" title="Notificaciones">
+          <i class="fas fa-bell"></i>
+          <span class="icon-dot"></span>
+        </button>
+
+        <!-- Perfil dropdown -->
+        <div class="dash-profile" id="dashProfile">
+          <button class="dash-avatar-btn" id="avatarBtn" aria-label="Perfil" aria-expanded="false">
+            <div class="dash-avatar">
+              <span>JS</span>
+            </div>
+            <div class="dash-avatar-info">
+              <span class="avatar-name">Juan Suárez</span>
+              <span class="avatar-role">Estudiante · 11°A</span>
+            </div>
+            <i class="fas fa-chevron-down avatar-chevron" id="avatarChevron"></i>
+          </button>
+
+          <!-- Dropdown menú -->
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-header">
+              <div class="dropdown-avatar">JS</div>
+              <div>
+                <p class="dropdown-name">Juan Suárez</p>
+                <p class="dropdown-email">jsuarez@sancristobal.edu.co</p>
+                <span class="dropdown-badge">Estudiante</span>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="#perfil" class="dropdown-item">
+                  <i class="fas fa-user-circle"></i>
+                  <span>Mi perfil</span>
+                </a>
+              </li>
+              <li>
+                <a href="#configuracion" class="dropdown-item">
+                  <i class="fas fa-cog"></i>
+                  <span>Configuración</span>
+                </a>
+              </li>
+              <li>
+                <a href="#ayuda" class="dropdown-item">
+                  <i class="fas fa-question-circle"></i>
+                  <span>Centro de ayuda</span>
+                </a>
+              </li>
+            </ul>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-logout" id="btnLogout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Cerrar sesión</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hamburger móvil -->
+        <button class="dash-hamburger" id="dashHamburger" aria-label="Menú">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ── BARRA DE BÚSQUEDA (desplegable) ── -->
+    <div class="search-bar-wrap" id="searchBarWrap">
+      <div class="search-bar-inner">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Buscar en el portal… (materias, comunicados, tareas…)"
+          autocomplete="off"
+        />
+        <button class="search-close" id="searchClose" aria-label="Cerrar búsqueda">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── DRAWER MÓVIL ── -->
+    <div class="mobile-drawer" id="mobileDrawer">
+      <div class="drawer-header">
+        <div class="dash-logo small"><i class="fas fa-graduation-cap"></i></div>
+        <span class="dash-brand-name">San <strong>Cristóbal</strong></span>
+        <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- Info del usuario en drawer -->
+      <div class="drawer-user">
+        <div class="drawer-avatar">JS</div>
+        <div>
+          <p class="drawer-user-name">Juan Suárez</p>
+          <p class="drawer-user-role">Estudiante · 11°A</p>
+        </div>
+      </div>
+
+      <ul class="drawer-links">
+        <li><a href="#inicio"       class="drawer-link active"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+        <li><a href="#materias"     class="drawer-link"><i class="fas fa-book-open"></i><span>Materias</span></a></li>
+        <li><a href="#horario"      class="drawer-link"><i class="fas fa-calendar-alt"></i><span>Horario</span></a></li>
+        <li>
+          <a href="#boletin" class="drawer-link">
+            <i class="fas fa-chart-line"></i><span>Boletín</span>
+            <span class="drawer-badge">1</span>
+          </a>
+        </li>
+        <li>
+          <a href="#tareas" class="drawer-link">
+            <i class="fas fa-tasks"></i><span>Tareas</span>
+            <span class="drawer-badge">3</span>
+          </a>
+        </li>
+        <li><a href="#asistencia"   class="drawer-link"><i class="fas fa-user-check"></i><span>Asistencia</span></a></li>
+        <li>
+          <a href="#comunicados" class="drawer-link">
+            <i class="fas fa-bell"></i><span>Comunicados</span>
+            <span class="drawer-badge alert">2</span>
+          </a>
+        </li>
+        <li><a href="#perfil"        class="drawer-link"><i class="fas fa-user-circle"></i><span>Mi perfil</span></a></li>
+        <li><a href="#configuracion" class="drawer-link"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+      </ul>
+
+      <button class="drawer-logout" id="drawerLogout">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Overlay para drawer / dropdown -->
+  <div class="dash-overlay" id="dashOverlay"></div>
+
+  <!-- ========== CONTENIDO DE DEMO ========== -->
+  <!-- Este bloque es solo para ver la navbar en contexto -->
+  <main class="demo-content">
+    <div class="demo-page" id="inicio">
+      <div class="demo-greeting">
+        <h1>Buenos días, <span>Juan</span> 👋</h1>
+        <p>Lunes, 28 de marzo de 2025 · Semana 12 del período</p>
+      </div>
+      <div class="demo-cards">
+        <div class="demo-card green">
+          <i class="fas fa-chart-line"></i>
+          <h3>Promedio general</h3>
+          <strong>4.3</strong>
+        </div>
+        <div class="demo-card blue">
+          <i class="fas fa-tasks"></i>
+          <h3>Tareas pendientes</h3>
+          <strong>3</strong>
+        </div>
+        <div class="demo-card orange">
+          <i class="fas fa-user-check"></i>
+          <h3>Asistencia</h3>
+          <strong>96%</strong>
+        </div>
+        <div class="demo-card purple">
+          <i class="fas fa-bell"></i>
+          <h3>Comunicados</h3>
+          <strong>2 nuevos</strong>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../public/assets/layouts/estudiante/js/nan.js"></script>
+</body>
+</html>
