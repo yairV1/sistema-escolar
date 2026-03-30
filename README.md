@@ -145,7 +145,7 @@ roles ──────────────────── usuarios
 
 ### 1. Clonar o descargar el proyecto
 ```bash
-git clone https://github.com/tu-usuario/edugestion.git
+git@github.com:yairV1/sistema-escolar.git
 ```
 
 ### 2. Iniciar XAMPP
