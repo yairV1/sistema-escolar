@@ -30,7 +30,7 @@
         <li><a href="#noticias" class="nav-link">Noticias</a></li>
         <li><a href="#galeria" class="nav-link">Galería</a></li>
         <li><a href="#contacto" class="nav-link">Contacto</a></li>
-        <li><a href="<?= BASE_URL ?>login" class="btn-ingresar">Ingresar</a></li>
+        <li><a href="login" class="btn-ingresar">Ingresar</a></li>
       </ul>
     </div>
   </nav>
