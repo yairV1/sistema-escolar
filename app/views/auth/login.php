@@ -81,13 +81,13 @@
           <i class="fas fa-user-graduate"></i>
           <span>Estudiante</span>
         </button>
-        <button class="role-btn" data-role="docente">
-          <i class="fas fa-chalkboard-teacher"></i>
-          <span>Docente</span>
-        </button>
         <button class="role-btn" data-role="acudiente">
           <i class="fas fa-user-friends"></i>
           <span>Acudiente</span>
+        </button>
+        <button class="role-btn" data-role="docente">
+          <i class="fas fa-chalkboard-teacher"></i>
+          <span>Docente</span>
         </button>
         <button class="role-btn" data-role="rector">
           <i class="fas fa-user-tie"></i>
