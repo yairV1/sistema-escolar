@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const pageNames = {
     inicio:        'Inicio',
-    estudiantes:   'Registro de Estudiantes',
+    RegistroEstudiantes:   'RegistroEstudiantes',
     docentes:      'Registro de Docentes',
     listados:      'Listados',
     matriculas:    'Matrículas',
