@@ -83,5 +83,15 @@
                   </a>
               </li>
           </ul>
+
+           <span class="nav-group-label">Barra de navegación</span>
+            <ul>
+                <li>
+                    <a href="<?= BASE_URL ?>EditarLanding" class="slink" data-page="nav">
+                        <i class="fas fa-compass"></i>
+                        <span>Editar landing page</span>
+                    </a>
+                </li>
+            </ul>
       </nav>
   </aside>
