@@ -32,7 +32,7 @@ switch ($request) {
         require BASE_PATH . '/app/views/webSite/index.php';
         break;
 
-    case '/login':
+    case 'login':
         require BASE_PATH . '/app/views/auth/login.php';
         break;
 }
