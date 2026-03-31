@@ -19,7 +19,7 @@
           <span class="nav-group-label">Principal</span>
           <ul>
               <li>
-                  <a href="<?= BASE_URL ?>Inicio" class="slink active" data-page="inicio">
+                  <a href="<?= BASE_URL ?>inicio" class="slink active" data-page="inicio">
                       <i class="fas fa-chart-pie"></i>
                       <span>Inicio</span>
                   </a>
@@ -29,21 +29,21 @@
           <span class="nav-group-label">Comunidad</span>
           <ul>
               <li>
-                  <a href="<?= BASE_URL ?>RegistroEstudiantes" class="slink" data-page="estudiantes">
+                  <a href="<?= BASE_URL ?>RegistroEstudiantes" class="slink" data-page="RegistroEstudiantes">
                       <i class="fas fa-user-graduate"></i>
                       <span>Registro de Estudiantes</span>
                       <span class="slink-badge">1,240</span>
                   </a>
               </li>
               <li>
-                  <a href="<?= BASE_URL ?>RegistroDocentes" class="slink" data-page="docentes">
+                  <a href="<?= BASE_URL ?>RegistroDocentes" class="slink" data-page="RegistroDocentes">
                       <i class="fas fa-chalkboard-teacher"></i>
                       <span>Registro de Docentes</span>
                       <span class="slink-badge">87</span>
                   </a>
               </li>
               <li>
-                  <a href="<?= BASE_URL ?>Listados" class="slink" data-page="listados">
+                  <a href="<?= BASE_URL ?>Listados" class="slink" data-page="Listados">
                       <i class="fas fa-list-alt"></i>
                       <span>Listados</span>
                   </a>
@@ -53,20 +53,20 @@
           <span class="nav-group-label">Académico</span>
           <ul>
               <li>
-                  <a href="<?= BASE_URL ?>Matriculas" class="slink" data-page="matriculas">
+                  <a href="<?= BASE_URL ?>Matriculas" class="slink" data-page="Matriculas">
                       <i class="fas fa-file-signature"></i>
                       <span>Matrículas</span>
                       <span class="slink-badge new">12 nuevas</span>
                   </a>
               </li>
               <li>
-                  <a href="<?= BASE_URL ?>Estadisticas" class="slink" data-page="estadisticas">
+                  <a href="<?= BASE_URL ?>Estadisticas" class="slink" data-page="Estadisticas">
                       <i class="fas fa-chart-bar"></i>
                       <span>Estadísticas</span>
                   </a>
               </li>
               <li>
-                  <a href="<?= BASE_URL ?>Reportes" class="slink" data-page="reportes">
+                  <a href="<?= BASE_URL ?>Reportes" class="slink" data-page="Reportes">
                       <i class="fas fa-file-alt"></i>
                       <span>Reportes y boletines</span>
                   </a>
@@ -76,7 +76,7 @@
           <span class="nav-group-label">Comunicación</span>
           <ul>
               <li>
-                  <a href="<?= BASE_URL ?>Comunicados" class="slink" data-page="comunicados">
+                  <a href="<?= BASE_URL ?>Comunicados" class="slink" data-page="Comunicados">
                       <i class="fas fa-bullhorn"></i>
                       <span>Comunicados</span>
                       <span class="slink-badge alert">3</span>
