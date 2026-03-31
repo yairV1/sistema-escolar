@@ -135,13 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(false);
 
         // Demo: credenciales de prueba
-        const credencialesDemo = {
-            estudiante: { usuario: '2024-EST-0001', password: '123456' },
-            docente: { usuario: 'docente@sancristobal.edu.co', password: '123456' },
-            acudiente: { usuario: '80000000', password: '123456' },
-            rector: { usuario: 'rector@sancristobal.edu.co', password: '123456' },
-            administracion: { usuario: 'administracion@sancristobal.edu.co', password: '123456' }
-        };
+        // const credencialesDemo = {
+        //     estudiante: { usuario: '2024-EST-0001', password: '123456' },
+        //     docente: { usuario: 'docente@sancristobal.edu.co', password: '123456' },
+        //     acudiente: { usuario: '80000000', password: '123456' },
+        //     rector: { usuario: 'rector@sancristobal.edu.co', password: '123456' },
+        //     // administracion: { usuario: 'administracion@sancristobal.edu.co', password: '123456' }
+        // };
 
         const demo = credencialesDemo[activeRole];
         const esValido = usuario === demo.usuario && password === demo.password;

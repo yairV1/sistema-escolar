@@ -40,7 +40,7 @@ switch ($request) {
 
     //ESTAS SON LAS VISTAS
     
-    case 'Inicio':
+    case 'inicio':
         require BASE_PATH . '/app/views/dashBoard/administracion/Inicio.php';
         break;
 
