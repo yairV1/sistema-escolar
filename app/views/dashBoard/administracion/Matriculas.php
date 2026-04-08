@@ -23,11 +23,6 @@
             <!-- ══ ENCABEZADO ══ -->
             <section class="page-header reveal">
                 <div class="ph-left">
-                    <div class="ph-breadcrumb-bar">
-                        <span class="ph-root"><i class="fas fa-home"></i> Panel</span>
-                        <i class="fas fa-chevron-right"></i>
-                        <span class="ph-current">Matrículas</span>
-                    </div>
                     <h1 class="ph-title"><i class="fas fa-file-signature"></i> Gestión de Matrículas</h1>
                     <p class="ph-desc">Año lectivo 2025 · Revisa, aprueba o rechaza solicitudes de matrícula.</p>
                 </div>

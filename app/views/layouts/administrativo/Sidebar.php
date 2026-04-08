@@ -70,6 +70,11 @@
                       <i class="fas fa-file-alt"></i>
                       <span>Reportes y boletines</span>
                   </a>
+
+                  <a href="<?= BASE_URL ?>Observaciones" class="slink" data-page="Observaciones">
+                      <i class="fas fa-file-alt"></i>
+                      <span>Observaciones</span>
+                  </a>
               </li>
           </ul>
 

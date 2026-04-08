@@ -23,11 +23,6 @@
             <!-- ══ ENCABEZADO ══ -->
             <section class="page-header reveal">
                 <div class="ph-left">
-                    <div class="ph-breadcrumb-bar">
-                        <span class="ph-root"><i class="fas fa-home"></i> Panel</span>
-                        <i class="fas fa-chevron-right"></i>
-                        <span class="ph-current">Estadísticas</span>
-                    </div>
                     <h1 class="ph-title"><i class="fas fa-chart-bar"></i> Estadísticas Académicas</h1>
                     <p class="ph-desc">Análisis de rendimiento, asistencia y riesgo por grado y área.</p>
                 </div>
