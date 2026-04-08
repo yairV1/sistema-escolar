@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Matriculas: 'Matrículas',
     Estadisticas: 'Estadísticas',
     Reportes: 'Reportes y boletines',
+    Observaciones: 'Observaciones',
     Comunicados: 'Comunicados',
     EditarLanding: 'Editar Landing Page',
   };

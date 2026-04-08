@@ -33,14 +33,6 @@
             <section class="page-header reveal">
                 <div class="ph-left">
                     <div class="ph-back">
-                        <a href="#estudiantes" class="ph-back-btn">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                        <div class="ph-breadcrumb">
-                            <span class="ph-root">Estudiantes</span>
-                            <i class="fas fa-chevron-right"></i>
-                            <span class="ph-current">Nuevo registro</span>
-                        </div>
                     </div>
                     <h1 class="ph-title"><i class="fas fa-user-plus"></i> Registro de Estudiante</h1>
                     <p class="ph-desc">Completa todos los pasos para registrar un nuevo estudiante en el sistema.</p>
