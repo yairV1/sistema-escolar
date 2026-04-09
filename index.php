@@ -76,6 +76,10 @@ switch ($request) {
         require BASE_PATH . '/app/views/dashBoard/administracion/Observaciones.php';
         break;
 
+    case 'EditarLanding':
+        require BASE_PATH . '/app/views/dashBoard/administracion/EditarLanding.php';
+        break;
+
     //ESTAS SON LAS RUTAS PARA EL CONTROLADOR
 
     default:
