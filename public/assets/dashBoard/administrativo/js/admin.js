@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Observaciones: 'Observaciones',
     Comunicados: 'Comunicados',
     EditarLanding: 'Editar Landing Page',
+    Perfil: 'Mi Perfil',
   };
 
   // Detectar la página actual por la URL real del navegador

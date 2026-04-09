@@ -39,9 +39,9 @@
                     </div>
                     <div class="td-divider"></div>
                     <ul class="td-menu">
-                        <li><a href="#" class="td-item"><i class="fas fa-user-circle"></i> Mi perfil</a></li>
-                        <li><a href="#" class="td-item"><i class="fas fa-cog"></i> Configuración</a></li>
-                        <li><a href="#" class="td-item"><i class="fas fa-question-circle"></i> Ayuda</a></li>
+                        <li><a href="<?= BASE_URL ?>Perfil" class="td-item"><i class="fas fa-user-circle"></i> Mi perfil</a></li>
+                        <li><a href="<?= BASE_URL ?>Configuracion" class="td-item"><i class="fas fa-cog"></i> Configuración</a></li>
+                        <li><a href="<?= BASE_URL ?>Ayuda" class="td-item"><i class="fas fa-question-circle"></i> Ayuda</a></li>
                     </ul>
                     <div class="td-divider"></div>
                     <button class="td-logout" id="topbarLogout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
