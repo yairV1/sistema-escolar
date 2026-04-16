@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ─────────────────────────────────────
      1. SIDEBAR — colapsar / expandir / móvil
   ───────────────────────────────────────── */
-  const sidebar         = document.getElementById('sidebar');
+  const sidebar = document.getElementById('sidebar');
   const sidebarCollapse = document.getElementById('sidebarCollapse');
-  const topbar          = document.getElementById('topbar');
-  const adminMain       = document.getElementById('adminMain');
-  const topbarMenu      = document.getElementById('topbarMenu');
-  const adminOverlay    = document.getElementById('adminOverlay');
+  const topbar = document.getElementById('topbar');
+  const adminMain = document.getElementById('adminMain');
+  const topbarMenu = document.getElementById('topbarMenu');
+  const adminOverlay = document.getElementById('adminOverlay');
 
   // Colapsar / expandir en escritorio
   sidebarCollapse.addEventListener('click', () => {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Abrir / cerrar en móvil
-  const openSidebar  = () => {
+  const openSidebar = () => {
     sidebar.classList.add('mobile-open');
     adminOverlay.classList.add('visible');
     document.body.style.overflow = 'hidden';
@@ -41,19 +41,21 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ─────────────────────────────────────
      2. LINKS ACTIVOS + breadcrumb
   ───────────────────────────────────────── */
-  const slinks       = document.querySelectorAll('.slink[data-page]');
+  const slinks = document.querySelectorAll('.slink[data-page]');
   const breadcrumbEl = document.getElementById('breadcrumbPage');
 
   const pageNames = {
-    inicio:        'Inicio',
-    estudiantes:   'Registro de Estudiantes',
-    docentes:      'Registro de Docentes',
-    listados:      'Listados',
-    matriculas:    'Matrículas',
-    estadisticas:  'Estadísticas',
-    reportes:      'Reportes y boletines',
-    comunicados:   'Comunicados',
-    configuracion: 'Configuración',
+    inicio: 'Inicio',
+    RegistroEstudiantes: 'Registro de Estudiantes',
+    RegistroDocentes: 'Registro de Docentes',
+    Listados: 'Listados',
+    Matriculas: 'Matrículas',
+    Estadisticas: 'Estadísticas',
+    Reportes: 'Reportes y boletines',
+    Observaciones: 'Observaciones',
+    Comunicados: 'Comunicados',
+    EditarLanding: 'Editar Landing Page',
+    Perfil: 'Mi Perfil',
   };
 
   // Detectar la página actual por la URL real del navegador
@@ -85,10 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
      3. DROPDOWN PERFIL TOPBAR
   ───────────────────────────────────────── */
   const topbarAvatarBtn = document.getElementById('topbarAvatarBtn');
-  const topbarDropdown  = document.getElementById('topbarDropdown');
-  const topbarChevron   = document.getElementById('topbarChevron');
+  const topbarDropdown = document.getElementById('topbarDropdown');
+  const topbarChevron = document.getElementById('topbarChevron');
 
-  const openDropdown  = () => {
+  const openDropdown = () => {
     topbarDropdown.classList.add('open');
     topbarChevron.classList.add('open');
   };
@@ -110,23 +112,23 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ─────────────────────────────────────
      4. FECHA Y HORA EN TIEMPO REAL
   ───────────────────────────────────────── */
-  const DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
   function updateClock() {
-    const now  = new Date();
-    const dia  = DIAS[now.getDay()];
-    const d    = now.getDate();
-    const mes  = MESES[now.getMonth()];
+    const now = new Date();
+    const dia = DIAS[now.getDay()];
+    const d = now.getDate();
+    const mes = MESES[now.getMonth()];
     const year = now.getFullYear();
-    let h      = now.getHours();
-    const m    = String(now.getMinutes()).padStart(2, '0');
+    let h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, '0');
     const ampm = h >= 12 ? 'pm' : 'am';
     h = h % 12 || 12;
     const fechaEl = document.getElementById('adminFecha');
-    const horaEl  = document.getElementById('adminHora');
+    const horaEl = document.getElementById('adminHora');
     if (fechaEl) fechaEl.textContent = `${dia}, ${d} de ${mes} de ${year}`;
-    if (horaEl)  horaEl.textContent  = `${h}:${m} ${ampm}`;
+    if (horaEl) horaEl.textContent = `${h}:${m} ${ampm}`;
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -172,12 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
      7. CONTADORES ANIMADOS EN KPI
   ───────────────────────────────────────── */
   function animateCount(el) {
-    const target   = parseFloat(el.dataset.count);
+    const target = parseFloat(el.dataset.count);
     const decimals = parseInt(el.dataset.decimals || 0);
-    const suffix   = el.dataset.suffix || '';
-    const dur      = 1400;
-    const step     = target / (dur / 16);
-    let cur        = 0;
+    const suffix = el.dataset.suffix || '';
+    const dur = 1400;
+    const step = target / (dur / 16);
+    let cur = 0;
     const t = setInterval(() => {
       cur = Math.min(cur + step, target);
       el.textContent = cur.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
@@ -201,29 +203,29 @@ document.addEventListener('DOMContentLoaded', () => {
   ───────────────────────────────────────── */
   const gradesData = [
     { grado: 'Prees.', prom: 4.6 },
-    { grado: '1°',     prom: 4.5 },
-    { grado: '2°',     prom: 4.4 },
-    { grado: '3°',     prom: 4.3 },
-    { grado: '4°',     prom: 4.2 },
-    { grado: '5°',     prom: 4.1 },
-    { grado: '6°',     prom: 4.0 },
-    { grado: '7°',     prom: 3.9 },
-    { grado: '8°',     prom: 3.8 },
-    { grado: '9°',     prom: 4.0 },
-    { grado: '10°',    prom: 4.2 },
-    { grado: '11°',    prom: 4.3 },
+    { grado: '1°', prom: 4.5 },
+    { grado: '2°', prom: 4.4 },
+    { grado: '3°', prom: 4.3 },
+    { grado: '4°', prom: 4.2 },
+    { grado: '5°', prom: 4.1 },
+    { grado: '6°', prom: 4.0 },
+    { grado: '7°', prom: 3.9 },
+    { grado: '8°', prom: 3.8 },
+    { grado: '9°', prom: 4.0 },
+    { grado: '10°', prom: 4.2 },
+    { grado: '11°', prom: 4.3 },
   ];
 
-  const chartBars   = document.getElementById('chartBars');
+  const chartBars = document.getElementById('chartBars');
   const chartLabels = document.getElementById('chartLabels');
-  const maxProm     = 5.0;
-  const chartH      = 180;
+  const maxProm = 5.0;
+  const chartH = 180;
 
   if (chartBars && chartLabels) {
     gradesData.forEach(({ grado, prom }) => {
-      const heightPx  = Math.round((prom / maxProm) * (chartH - 24));
-      const color     = prom >= 4.3 ? '#2d7a4f' : prom >= 4.0 ? '#4a9e6b' : prom >= 3.7 ? '#c8a84b' : '#e53e3e';
-      const bgColor   = prom >= 4.3 ? '#e8f5ee' : prom >= 4.0 ? '#d4edd9' : prom >= 3.7 ? '#fefce8' : '#fff5f5';
+      const heightPx = Math.round((prom / maxProm) * (chartH - 24));
+      const color = prom >= 4.3 ? '#2d7a4f' : prom >= 4.0 ? '#4a9e6b' : prom >= 3.7 ? '#c8a84b' : '#e53e3e';
+      const bgColor = prom >= 4.3 ? '#e8f5ee' : prom >= 4.0 ? '#d4edd9' : prom >= 3.7 ? '#fefce8' : '#fff5f5';
       const borderCol = prom >= 4.3 ? '#d4edd9' : prom >= 4.0 ? '#c8e6d4' : prom >= 3.7 ? '#fde68a' : '#fed7d7';
 
       const group = document.createElement('div');
@@ -233,8 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
       bar.className = 'chart-bar';
       bar.style.cssText = `height:0;background:${bgColor};border-color:${borderCol};`;
       bar.dataset.target = `${heightPx}px`;
-      bar.dataset.color  = color;
-      bar.dataset.bg     = bgColor;
+      bar.dataset.color = color;
+      bar.dataset.bg = bgColor;
       bar.innerHTML = `
         <span class="chart-bar-val" style="color:${color}">${prom.toFixed(1)}</span>
         <span class="chart-tooltip">${grado}: ${prom.toFixed(1)}</span>
@@ -263,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (entries[0].isIntersecting) {
         document.querySelectorAll('.chart-bar').forEach((bar, i) => {
           setTimeout(() => {
-            bar.style.height     = bar.dataset.target;
+            bar.style.height = bar.dataset.target;
             bar.style.transition = `height 0.7s cubic-bezier(0.4,0,0.2,1) ${i * 40}ms`;
           }, 100);
         });
@@ -321,11 +323,11 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ─────────────────────────────────────
      12. MODAL NUEVO COMUNICADO
   ───────────────────────────────────────── */
-  const modalComunic      = document.getElementById('modalComunic');
-  const btnNuevoComunic   = document.getElementById('btnNuevoComunic');
+  const modalComunic = document.getElementById('modalComunic');
+  const btnNuevoComunic = document.getElementById('btnNuevoComunic');
   const modalComunicClose = document.getElementById('modalComunicClose');
 
-  const openModal  = () => {
+  const openModal = () => {
     modalComunic.classList.add('open');
     document.body.style.overflow = 'hidden';
   };
@@ -374,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ───────────────────────────────────────── */
   const handleLogout = () => {
     if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
-      document.body.style.opacity    = '0';
+      document.body.style.opacity = '0';
       document.body.style.transition = 'opacity 0.4s ease';
       setTimeout(() => { window.location.href = 'login.html'; }, 400);
     }
@@ -390,9 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
   ───────────────────────────────────────── */
   function showToast(msg, type = 'info') {
     const colors = {
-      success: { bg: '#e8f5ee', border: '#2d7a4f', text: '#1e5436', icon: 'fas fa-check-circle'       },
-      info:    { bg: '#eff6ff', border: '#3182ce', text: '#2c5282', icon: 'fas fa-info-circle'         },
-      error:   { bg: '#fff5f5', border: '#e53e3e', text: '#c53030', icon: 'fas fa-exclamation-circle'  },
+      success: { bg: '#e8f5ee', border: '#2d7a4f', text: '#1e5436', icon: 'fas fa-check-circle' },
+      info: { bg: '#eff6ff', border: '#3182ce', text: '#2c5282', icon: 'fas fa-info-circle' },
+      error: { bg: '#fff5f5', border: '#e53e3e', text: '#c53030', icon: 'fas fa-exclamation-circle' },
     };
     const c = colors[type] || colors.info;
 
@@ -412,12 +414,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     requestAnimationFrame(() => {
       toast.style.transform = 'translateY(0)';
-      toast.style.opacity   = '1';
+      toast.style.opacity = '1';
     });
 
     setTimeout(() => {
       toast.style.transform = 'translateY(16px)';
-      toast.style.opacity   = '0';
+      toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
     }, 3200);
   }

@@ -28,14 +28,6 @@
             <section class="page-header reveal">
                 <div class="ph-left">
                     <div class="ph-back">
-                        <a href="<?= BASE_URL ?>/RegistroDocentes" class="ph-back-btn">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                        <div class="ph-breadcrumb">
-                            <span class="ph-root">Docentes</span>
-                            <i class="fas fa-chevron-right"></i>
-                            <span class="ph-current">Nuevo registro</span>
-                        </div>
                     </div>
                     <h1 class="ph-title"><i class="fas fa-chalkboard-teacher"></i> Registro de Docente</h1>
                     <p class="ph-desc">Completa todos los pasos para registrar un nuevo docente en el sistema.</p>
