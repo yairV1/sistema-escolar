@@ -1,0 +1,195 @@
+/* ── Color de acento para docentes (naranja) ── */
+.wfph-icon.orange {
+  background: #fff7ed;
+  color: #dd6b20;
+}
+
+/* ── Divisor de sección dentro del formulario ── */
+.wf-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--verde-principal);
+  padding: 6px 0 2px;
+  border-bottom: 1.5px solid var(--gris-borde);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.wf-section-divider i {
+  font-size: 0.78rem;
+}
+
+/* ── Hint bajo el campo ── */
+.wf-hint {
+  font-size: 0.7rem;
+  color: var(--gris-texto);
+  margin-top: 2px;
+}
+
+/* ── Checkboxes de grados ── */
+.wf-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.wf-check-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--gris-texto);
+  user-select: none;
+  padding: 6px 12px 6px 8px;
+  border: 1.5px solid var(--gris-borde);
+  border-radius: var(--radio-sm);
+  background: var(--gris-claro);
+  transition: var(--transicion);
+}
+.wf-check-item:hover {
+  border-color: var(--verde-suave);
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+}
+.wf-check-item input[type="checkbox"] {
+  display: none;
+}
+.wf-check-box {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 2px solid var(--gris-borde);
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transicion);
+}
+.wf-check-box::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.55rem;
+  color: white;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.15s ease;
+}
+.wf-check-item input[type="checkbox"]:checked ~ .wf-check-box {
+  background: var(--verde-principal);
+  border-color: var(--verde-principal);
+}
+.wf-check-item input[type="checkbox"]:checked ~ .wf-check-box::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.wf-check-item input[type="checkbox"]:checked ~ .wf-check-box + span,
+.wf-check-item:has(input:checked) {
+  border-color: var(--verde-principal);
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+  font-weight: 700;
+}
+
+/* ── Upload de archivos ── */
+.wf-file-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 16px;
+  border: 2px dashed var(--gris-borde);
+  border-radius: var(--radio-sm);
+  background: var(--gris-claro);
+  cursor: pointer;
+  transition: var(--transicion);
+  text-align: center;
+  min-height: 90px;
+}
+.wf-file-wrap:hover,
+.wf-file-wrap.drag-over {
+  border-color: var(--verde-principal);
+  background: var(--verde-claro);
+}
+.wf-file-wrap i {
+  font-size: 1.4rem;
+  color: #b0bfb0;
+  transition: color 0.2s;
+}
+.wf-file-wrap:hover i,
+.wf-file-wrap.drag-over i {
+  color: var(--verde-principal);
+}
+.wf-file-label {
+  font-size: 0.78rem;
+  color: var(--gris-texto);
+}
+.wf-file-label strong {
+  color: var(--verde-principal);
+  cursor: pointer;
+}
+.wf-file-name {
+  font-size: 0.7rem;
+  color: #b0bfb0;
+  font-style: italic;
+  transition: color 0.2s;
+}
+.wf-file-wrap.has-file .wf-file-name {
+  color: var(--verde-principal);
+  font-style: normal;
+  font-weight: 600;
+}
+.wf-file-wrap.has-file {
+  border-color: var(--verde-suave);
+  background: var(--verde-claro);
+}
+.wf-file-wrap.has-file i {
+  color: var(--verde-principal);
+}
+.wf-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Resumen — 4 columnas para docente ── */
+.wf-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.ws-summary-section {
+  padding: 16px 18px;
+  border-right: 1px solid var(--gris-borde);
+}
+.ws-summary-section:last-child {
+  border-right: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .wf-summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .ws-summary-section:nth-child(2) { border-right: none; }
+  .ws-summary-section:nth-child(3) { border-top: 1px solid var(--gris-borde); }
+  .ws-summary-section:nth-child(4) { border-top: 1px solid var(--gris-borde); border-right: none; }
+}
+
+@media (max-width: 768px) {
+  .wf-checkbox-group { gap: 6px; }
+  .wf-check-item { font-size: 0.78rem; padding: 5px 10px 5px 7px; }
+}
+
+@media (max-width: 580px) {
+  .wf-summary-grid { grid-template-columns: 1fr; }
+  .ws-summary-section { border-right: none; border-top: 1px solid var(--gris-borde); }
+  .ws-summary-section:first-child { border-top: none; }
+}
