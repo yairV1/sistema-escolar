@@ -36,11 +36,15 @@ switch ($request) {
         require BASE_PATH . '/app/views/auth/login.php';
         break;
 
+    case 'iniciar-sesion':
+        require BASE_PATH . '/app/controllers/login.php';
+        break;
+
     //Aca son todas las rutas para el administrativo desde el modelo, vista y controlador
 
     //ESTAS SON LAS VISTAS
-    
-    case 'inicio':
+
+    case 'directivo/Inicio':
         require BASE_PATH . '/app/views/dashBoard/administracion/Inicio.php';
         break;
 
@@ -90,5 +94,4 @@ switch ($request) {
         http_response_code(404);
         echo "404 - Página no encontrada";
         break;
-    
 }

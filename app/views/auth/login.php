@@ -102,7 +102,7 @@
       </div>
 
       <!-- Formulario -->
-      <form class="login-form" id="loginForm" novalidate>
+      <form action="<?= BASE_URL ?>iniciar-sesion" class="login-form"  novalidate method="POST">
 
         <div class="form-group">
           <label for="usuario">
@@ -116,6 +116,7 @@
               placeholder="Ej. 2024-EST-0042"
               autocomplete="username"
               required
+              name="correo"
             />
             <span class="input-icon"><i class="fas fa-user"></i></span>
           </div>
@@ -133,7 +134,7 @@
               id="password"
               placeholder="••••••••"
               autocomplete="current-password"
-              required
+              required name="password"
             />
             <button type="button" class="toggle-pw" id="togglePw" aria-label="Mostrar contraseña">
               <i class="fas fa-eye"></i>
