@@ -113,7 +113,12 @@ switch ($request) {
     default:
         // Si la ruta no coincide con ninguna de las anteriores, mostrar un error 404
         http_response_code(404);
-        echo "404 - Página no encontrada";
+        $base_path = BASE_PATH . '/app/views/auth/error404.php';
+        if (file_exists($base_path)) {
+            require $base_path;
+        } else {
+            echo "404 Not Found";
+        }
         break;
     
 }
