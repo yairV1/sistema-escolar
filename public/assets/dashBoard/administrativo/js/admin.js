@@ -5,86 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ─────────────────────────────────────
-     1. SIDEBAR — colapsar / expandir / móvil
-  ───────────────────────────────────────── */
-  const sidebar = document.getElementById('sidebar');
-  const sidebarCollapse = document.getElementById('sidebarCollapse');
-  const topbar = document.getElementById('topbar');
-  const adminMain = document.getElementById('adminMain');
-  const topbarMenu = document.getElementById('topbarMenu');
-  const adminOverlay = document.getElementById('adminOverlay');
-
-  // Colapsar / expandir en escritorio
-  sidebarCollapse.addEventListener('click', () => {
-    const isCollapsed = sidebar.classList.toggle('collapsed');
-    topbar.classList.toggle('sidebar-collapsed', isCollapsed);
-    adminMain.classList.toggle('sidebar-collapsed', isCollapsed);
-  });
-
-  // Abrir / cerrar en móvil
-  const openSidebar = () => {
-    sidebar.classList.add('mobile-open');
-    adminOverlay.classList.add('visible');
-    document.body.style.overflow = 'hidden';
-  };
-  const closeSidebar = () => {
-    sidebar.classList.remove('mobile-open');
-    adminOverlay.classList.remove('visible');
-    document.body.style.overflow = '';
-  };
-
-  topbarMenu.addEventListener('click', () =>
-    sidebar.classList.contains('mobile-open') ? closeSidebar() : openSidebar()
-  );
-  adminOverlay.addEventListener('click', closeSidebar);
-
-  /* ─────────────────────────────────────
-     2. LINKS ACTIVOS + breadcrumb
-  ───────────────────────────────────────── */
-  const slinks = document.querySelectorAll('.slink[data-page]');
-  const breadcrumbEl = document.getElementById('breadcrumbPage');
-
-  const pageNames = {
-    inicio: 'Inicio',
-    RegistroEstudiantes: 'Registro de Estudiantes',
-    RegistroDocentes: 'Registro de Docentes',
-    Listados: 'Listados',
-    Matriculas: 'Matrículas',
-    Estadisticas: 'Estadísticas',
-    Reportes: 'Reportes y boletines',
-    Observaciones: 'Observaciones',
-    Comunicados: 'Comunicados',
-    EditarLanding: 'Editar Landing Page',
-    Perfil: 'Mi Perfil',
-  };
-
-  // Detectar la página actual por la URL real del navegador
-  const currentPath = window.location.pathname
-    .replace('/colegio/', '')   // quitar subcarpeta
-    .replace('/colegio', '')    // por si viene sin barra final
-    .replace(/^\//, '')         // quitar barra inicial si quedó
-    .replace(/\/$/, '')         // quitar barra final
-    || 'inicio';                // si está vacío → es el inicio
-
-  slinks.forEach(link => {
-    const page = link.dataset.page;
-
-    // Activar el link que coincide con la URL actual
-    if (currentPath.toLowerCase() === page.toLowerCase()) {
-      slinks.forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-      if (breadcrumbEl) breadcrumbEl.textContent = pageNames[page] || '';
-    }
-
-    // Al hacer clic: cerrar sidebar en móvil y dejar que el navegador navegue normal
-    link.addEventListener('click', () => {
-      if (window.innerWidth <= 768) closeSidebar();
-      // Sin e.preventDefault() → el href de PHP funciona correctamente ✅
-    });
-  });
-
-  /* ─────────────────────────────────────
-     3. DROPDOWN PERFIL TOPBAR
+     1. DROPDOWN PERFIL TOPBAR
   ───────────────────────────────────────── */
   const topbarAvatarBtn = document.getElementById('topbarAvatarBtn');
   const topbarDropdown = document.getElementById('topbarDropdown');
@@ -316,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (e.key === 'Escape') {
       closeDropdown();
-      closeSidebar();
     }
   });
 
@@ -381,10 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => { window.location.href = 'login.html'; }, 400);
     }
   };
-  document.getElementById('sidebarLogout')?.addEventListener('click', e => {
-    e.preventDefault();
-    handleLogout();
-  });
   document.getElementById('topbarLogout')?.addEventListener('click', handleLogout);
 
   /* ─────────────────────────────────────

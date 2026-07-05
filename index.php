@@ -85,6 +85,31 @@ switch ($request) {
         break;
     //ESTAS SON LAS RUTAS PARA EL CONTROLADOR
 
+    case 'api/estudiantes/crear':
+        require_once BASE_PATH . '/app/controllers/EstudianteController.php';
+        (new EstudianteController())->crear();
+        break;
+
+    case 'api/estudiantes/actualizar':
+        require_once BASE_PATH . '/app/controllers/EstudianteController.php';
+        (new EstudianteController())->actualizar();
+        break;
+
+    case 'api/estudiantes/eliminar':
+        require_once BASE_PATH . '/app/controllers/EstudianteController.php';
+        (new EstudianteController())->eliminar();
+        break;
+
+    case 'api/estudiantes/obtener':
+        require_once BASE_PATH . '/app/controllers/EstudianteController.php';
+        (new EstudianteController())->obtener();
+        break;
+
+    case 'api/estudiantes/listar':
+        require_once BASE_PATH . '/app/controllers/EstudianteController.php';
+        (new EstudianteController())->listar();
+        break;
+
     default:
         // Si la ruta no coincide con ninguna de las anteriores, mostrar un error 404
         http_response_code(404);

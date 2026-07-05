@@ -1,11 +1,31 @@
+<?php
+require_once __DIR__ . '/../../../models/Estudiante.php';
+
+$idEstudiante = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$estudianteEdicion = null;
+if ($idEstudiante > 0) {
+    $estudianteEdicion = (new Estudiante())->obtenerPorId($idEstudiante);
+}
+
+// El enum de parentesco en BD tiene variantes (abuelo/abuela, tio/tia...)
+// que el <select> del wizard no distingue; se colapsan al valor más cercano.
+const PARENTESCO_DB_A_FORM = [
+    'madre' => 'madre', 'padre' => 'padre',
+    'abuelo' => 'abuelo', 'abuela' => 'abuelo',
+    'tio' => 'tio', 'tia' => 'tio',
+    'hermano' => 'hermano', 'hermana' => 'hermano',
+    'tutor_legal' => 'acudiente', 'otro' => 'otro',
+];
+?>
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registro de Estudiante — Colegio San Cristóbal</title>
+    <title><?= $estudianteEdicion ? 'Editar Estudiante' : 'Registro de Estudiante' ?> — Colegio San Cristóbal</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/css/admin.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/layouts/admin/css/Sidebar.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/css/registro_estudiante.css" />
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -34,8 +54,10 @@
                 <div class="ph-left">
                     <div class="ph-back">
                     </div>
-                    <h1 class="ph-title"><i class="fas fa-user-plus"></i> Registro de Estudiante</h1>
-                    <p class="ph-desc">Completa todos los pasos para registrar un nuevo estudiante en el sistema.</p>
+                    <h1 class="ph-title"><i class="fas fa-user-plus"></i> <?= $estudianteEdicion ? 'Editar Estudiante' : 'Registro de Estudiante' ?></h1>
+                    <p class="ph-desc"><?= $estudianteEdicion
+                        ? 'Actualiza la información del estudiante y guarda los cambios.'
+                        : 'Completa todos los pasos para registrar un nuevo estudiante en el sistema.' ?></p>
                 </div>
                 <div class="ph-right">
                     <div class="ph-progress-info">
@@ -104,6 +126,7 @@
                ══════════════════════════════════════════ -->
             <div class="wizard-body reveal">
                 <form class="wizard-form" id="wizardForm" novalidate>
+                    <input type="hidden" id="id_estudiante" name="id_estudiante" value="<?= $estudianteEdicion ? (int) $estudianteEdicion['id_estudiante'] : '' ?>" />
 
                     <!-- ─── PASO 1: Datos personales ─── -->
                     <div class="wf-panel active" id="panel-1">
@@ -738,7 +761,7 @@
                             Siguiente <i class="fas fa-arrow-right"></i>
                         </button>
                         <button type="submit" class="wf-btn-submit" id="btnSubmit" style="display:none;">
-                            <i class="fas fa-save"></i> Guardar registro
+                            <i class="fas fa-save"></i> <?= $estudianteEdicion ? 'Guardar cambios' : 'Guardar registro' ?>
                         </button>
                     </div>
 
@@ -767,15 +790,51 @@
                 <button class="me-btn-sec" id="btnNuevoRegistro">
                     <i class="fas fa-plus"></i> Nuevo registro
                 </button>
-                <a href="#estudiantes" class="me-btn-pri">
+                <a href="<?= BASE_URL ?>Listados" class="me-btn-pri">
                     <i class="fas fa-list"></i> Ver estudiantes
                 </a>
             </div>
         </div>
     </div>
 
+    <?php if ($estudianteEdicion): ?>
+    <script>
+        window.__ESTUDIANTE_EDICION__ = <?= json_encode([
+            'id_estudiante'   => (int) $estudianteEdicion['id_estudiante'],
+            'primerNombre'    => explode(' ', $estudianteEdicion['nombres'])[0] ?? '',
+            'segundoNombre'   => implode(' ', array_slice(explode(' ', $estudianteEdicion['nombres']), 1)),
+            'primerApellido'  => explode(' ', $estudianteEdicion['apellidos'])[0] ?? '',
+            'segundoApellido' => implode(' ', array_slice(explode(' ', $estudianteEdicion['apellidos']), 1)),
+            'tipoDoc'         => $estudianteEdicion['tipo_documento'],
+            'numDoc'          => $estudianteEdicion['numero_documento'],
+            'fechaNac'        => $estudianteEdicion['fecha_nacimiento'],
+            'genero'          => $estudianteEdicion['genero'],
+            'eps'             => $estudianteEdicion['eps_seguro'],
+            'condicion'       => $estudianteEdicion['observaciones_gral'],
+            'direccion'       => $estudianteEdicion['direccion'],
+            'telEstudiante'   => $estudianteEdicion['telefono'],
+            'emailEstudiante' => $estudianteEdicion['correo'],
+            'anioLectivo'     => $estudianteEdicion['anio_lectivo'],
+            'jornada'         => $estudianteEdicion['jornada'],
+            'tipoMatricula'   => $estudianteEdicion['tipo_matricula'],
+            'grado'           => $estudianteEdicion['nombre_curso'] ? rtrim($estudianteEdicion['nombre_curso'], 'ABCD') : '',
+            'grupo'           => $estudianteEdicion['nombre_curso'] ? substr($estudianteEdicion['nombre_curso'], -1) : '',
+            'acuNombres'      => $estudianteEdicion['acudiente']['nombres'] ?? '',
+            'acuParentesco'   => PARENTESCO_DB_A_FORM[$estudianteEdicion['acudiente']['parentesco'] ?? ''] ?? '',
+            'acuTipoDoc'      => $estudianteEdicion['acudiente']['tipo_documento'] ?? '',
+            'acuNumDoc'       => $estudianteEdicion['acudiente']['numero_documento'] ?? '',
+            'acuTel'          => $estudianteEdicion['acudiente']['telefono'] ?? '',
+            'acuEmail'        => $estudianteEdicion['acudiente']['correo'] ?? '',
+            'acuOcupacion'    => $estudianteEdicion['acudiente']['ocupacion'] ?? '',
+        ], JSON_UNESCAPED_UNICODE) ?>;
+    </script>
+    <?php endif; ?>
+
+    <script>window.BASE_URL_JS = "<?= BASE_URL ?>";</script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/admin.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/registro_estudiante.js"></script>
+    <script src="<?= BASE_URL ?>/public/assets/layouts/admin/js/Sidebar.js"></script>
 </body>
+</html>
 
 </html>

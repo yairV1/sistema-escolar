@@ -281,29 +281,80 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
   }
 
-  // ─── Submit ───
-  form.addEventListener('submit', (e) => {
+  // ─── Submit real: AJAX al controlador ───
+  const idEstudianteInput = document.getElementById('id_estudiante');
+  const esEdicion = !!(idEstudianteInput && idEstudianteInput.value);
+  const submitLabel = esEdicion ? 'Guardar cambios' : 'Guardar registro';
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateStep(currentStep)) return;
 
-    // Simular envío
     btnSubmit.disabled = true;
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
 
-    setTimeout(() => {
-      const codigo = generarCodigo();
-      if (codigoEl) codigoEl.textContent = codigo;
-      modalExito.classList.add('open');
+    try {
+      const url = (esEdicion ? 'api/estudiantes/actualizar' : 'api/estudiantes/crear');
+      const res = await fetch(BASE_URL_JS + url, {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        if (codigoEl) {
+          codigoEl.textContent = esEdicion
+            ? 'Cambios guardados'
+            : (json.data?.codigo_estudiante || '—');
+        }
+        modalExito.classList.add('open');
+      } else {
+        mostrarErroresServidor(json.errors || {});
+        if (json.message) alert(json.message);
+      }
+    } catch (err) {
+      alert('No se pudo conectar con el servidor. Intenta de nuevo.');
+    } finally {
       btnSubmit.disabled = false;
-      btnSubmit.innerHTML = '<i class="fas fa-save"></i> Guardar registro';
-    }, 1400);
+      btnSubmit.innerHTML = '<i class="fas fa-save"></i> ' + submitLabel;
+    }
   });
 
-  // ─── Generar código único ───
-  function generarCodigo() {
-    const year = new Date().getFullYear();
-    const rand = String(Math.floor(Math.random() * 9000) + 1000);
-    return `${year}-EST-${rand}`;
+  // ─── Mapear errores de validación del servidor a los pasos del wizard ───
+  const CAMPO_A_PASO = {
+    primerNombre: 1, segundoNombre: 1, primerApellido: 1, segundoApellido: 1,
+    tipoDoc: 1, numDoc: 1, fechaNac: 1, genero: 1,
+    direccion: 2, localidad: 2, ciudad: 2, emailEstudiante: 2, telEstudiante: 2,
+    tipoMatricula: 3, anioLectivo: 3, grado: 3, jornada: 3,
+    acuNombres: 4, acuParentesco: 4, acuTipoDoc: 4, acuNumDoc: 4, acuTel: 4, acuEmail: 4,
+  };
+
+  function mostrarErroresServidor(errores) {
+    let primerPaso = null;
+    Object.keys(errores).forEach((campo) => {
+      const el = document.getElementById(campo);
+      const err = document.getElementById('err-' + campo);
+      if (el) el.classList.add('error');
+      if (err) err.textContent = errores[campo];
+      const paso = CAMPO_A_PASO[campo];
+      if (paso && (primerPaso === null || paso < primerPaso)) primerPaso = paso;
+    });
+    if (primerPaso && primerPaso !== currentStep) {
+      currentStep = primerPaso;
+      updateWizardUI('back');
+    }
+  }
+
+  // ─── Precargar datos en modo edición ───
+  function precargarEdicion() {
+    const datos = window.__ESTUDIANTE_EDICION__;
+    if (!datos) return;
+    Object.keys(datos).forEach((campo) => {
+      const el = document.getElementById(campo);
+      if (!el || datos[campo] === null || datos[campo] === undefined) return;
+      el.value = datos[campo];
+    });
+    if (btnNuevo) btnNuevo.style.display = 'none';
   }
 
   // ─── Cerrar modal éxito ───
@@ -325,6 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ─── Inicializar ───
+  precargarEdicion();
   updateWizardUI('forward');
 
 });

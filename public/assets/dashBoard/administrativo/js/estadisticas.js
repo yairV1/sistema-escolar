@@ -359,16 +359,4 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ─── Init ─── */
   renderAll(actual);
 
-  // Redibujar donas si el layout cambia (sidebar colapsa, etc.)
-  document.getElementById('sidebarCollapse')?.addEventListener('click', () => {
-    setTimeout(() => {
-      drawDona('donaRendimiento', actual.rendimiento);
-      drawDona('donaRiesgo', [
-        { label:'En riesgo',  val:actual.riesgoCount,      color:'#e53e3e' },
-        { label:'Sin riesgo', val:1240-actual.riesgoCount, color:'#2d7a4f' },
-      ]);
-      drawDona('donaGenero', actual.genero);
-    }, 320);
-  });
-
 });

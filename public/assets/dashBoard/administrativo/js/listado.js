@@ -288,26 +288,50 @@ document.addEventListener('DOMContentLoaded', () => {
      9. BOTONES DE ACCIÓN EN FILAS
   ───────────────────────────────────────── */
   document.querySelectorAll('.lt-act-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', async e => {
       e.stopPropagation();
-      const row  = btn.closest('.lt-row');
-      const name = row?.querySelector('.lt-user-name')?.textContent.trim().split(' ⚠')[0] || 'Registro';
-      const icon = btn.querySelector('i');
+      const row    = btn.closest('.lt-row');
+      const name   = row?.querySelector('.lt-user-name')?.textContent.trim().split(' ⚠')[0] || 'Registro';
+      const icon   = btn.querySelector('i');
+      const id     = row?.dataset.id;
+      const entity = row?.dataset.entity; // 'estudiante' = respaldado por la API real
 
       if (icon.classList.contains('fa-eye')) {
         showToast(`Abriendo perfil de ${name}`, 'info');
       } else if (icon.classList.contains('fa-pen')) {
-        showToast(`Editando: ${name}`, 'info');
-      } else if (icon.classList.contains('fa-ban')) {
-        if (confirm(`¿Desactivar a ${name}?`)) {
-          row.style.opacity = '0.4';
-          const statusEl = row.querySelector('.lt-status');
-          if (statusEl) {
-            statusEl.className = 'lt-status inactivo';
-            statusEl.textContent = 'Inactivo';
-          }
-          showToast(`${name} desactivado.`, 'success');
+        if (entity === 'estudiante' && id) {
+          window.location.href = `${window.BASE_URL_JS || ''}RegistroEstudiantes?id=${id}`;
+        } else {
+          showToast(`Editando: ${name}`, 'info');
         }
+      } else if (icon.classList.contains('fa-ban')) {
+        if (!confirm(`¿Desactivar a ${name}?`)) return;
+
+        if (entity === 'estudiante' && id) {
+          try {
+            const res = await fetch(`${window.BASE_URL_JS || ''}api/estudiantes/eliminar`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `id=${encodeURIComponent(id)}`,
+            });
+            const json = await res.json();
+            if (!json.success) {
+              showToast(json.message || 'No se pudo desactivar.', 'error');
+              return;
+            }
+          } catch (err) {
+            showToast('No se pudo conectar con el servidor.', 'error');
+            return;
+          }
+        }
+
+        row.style.opacity = '0.4';
+        const statusEl = row.querySelector('.lt-status');
+        if (statusEl) {
+          statusEl.className = 'lt-status inactivo';
+          statusEl.textContent = 'Inactivo';
+        }
+        showToast(`${name} desactivado.`, 'success');
       }
     });
   });

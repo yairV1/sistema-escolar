@@ -18,8 +18,7 @@
   --fuente-titulo:   'Playfair Display', serif;
   --fuente-cuerpo:   'DM Sans', sans-serif;
 
-  --sidebar-w:       248px;
-  --sidebar-w-col:   64px;
+  --sidebar-w:       268px;
   --topbar-h:        60px;
   --radio:           14px;
   --radio-sm:        8px;
@@ -31,176 +30,14 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { font-family: var(--fuente-cuerpo); background: var(--gris-claro); color: var(--gris-oscuro); min-height: 100vh; }
+body { font-family: var(--fuente-cuerpo); background: var(--gris-claro); color: var(--gris-oscuro); min-height: 100vh; margin-left: var(--sidebar-w); transition: margin-left 200ms ease; }
 a { text-decoration: none; color: inherit; }
 
-/* ========================================
-   SIDEBAR
-   ======================================== */
-.sidebar {
-  position: fixed;
-  top: 0; left: 0;
-  width: var(--sidebar-w);
-  height: 100%;
-  background: var(--blanco);
-  border-right: 1.5px solid var(--gris-borde);
-  box-shadow: 2px 0 16px rgba(30,84,54,0.07);
-  display: flex;
-  flex-direction: column;
-  z-index: 400;
-  transition: width 0.3s ease;
-  overflow: hidden;
-}
-
-.sidebar.collapsed {
-  width: var(--sidebar-w-col);
-}
-
-/* Header del sidebar */
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 14px;
-  border-bottom: 1.5px solid var(--gris-borde);
-  min-height: var(--topbar-h);
-  flex-shrink: 0;
-}
-
-.sidebar-logo {
-  width: 36px; height: 36px;
-  background: var(--verde-principal);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 0.95rem;
-  box-shadow: 0 3px 10px rgba(45,122,79,0.35);
-  flex-shrink: 0;
-  transition: var(--transicion);
-}
-.sidebar-logo:hover { transform: rotate(-6deg) scale(1.05); }
-
-.sidebar-brand { flex: 1; overflow: hidden; white-space: nowrap; }
-.sb-name { display: block; font-family: var(--fuente-titulo); font-size: 0.95rem; color: var(--gris-oscuro); }
-.sb-sub  { display: block; font-size: 0.65rem; color: var(--verde-principal); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-
-.sidebar-collapse {
-  width: 28px; height: 28px;
-  border: 1.5px solid var(--gris-borde);
-  border-radius: 50%;
-  background: white;
-  color: var(--gris-texto);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.7rem;
-  flex-shrink: 0;
-  transition: var(--transicion);
-}
-.sidebar-collapse:hover { background: var(--verde-claro); color: var(--verde-principal); border-color: var(--verde-suave); }
-.sidebar.collapsed .sidebar-collapse i { transform: rotate(180deg); }
-
-/* Usuario en sidebar */
-.sidebar-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1.5px solid var(--gris-borde);
-  background: var(--verde-claro);
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.sidebar-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--verde-principal), var(--verde-medio));
-  color: white; font-size: 0.78rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; letter-spacing: 0.04em;
-}
-
-.sidebar-user-info { overflow: hidden; white-space: nowrap; }
-.su-name { font-size: 0.82rem; font-weight: 700; color: var(--gris-oscuro); }
-.su-role { font-size: 0.68rem; color: var(--verde-principal); font-weight: 600; }
-
-/* Navegación */
-.sidebar-nav {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 12px 10px 20px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--gris-borde) transparent;
-}
-
-.nav-group-label {
-  display: block;
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--gris-texto);
-  padding: 12px 6px 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  transition: opacity 0.2s;
-}
-.sidebar.collapsed .nav-group-label { opacity: 0; }
-
-.sidebar-nav ul { list-style: none; margin-bottom: 4px; }
-
-.slink {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: var(--radio-sm);
-  color: var(--gris-texto);
-  font-size: 0.83rem;
-  font-weight: 500;
-  transition: var(--transicion);
-  white-space: nowrap;
-  overflow: hidden;
-  margin-bottom: 2px;
-}
-.slink i {
-  font-size: 0.9rem;
-  width: 18px;
-  text-align: center;
-  flex-shrink: 0;
-  color: var(--gris-texto);
-  transition: var(--transicion);
-}
-.slink span:first-of-type { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-.slink:hover { background: var(--verde-claro); color: var(--verde-principal); }
-.slink:hover i { color: var(--verde-principal); }
-.slink.active { background: var(--verde-principal); color: white; font-weight: 600; }
-.slink.active i { color: white; }
-
-.slink.logout { color: #e53e3e; margin-top: 4px; }
-.slink.logout i { color: #e53e3e; }
-.slink.logout:hover { background: #fff5f5; color: #c53030; }
-
-.slink-badge {
-  font-size: 0.62rem; font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 12px;
-  background: var(--verde-claro);
-  color: var(--verde-oscuro);
-  flex-shrink: 0;
-  transition: opacity 0.2s;
-}
-.slink-badge.new   { background: #fff7ed; color: #dd6b20; }
-.slink-badge.alert { background: #fff5f5; color: #e53e3e; }
-.sidebar.collapsed .slink-badge { opacity: 0; width: 0; padding: 0; overflow: hidden; }
-
-/* Sidebar colapsado — tooltips */
-.sidebar.collapsed .slink {
-  justify-content: center;
-  padding: 10px;
-}
-.sidebar.collapsed .slink span { display: none; }
-.sidebar.collapsed .slink i { width: auto; }
+/* El sidebar informa su ancho real (expandido/colapsado) marcando
+   esta clase en <body> (ver Sidebar.js). Así el contenido principal
+   siempre se adapta al ancho actual del sidebar. */
+body.sidebar-collapsed { margin-left: var(--sb-width-collapsed, 76px); }
+body.sidebar-collapsed .topbar { left: var(--sb-width-collapsed, 76px); }
 
 /* ========================================
    TOPBAR
@@ -219,23 +56,11 @@ a { text-decoration: none; color: inherit; }
   justify-content: space-between;
   padding: 0 24px;
   z-index: 300;
-  transition: left 0.3s ease;
+  transition: left 200ms ease;
 }
-.topbar.sidebar-collapsed { left: var(--sidebar-w-col); }
 
 .topbar-left  { display: flex; align-items: center; gap: 14px; }
 .topbar-right { display: flex; align-items: center; gap: 8px; }
-
-.topbar-menu {
-  display: none;
-  width: 36px; height: 36px;
-  border: none; background: none;
-  border-radius: var(--radio-sm);
-  color: var(--gris-texto); font-size: 1rem;
-  cursor: pointer; align-items: center; justify-content: center;
-  transition: var(--transicion);
-}
-.topbar-menu:hover { background: var(--verde-claro); color: var(--verde-principal); }
 
 .topbar-breadcrumb { display: flex; align-items: center; gap: 8px; }
 .breadcrumb-root { font-size: 0.78rem; color: var(--gris-texto); }
@@ -333,20 +158,14 @@ a { text-decoration: none; color: inherit; }
 .td-logout { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 18px; background: none; border: none; color: #e53e3e; font-family: var(--fuente-cuerpo); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transicion); }
 .td-logout:hover { background: #fff5f5; }
 
-/* Overlay móvil */
-.admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 350; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
-.admin-overlay.visible { opacity: 1; pointer-events: auto; }
-
 /* ========================================
    MAIN CONTENT
    ======================================== */
 .admin-main {
-  margin-left: var(--sidebar-w);
+  margin-left: 0;
   padding-top: var(--topbar-h);
   min-height: 100vh;
-  transition: margin-left 0.3s ease;
 }
-.admin-main.sidebar-collapsed { margin-left: var(--sidebar-w-col); }
 
 .admin-container {
   max-width: 1500px;
@@ -723,6 +542,13 @@ a { text-decoration: none; color: inherit; }
 /* ========================================
    RESPONSIVE
    ======================================== */
+/* El sidebar pasa a overlay bajo 1024px (ver Sidebar.css),
+   así que el contenido ya no debe reservarle espacio fijo. */
+@media (max-width: 1024px) {
+  body, body.sidebar-collapsed { margin-left: 0; }
+  .topbar, body.sidebar-collapsed .topbar { left: 0; }
+}
+
 @media (max-width: 1280px) {
   .admin-kpis { grid-template-columns: repeat(3,1fr); }
   .reportes-grid { grid-template-columns: repeat(2,1fr); }
@@ -740,11 +566,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); width: var(--sidebar-w) !important; }
-  .sidebar.mobile-open { transform: translateX(0); }
-  .topbar { left: 0 !important; }
-  .admin-main { margin-left: 0 !important; }
-  .topbar-menu { display: flex; }
   .topbar-search { display: none; }
   .topbar-avatar-name { display: none; }
   .admin-container { padding: 16px 12px 40px; gap: 16px; }

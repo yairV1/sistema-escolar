@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reportes y Boletines — Colegio San Cristóbal</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/css/admin.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/layouts/admin/css/Sidebar.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/css/reportes.css" />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -845,6 +846,7 @@
 
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/admin.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/reportes.js"></script>
+    <script src="<?= BASE_URL ?>/public/assets/layouts/admin/js/Sidebar.js"></script>
 </body>
 
 </html>

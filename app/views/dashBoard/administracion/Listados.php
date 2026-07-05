@@ -1,3 +1,26 @@
+<?php
+require_once __DIR__ . '/../../../models/Estudiante.php';
+
+$estudiantes = (new Estudiante())->listar();
+$totalEst = count($estudiantes);
+$activosEst = count(array_filter($estudiantes, fn($e) => $e['estado_academico'] === 'activo'));
+$inactivosEst = $totalEst - $activosEst;
+
+$avatarPalette = [
+    ['bg' => '#e8f5ee', 'fg' => '#2d7a4f'], ['bg' => '#eff6ff', 'fg' => '#3182ce'],
+    ['bg' => '#fff7ed', 'fg' => '#dd6b20'], ['bg' => '#faf5ff', 'fg' => '#6b46c1'],
+    ['bg' => '#e0f2fe', 'fg' => '#0891b2'], ['bg' => '#fff5f5', 'fg' => '#e53e3e'],
+];
+
+function gradoLabel(?string $nombreCurso): string
+{
+    if (!$nombreCurso) return '—';
+    $grado = rtrim($nombreCurso, 'ABCD');
+    $grupo = substr($nombreCurso, strlen($grado));
+    $label = $grado === 'PRE' ? 'Preescolar' : $grado . '°';
+    return $grupo !== '' ? "$label$grupo" : $label;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,6 +29,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Listade de Docentes y Estudiantes — Colegio San Cristóbal</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/css/admin.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/layouts/admin/css/Sidebar.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/css/listado.css" />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -50,7 +74,7 @@
                     <button class="lt-tab active" data-tab="estudiantes">
                         <i class="fas fa-user-graduate"></i>
                         <span>Estudiantes</span>
-                        <span class="lt-tab-count" id="countEstudiantes">1,240</span>
+                        <span class="lt-tab-count" id="countEstudiantes"><?= $totalEst ?></span>
                     </button>
 
                     <button class="lt-tab" data-tab="docentes">
@@ -124,22 +148,17 @@
                 <!-- Resumen rápido -->
                 <div class="lt-summary-strip" id="summaryEst">
                     <div class="lss-item">
-                        <strong id="totalEstMostrados">1,240</strong>
+                        <strong id="totalEstMostrados"><?= $totalEst ?></strong>
                         <span>Total</span>
                     </div>
                     <div class="lss-sep"></div>
                     <div class="lss-item green">
-                        <strong>1,212</strong>
+                        <strong><?= $activosEst ?></strong>
                         <span>Activos</span>
                     </div>
                     <div class="lss-sep"></div>
-                    <div class="lss-item red">
-                        <strong>8</strong>
-                        <span>En riesgo</span>
-                    </div>
-                    <div class="lss-sep"></div>
                     <div class="lss-item gray">
-                        <strong>20</strong>
+                        <strong><?= $inactivosEst ?></strong>
                         <span>Inactivos</span>
                     </div>
                 </div>
@@ -158,230 +177,66 @@
                                 <th class="th-sort" data-col="nombre">Estudiante <i class="fas fa-sort"></i></th>
                                 <th class="th-sort" data-col="codigo">Código <i class="fas fa-sort"></i></th>
                                 <th class="th-sort" data-col="grado">Grado <i class="fas fa-sort"></i></th>
-                                <th class="th-sort" data-col="prom">Promedio <i class="fas fa-sort"></i></th>
-                                <th class="th-sort" data-col="asist">Asistencia <i class="fas fa-sort"></i></th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="bodyEstudiantes">
-
-                            <tr class="lt-row" data-grado="11" data-estado="activo" data-jornada="manana">
-                                <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
-                                <td>
-                                    <div class="lt-user-cell">
-                                        <div class="lt-avatar" style="background:#e8f5ee;color:#2d7a4f">JS</div>
-                                        <div class="lt-user-info">
-                                            <p class="lt-user-name">Juan Suárez</p>
-                                            <p class="lt-user-sub">jsuarez@sancristobal.edu.co</p>
+                            <?php foreach ($estudiantes as $i => $est): ?>
+                                <?php
+                                $nombreCompleto = $est['nombres'] . ' ' . $est['apellidos'];
+                                $iniciales = mb_strtoupper(mb_substr($est['nombres'], 0, 1) . mb_substr($est['apellidos'], 0, 1));
+                                $color = $avatarPalette[$i % count($avatarPalette)];
+                                $grado = $est['nombre_curso'] ? rtrim($est['nombre_curso'], 'ABCD') : '';
+                                $gradoData = $grado === 'PRE' ? 'Preescolar' : $grado;
+                                $estadoData = $est['estado_academico'] === 'activo' ? 'activo' : 'inactivo';
+                                ?>
+                                <tr class="lt-row" data-id="<?= (int) $est['id_estudiante'] ?>" data-entity="estudiante"
+                                    data-grado="<?= htmlspecialchars($gradoData) ?>" data-estado="<?= $estadoData ?>"
+                                    data-jornada="<?= htmlspecialchars($est['jornada'] ?? '') ?>">
+                                    <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
+                                    <td>
+                                        <div class="lt-user-cell">
+                                            <div class="lt-avatar" style="background:<?= $color['bg'] ?>;color:<?= $color['fg'] ?>"><?= htmlspecialchars($iniciales) ?></div>
+                                            <div class="lt-user-info">
+                                                <p class="lt-user-name"><?= htmlspecialchars($nombreCompleto) ?></p>
+                                                <p class="lt-user-sub"><?= htmlspecialchars($est['correo']) ?></p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td><code class="lt-code">2024-EST-0001</code></td>
-                                <td><span class="lt-grado-pill">11°A</span></td>
-                                <td><span class="lt-prom green">4.3</span></td>
-                                <td>
-                                    <div class="lt-asist-wrap">
-                                        <div class="lt-asist-bar">
-                                            <div class="lt-asist-fill" style="width:96%"></div>
+                                    </td>
+                                    <td><code class="lt-code"><?= htmlspecialchars($est['codigo_estudiante']) ?></code></td>
+                                    <td><span class="lt-grado-pill"><?= htmlspecialchars(gradoLabel($est['nombre_curso'])) ?></span></td>
+                                    <td><span class="lt-status <?= $est['estado_academico'] === 'activo' ? 'activo' : 'inactivo' ?>"><?= ucfirst($est['estado_academico']) ?></span></td>
+                                    <td>
+                                        <div class="lt-actions">
+                                            <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
+                                            <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
+                                            <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
                                         </div>
-                                        <span>96%</span>
-                                    </div>
-                                </td>
-                                <td><span class="lt-status activo">Activo</span></td>
-                                <td>
-                                    <div class="lt-actions">
-                                        <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
-                                        <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                                        <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="lt-row" data-grado="11" data-estado="activo" data-jornada="manana">
-                                <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
-                                <td>
-                                    <div class="lt-user-cell">
-                                        <div class="lt-avatar" style="background:#eff6ff;color:#3182ce">LM</div>
-                                        <div class="lt-user-info">
-                                            <p class="lt-user-name">Laura Martínez</p>
-                                            <p class="lt-user-sub">lmartinez@sancristobal.edu.co</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><code class="lt-code">2024-EST-0002</code></td>
-                                <td><span class="lt-grado-pill">11°A</span></td>
-                                <td><span class="lt-prom green">4.6</span></td>
-                                <td>
-                                    <div class="lt-asist-wrap">
-                                        <div class="lt-asist-bar">
-                                            <div class="lt-asist-fill" style="width:99%"></div>
-                                        </div>
-                                        <span>99%</span>
-                                    </div>
-                                </td>
-                                <td><span class="lt-status activo">Activo</span></td>
-                                <td>
-                                    <div class="lt-actions">
-                                        <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
-                                        <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                                        <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="lt-row riesgo" data-grado="8" data-estado="riesgo" data-jornada="manana">
-                                <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
-                                <td>
-                                    <div class="lt-user-cell">
-                                        <div class="lt-avatar" style="background:#fff5f5;color:#e53e3e">DG</div>
-                                        <div class="lt-user-info">
-                                            <p class="lt-user-name">Diego González <span class="lt-riesgo-tag">⚠ Riesgo</span></p>
-                                            <p class="lt-user-sub">dgonzalez@sancristobal.edu.co</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><code class="lt-code">2024-EST-0187</code></td>
-                                <td><span class="lt-grado-pill orange">8°A</span></td>
-                                <td><span class="lt-prom red">2.9</span></td>
-                                <td>
-                                    <div class="lt-asist-wrap">
-                                        <div class="lt-asist-bar">
-                                            <div class="lt-asist-fill low" style="width:65%"></div>
-                                        </div>
-                                        <span class="red-text">65%</span>
-                                    </div>
-                                </td>
-                                <td><span class="lt-status riesgo">En riesgo</span></td>
-                                <td>
-                                    <div class="lt-actions">
-                                        <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
-                                        <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                                        <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="lt-row" data-grado="10" data-estado="activo" data-jornada="tarde">
-                                <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
-                                <td>
-                                    <div class="lt-user-cell">
-                                        <div class="lt-avatar" style="background:#fef3c7;color:#d97706">CP</div>
-                                        <div class="lt-user-info">
-                                            <p class="lt-user-name">Carlos Pérez</p>
-                                            <p class="lt-user-sub">cperez@sancristobal.edu.co</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><code class="lt-code">2024-EST-0058</code></td>
-                                <td><span class="lt-grado-pill blue">10°B</span></td>
-                                <td><span class="lt-prom orange">3.4</span></td>
-                                <td>
-                                    <div class="lt-asist-wrap">
-                                        <div class="lt-asist-bar">
-                                            <div class="lt-asist-fill med" style="width:78%"></div>
-                                        </div>
-                                        <span>78%</span>
-                                    </div>
-                                </td>
-                                <td><span class="lt-status activo">Activo</span></td>
-                                <td>
-                                    <div class="lt-actions">
-                                        <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
-                                        <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                                        <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="lt-row" data-grado="9" data-estado="activo" data-jornada="manana">
-                                <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
-                                <td>
-                                    <div class="lt-user-cell">
-                                        <div class="lt-avatar" style="background:#faf5ff;color:#6b46c1">SR</div>
-                                        <div class="lt-user-info">
-                                            <p class="lt-user-name">Sofía Rojas</p>
-                                            <p class="lt-user-sub">srojas@sancristobal.edu.co</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><code class="lt-code">2024-EST-0112</code></td>
-                                <td><span class="lt-grado-pill purple">9°C</span></td>
-                                <td><span class="lt-prom green">4.5</span></td>
-                                <td>
-                                    <div class="lt-asist-wrap">
-                                        <div class="lt-asist-bar">
-                                            <div class="lt-asist-fill" style="width:95%"></div>
-                                        </div>
-                                        <span>95%</span>
-                                    </div>
-                                </td>
-                                <td><span class="lt-status activo">Activo</span></td>
-                                <td>
-                                    <div class="lt-actions">
-                                        <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
-                                        <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                                        <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="lt-row" data-grado="7" data-estado="activo" data-jornada="tarde">
-                                <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
-                                <td>
-                                    <div class="lt-user-cell">
-                                        <div class="lt-avatar" style="background:#e0f2fe;color:#0891b2">AM</div>
-                                        <div class="lt-user-info">
-                                            <p class="lt-user-name">Ana Moreno</p>
-                                            <p class="lt-user-sub">amoreno@sancristobal.edu.co</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><code class="lt-code">2024-EST-0234</code></td>
-                                <td><span class="lt-grado-pill teal">7°B</span></td>
-                                <td><span class="lt-prom green">4.1</span></td>
-                                <td>
-                                    <div class="lt-asist-wrap">
-                                        <div class="lt-asist-bar">
-                                            <div class="lt-asist-fill" style="width:91%"></div>
-                                        </div>
-                                        <span>91%</span>
-                                    </div>
-                                </td>
-                                <td><span class="lt-status activo">Activo</span></td>
-                                <td>
-                                    <div class="lt-actions">
-                                        <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
-                                        <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                                        <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
 
                     <!-- Empty state -->
-                    <div class="lt-empty" id="emptyEst" style="display:none;">
+                    <div class="lt-empty" id="emptyEst" style="display:<?= $totalEst === 0 ? 'flex' : 'none' ?>;">
                         <i class="fas fa-user-graduate"></i>
-                        <p>No se encontraron estudiantes con los filtros aplicados.</p>
-                        <button class="lt-empty-reset" onclick="resetFiltrosEst()">Limpiar filtros</button>
+                        <p><?= $totalEst === 0
+                            ? 'Todavía no hay estudiantes registrados.'
+                            : 'No se encontraron estudiantes con los filtros aplicados.' ?></p>
+                        <?php if ($totalEst === 0): ?>
+                            <a href="<?= BASE_URL ?>RegistroEstudiantes" class="lt-empty-reset">Registrar el primero</a>
+                        <?php else: ?>
+                            <button class="lt-empty-reset" onclick="resetFiltrosEst()">Limpiar filtros</button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Paginación -->
                 <div class="lt-pagination" id="paginEst">
                     <div class="lt-page-info">
-                        Mostrando <strong>1–6</strong> de <strong>1,240</strong> estudiantes
-                    </div>
-                    <div class="lt-page-btns">
-                        <button class="lt-page-btn" disabled><i class="fas fa-chevron-left"></i></button>
-                        <button class="lt-page-btn active">1</button>
-                        <button class="lt-page-btn">2</button>
-                        <button class="lt-page-btn">3</button>
-                        <span class="lt-page-dots">…</span>
-                        <button class="lt-page-btn">207</button>
-                        <button class="lt-page-btn"><i class="fas fa-chevron-right"></i></button>
+                        Mostrando <strong><?= $totalEst ?></strong> de <strong><?= $totalEst ?></strong> estudiantes
                     </div>
                 </div>
 
@@ -729,8 +584,10 @@
     <!-- Toast container -->
     <div id="toastContainer"></div>
 
+    <script>window.BASE_URL_JS = "<?= BASE_URL ?>";</script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/admin.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/listado.js"></script>
+    <script src="<?= BASE_URL ?>/public/assets/layouts/admin/js/Sidebar.js"></script>
 </body>
 
 </html>
