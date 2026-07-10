@@ -89,7 +89,7 @@
           <i class="fas fa-chalkboard-teacher"></i>
           <span>Docente</span>
         </button>
-        <button class="role-btn" data-role="rector">
+        <button class="role-btn" data-role="admin">
           <i class="fas fa-user-tie"></i>
           <span>Administrativo</span>
         </button>
@@ -195,11 +195,16 @@
       </button>
       <div class="modal-success" id="modalSuccess" style="display:none;">
         <i class="fas fa-check-circle"></i>
-        <span>¡Correo enviado! Revisa tu bandeja de entrada.</span>
+        <span id="modalSuccessText">¡Correo enviado! Revisa tu bandeja de entrada.</span>
+      </div>
+      <div class="modal-error" id="modalError" style="display:none; color:#e53e3e; margin-top:14px; font-weight:600; text-align:center;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="modalErrorText"></span>
       </div>
     </div>
   </div>
 
+  <script>window.BASE_URL_JS = "<?= BASE_URL ?>";</script>
   <script src="<?= BASE_URL ?>/public/assets/auth/js/login.js"></script>
 </body>
 </html>

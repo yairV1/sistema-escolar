@@ -19,12 +19,6 @@
     <div class="admin-overlay" id="adminOverlay"></div>
 
     <!-- =====================================================
-       TOPBAR
-       ===================================================== -->
-
-    <?php include_once __DIR__ . '/../../layouts/administrativo/Nav.php'; ?>
-
-    <!-- =====================================================
        CONTENIDO PRINCIPAL
        ===================================================== -->
     <main class="admin-main" id="adminMain">

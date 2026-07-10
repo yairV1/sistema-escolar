@@ -100,6 +100,23 @@ class Usuario
         $stmt->execute(['estado' => $estado, 'id' => $idUsuario]);
     }
 
+    /** Marca la hora del último inicio de sesión exitoso. */
+    public function registrarAcceso(int $idUsuario): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE usuarios SET ultimo_acceso = NOW() WHERE id_usuario = :id');
+        $stmt->execute(['id' => $idUsuario]);
+    }
+
+    /** Actualiza la contraseña (se recibe en texto plano y se hashea aquí). */
+    public function actualizarPassword(int $idUsuario, string $passwordPlano): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE usuarios SET password = :password WHERE id_usuario = :id');
+        $stmt->execute([
+            'password' => password_hash($passwordPlano, PASSWORD_BCRYPT),
+            'id'       => $idUsuario,
+        ]);
+    }
+
     public function pdo(): PDO
     {
         return $this->pdo;

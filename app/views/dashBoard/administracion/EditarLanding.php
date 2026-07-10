@@ -16,7 +16,6 @@
 
     <?php include_once __DIR__ . '/../../layouts/administrativo/sidebar.php'; ?>
     <div class="admin-overlay" id="adminOverlay"></div>
-    <?php include_once __DIR__ . '/../../layouts/administrativo/nav.php'; ?>
     <!-- ══════════════════════════════════════
        TOPBAR DEL CMS
        ══════════════════════════════════════ -->
