@@ -19,7 +19,6 @@
   --fuente-cuerpo:   'DM Sans', sans-serif;
 
   --sidebar-w:       268px;
-  --topbar-h:        60px;
   --radio:           14px;
   --radio-sm:        8px;
   --radio-lg:        20px;
@@ -37,114 +36,11 @@ a { text-decoration: none; color: inherit; }
    esta clase en <body> (ver Sidebar.js). Así el contenido principal
    siempre se adapta al ancho actual del sidebar. */
 body.sidebar-collapsed { margin-left: var(--sb-width-collapsed, 76px); }
-body.sidebar-collapsed .topbar { left: var(--sb-width-collapsed, 76px); }
 
 /* ========================================
-   TOPBAR
+   PERFIL Y CERRAR SESIÓN
+   (usadas ahora en el pie del sidebar, ver Sidebar.css)
    ======================================== */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: var(--sidebar-w);
-  right: 0;
-  height: var(--topbar-h);
-  background: var(--blanco);
-  border-bottom: 1.5px solid var(--gris-borde);
-  box-shadow: 0 2px 16px rgba(30,84,54,0.07);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  z-index: 300;
-  transition: left 200ms ease;
-}
-
-.topbar-left  { display: flex; align-items: center; gap: 14px; }
-.topbar-right { display: flex; align-items: center; gap: 8px; }
-
-.topbar-breadcrumb { display: flex; align-items: center; gap: 8px; }
-.breadcrumb-root { font-size: 0.78rem; color: var(--gris-texto); }
-.topbar-breadcrumb i { font-size: 0.6rem; color: var(--gris-texto); }
-.breadcrumb-page { font-size: 0.85rem; font-weight: 700; color: var(--gris-oscuro); }
-
-/* Buscador topbar */
-.topbar-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--gris-claro);
-  border: 1.5px solid var(--gris-borde);
-  border-radius: 30px;
-  padding: 6px 14px;
-  transition: var(--transicion);
-}
-.topbar-search:focus-within { border-color: var(--verde-principal); background: white; box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
-.topbar-search i   { color: var(--gris-texto); font-size: 0.8rem; }
-.topbar-search input {
-  border: none; outline: none;
-  background: transparent;
-  font-family: var(--fuente-cuerpo);
-  font-size: 0.83rem; color: var(--gris-oscuro);
-  width: 200px;
-}
-.topbar-search input::placeholder { color: #b0bfb0; }
-.topbar-search kbd {
-  background: var(--gris-borde);
-  color: var(--gris-texto);
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-/* Icono topbar */
-.topbar-icon-btn {
-  position: relative;
-  width: 36px; height: 36px;
-  border: none; background: none;
-  border-radius: var(--radio-sm);
-  color: var(--gris-texto); font-size: 0.9rem;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: var(--transicion);
-}
-.topbar-icon-btn:hover { background: var(--verde-claro); color: var(--verde-principal); }
-.topbar-dot {
-  position: absolute; top: 7px; right: 7px;
-  width: 7px; height: 7px;
-  background: #e53e3e; border-radius: 50%; border: 1.5px solid white;
-}
-
-/* Perfil topbar */
-.topbar-profile { position: relative; margin-left: 4px; }
-.topbar-avatar-btn {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 10px 5px 5px;
-  border: 1.5px solid var(--gris-borde); border-radius: 30px;
-  background: white; cursor: pointer; transition: var(--transicion);
-}
-.topbar-avatar-btn:hover { border-color: var(--verde-suave); background: var(--verde-claro); }
-.topbar-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--verde-principal), var(--verde-medio));
-  color: white; font-size: 0.72rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-.topbar-avatar-name { font-size: 0.78rem; font-weight: 600; color: var(--gris-oscuro); white-space: nowrap; }
-.topbar-profile .fas.fa-chevron-down { font-size: 0.65rem; color: var(--gris-texto); transition: transform 0.2s; }
-.topbar-profile .fas.fa-chevron-down.open { transform: rotate(180deg); }
-
-/* Dropdown topbar */
-.topbar-dropdown {
-  position: absolute; top: calc(100% + 10px); right: 0;
-  width: 250px; background: white;
-  border: 1.5px solid var(--gris-borde); border-radius: var(--radio);
-  box-shadow: 0 12px 40px rgba(30,84,54,0.14);
-  opacity: 0; pointer-events: none;
-  transform: translateY(-8px) scale(0.97);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  overflow: hidden; z-index: 600;
-}
-.topbar-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
 .td-header { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--verde-claro); }
 .td-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--verde-principal), var(--verde-medio)); color: white; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .td-name  { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
@@ -163,7 +59,6 @@ body.sidebar-collapsed .topbar { left: var(--sb-width-collapsed, 76px); }
    ======================================== */
 .admin-main {
   margin-left: 0;
-  padding-top: var(--topbar-h);
   min-height: 100vh;
 }
 
@@ -546,7 +441,8 @@ body.sidebar-collapsed .topbar { left: var(--sb-width-collapsed, 76px); }
    así que el contenido ya no debe reservarle espacio fijo. */
 @media (max-width: 1024px) {
   body, body.sidebar-collapsed { margin-left: 0; }
-  .topbar, body.sidebar-collapsed .topbar { left: 0; }
+  /* Deja espacio para el botón hamburguesa flotante del sidebar (Sidebar.css) */
+  .admin-main { padding-top: 64px; }
 }
 
 @media (max-width: 1280px) {
@@ -566,8 +462,6 @@ body.sidebar-collapsed .topbar { left: var(--sb-width-collapsed, 76px); }
 }
 
 @media (max-width: 768px) {
-  .topbar-search { display: none; }
-  .topbar-avatar-name { display: none; }
   .admin-container { padding: 16px 12px 40px; gap: 16px; }
   .admin-kpis { grid-template-columns: repeat(2,1fr); }
   .reportes-grid { grid-template-columns: 1fr 1fr; }

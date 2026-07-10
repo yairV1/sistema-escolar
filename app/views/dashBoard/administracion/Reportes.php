@@ -17,7 +17,6 @@
     <!-- Sidebar y Nav van con PHP includes -->
     <?php include_once __DIR__ . '/../../layouts/administrativo/sidebar.php'; ?>
     <div class="admin-overlay" id="adminOverlay"></div>
-    <?php include_once __DIR__ . '/../../layouts/administrativo/nav.php'; ?>
 
     <main class="admin-main" id="adminMain">
         <div class="admin-container">

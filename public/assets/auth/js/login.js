@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnRecovery = document.getElementById('btnRecovery');
     const recoveryEmail = document.getElementById('recoveryEmail');
     const modalSuccess = document.getElementById('modalSuccess');
+    const modalSuccessText = document.getElementById('modalSuccessText');
+    const modalError = document.getElementById('modalError');
+    const modalErrorText = document.getElementById('modalErrorText');
 
     /* ==========================================
        1. SELECTOR DE ROL — cambia placeholder y label
@@ -43,9 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
             label: 'Correo institucional',
             placeholder: 'Ej. rector@sancristobal.edu.co'
         },
-        administracion: {
+        admin: {
             label: 'Correo institucional',
-            placeholder: 'Ej. administracion@sancristobal.edu.co'
+            placeholder: 'Ej. administrativo@sancristobal.edu.co'
         }
 
     };
@@ -110,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!usuario) {
             showFieldError(usuarioInput, usuarioError, 'Este campo es obligatorio');
             valid = false;
-        } else if (activeRole === 'docente' && !isEmail(usuario)) {
+        } else if (['docente', 'rector', 'admin'].includes(activeRole) && !isEmail(usuario)) {
             showFieldError(usuarioInput, usuarioError, 'Ingresa un correo institucional válido');
             valid = false;
         }
@@ -129,33 +132,30 @@ document.addEventListener('DOMContentLoaded', () => {
         // Estado de carga
         setLoading(true);
 
-        // Simulación de llamada al servidor (1.8 segundos)
-        await fakeApiCall(1800);
+        try {
+            const body = new URLSearchParams({ usuario, password });
+            const res = await fetch((window.BASE_URL_JS || '/colegio/') + 'api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+            const json = await res.json();
 
-        setLoading(false);
+            setLoading(false);
 
-        // Demo: credenciales de prueba
-        // const credencialesDemo = {
-        //     estudiante: { usuario: '2024-EST-0001', password: '123456' },
-        //     docente: { usuario: 'docente@sancristobal.edu.co', password: '123456' },
-        //     acudiente: { usuario: '80000000', password: '123456' },
-        //     rector: { usuario: 'rector@sancristobal.edu.co', password: '123456' },
-        //     // administracion: { usuario: 'administracion@sancristobal.edu.co', password: '123456' }
-        // };
-
-        const demo = credencialesDemo[activeRole];
-        const esValido = usuario === demo.usuario && password === demo.password;
-
-        if (esValido) {
-            showAlert('success', `<i class="fas fa-check-circle"></i> ¡Bienvenido! Redirigiendo al portal...`);
-
-            setTimeout(() => {
-                window.location.href = '../../../../app/views/dashBoard/estudiante/inicio.html';
-            }, 1500); // espera 1.5 segundos
-        } else {
-            showAlert('error', `<i class="fas fa-exclamation-circle"></i> Credenciales incorrectas. Verifica tu ${roleLabels[activeRole].label.toLowerCase()} y contraseña.`);
-            passwordInput.value = '';
-            passwordInput.focus();
+            if (json.success) {
+                showAlert('success', `<i class="fas fa-check-circle"></i> ¡Bienvenido! Redirigiendo al portal...`);
+                setTimeout(() => {
+                    window.location.href = json.redirect || (window.BASE_URL_JS || '/colegio/');
+                }, 1200);
+            } else {
+                showAlert('error', `<i class="fas fa-exclamation-circle"></i> ${json.message || 'Credenciales incorrectas.'}`);
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        } catch (err) {
+            setLoading(false);
+            showAlert('error', `<i class="fas fa-exclamation-circle"></i> No se pudo conectar con el servidor. Intenta de nuevo.`);
         }
     });
 
@@ -186,30 +186,52 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Estado carga en modal
+        modalError.style.display = 'none';
         btnRecovery.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
         btnRecovery.disabled = true;
 
-        await fakeApiCall(1500);
+        try {
+            const body = new URLSearchParams({ correo: email });
+            const res = await fetch((window.BASE_URL_JS || '/colegio/') + 'api/auth/recuperar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+            const json = await res.json();
 
-        btnRecovery.style.display = 'none';
-        modalSuccess.style.display = 'flex';
-        recoveryEmail.value = '';
-        recoveryEmail.style.borderColor = '';
-        recoveryEmail.style.boxShadow = '';
+            if (json.success) {
+                modalSuccessText.textContent = json.message || '¡Correo enviado! Revisa tu bandeja de entrada.';
+                btnRecovery.style.display = 'none';
+                modalSuccess.style.display = 'flex';
+                recoveryEmail.value = '';
+                recoveryEmail.style.borderColor = '';
+                recoveryEmail.style.boxShadow = '';
 
-        setTimeout(() => {
-            closeModal();
-            btnRecovery.style.display = 'flex';
+                setTimeout(() => {
+                    closeModal();
+                    btnRecovery.style.display = 'flex';
+                    btnRecovery.innerHTML = '<span class="btn-text">Enviar instrucciones</span><i class="fas fa-paper-plane btn-icon"></i>';
+                    btnRecovery.disabled = false;
+                    modalSuccess.style.display = 'none';
+                }, 3000);
+            } else {
+                modalErrorText.textContent = json.message || 'No se pudo enviar el correo.';
+                modalError.style.display = 'block';
+                btnRecovery.innerHTML = '<span class="btn-text">Enviar instrucciones</span><i class="fas fa-paper-plane btn-icon"></i>';
+                btnRecovery.disabled = false;
+            }
+        } catch (err) {
+            modalErrorText.textContent = 'No se pudo conectar con el servidor.';
+            modalError.style.display = 'block';
             btnRecovery.innerHTML = '<span class="btn-text">Enviar instrucciones</span><i class="fas fa-paper-plane btn-icon"></i>';
             btnRecovery.disabled = false;
-            modalSuccess.style.display = 'none';
-        }, 3000);
+        }
     });
 
     function openModal() {
         modalOverlay.classList.add('open');
         document.body.style.overflow = 'hidden';
+        modalError.style.display = 'none';
         setTimeout(() => recoveryEmail.focus(), 200);
     }
 

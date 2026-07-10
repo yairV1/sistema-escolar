@@ -12,17 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const topbarChevron = document.getElementById('topbarChevron');
 
   const openDropdown = () => {
-    topbarDropdown.classList.add('open');
-    topbarChevron.classList.add('open');
+    topbarDropdown?.classList.add('open');
+    topbarChevron?.classList.add('open');
   };
   const closeDropdown = () => {
-    topbarDropdown.classList.remove('open');
-    topbarChevron.classList.remove('open');
+    topbarDropdown?.classList.remove('open');
+    topbarChevron?.classList.remove('open');
   };
 
   topbarAvatarBtn?.addEventListener('click', e => {
     e.stopPropagation();
-    topbarDropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+    topbarDropdown?.classList.contains('open') ? closeDropdown() : openDropdown();
   });
   document.addEventListener('click', e => {
     if (!topbarDropdown?.contains(e.target) && !topbarAvatarBtn?.contains(e.target)) {
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
       document.body.style.opacity = '0';
       document.body.style.transition = 'opacity 0.4s ease';
-      setTimeout(() => { window.location.href = 'login.html'; }, 400);
+      setTimeout(() => { window.location.href = (window.BASE_URL_JS || '/colegio/') + 'logout'; }, 400);
     }
   };
   document.getElementById('topbarLogout')?.addEventListener('click', handleLogout);

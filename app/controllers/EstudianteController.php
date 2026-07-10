@@ -10,6 +10,7 @@
  */
 
 require_once __DIR__ . '/../models/Estudiante.php';
+require_once __DIR__ . '/../helpers/Auth.php';
 
 class EstudianteController
 {
@@ -17,6 +18,7 @@ class EstudianteController
 
     public function __construct()
     {
+        Auth::requiereRolApi(Auth::ROLES_PANEL_ADMIN);
         $this->model = new Estudiante();
     }
 

@@ -30,3 +30,22 @@ define('BASE_URL', $protocolo . $host . $baseFolder);
 // Ruta base del proyecto (para require o include)
 
 define('BASE_PATH', dirname(__DIR__));
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  SESIÓN (autenticación de usuarios)
+// ═══════════════════════════════════════════════════════════════════════════
+// Se inicia aquí, en el único archivo que cargan tanto index.php como todas
+// las vistas, para garantizar que $_SESSION esté disponible siempre.
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => $baseFolder,
+        'domain'   => '',
+        'secure'   => $protocolo === 'https://',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
+
+require_once BASE_PATH . '/app/helpers/Auth.php';

@@ -20,7 +20,7 @@
   /* Medidas del admin que ya existen */
   --sidebar-w:     248px;
   --sidebar-w-col: 64px;
-  --admin-topbar:  60px;
+  --admin-topbar:  0px; /* el topbar del admin fue eliminado */
 
   /* Medidas propias del CMS */
   --cms-topbar:    52px;
@@ -724,7 +724,9 @@ body { font-family: var(--fuente-cuerpo); }
 }
 
 @media (max-width:900px) {
-  .cms-topbar { left:0; top:var(--admin-topbar); }
+  /* Deja espacio para el botón hamburguesa flotante del sidebar en móvil */
+  :root { --admin-topbar: 64px; }
+  .cms-topbar { left:0; }
   .cms-layout { left:0; flex-direction:column; }
   .cms-preview-col { min-height:200px; flex:none; height:38vh; }
   .cms-divider { width:100%; height:5px; cursor:row-resize; }

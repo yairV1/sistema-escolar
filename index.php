@@ -33,54 +33,98 @@ switch ($request) {
         break;
 
     case 'login':
+        // Si ya hay sesión activa con rol de panel admin, no tiene sentido volver a mostrar el login.
+        if (Auth::estaAutenticado() && in_array(Auth::rol(), Auth::ROLES_PANEL_ADMIN, true)) {
+            header('Location: ' . BASE_URL . 'inicio');
+            break;
+        }
         require BASE_PATH . '/app/views/auth/login.php';
+        break;
+
+    case 'logout':
+        require_once BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->logout();
+        break;
+
+    case 'api/auth/login':
+        require_once BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->login();
+        break;
+
+    case 'api/auth/recuperar':
+        require_once BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->solicitarRecuperacion();
+        break;
+
+    case 'api/auth/restablecer':
+        require_once BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->restablecerPassword();
+        break;
+
+    case 'reset-password':
+        require BASE_PATH . '/app/views/auth/reset_password.php';
         break;
 
     //Aca son todas las rutas para el administrativo desde el modelo, vista y controlador
 
-    //ESTAS SON LAS VISTAS
-    
+    //ESTAS SON LAS VISTAS (protegidas: requieren sesión con rol admin/rector)
+
     case 'inicio':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Inicio.php';
         break;
 
     case 'RegistroEstudiantes':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/RegistroEstudiantes.php';
         break;
 
     case 'RegistroDocentes':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/RegistroDocentes.php';
+        break;
+    case 'RegistroAdministrativos':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
+        require BASE_PATH . '/app/views/dashBoard/administracion/RegistroAdministrativo.php';
         break;
 
     case 'Listados':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Listados.php';
         break;
 
     case 'Matriculas':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Matriculas.php';
         break;
 
     case 'Estadisticas':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Estadisticas.php';
         break;
 
     case 'Reportes':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Reportes.php';
         break;
 
     case 'Comunicados':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Comunicados.php';
         break;
 
     case 'Observaciones':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Observaciones.php';
         break;
 
     case 'EditarLanding':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/EditarLanding.php';
         break;
 
     case 'Perfil':
+        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
         require BASE_PATH . '/app/views/dashBoard/administracion/Perfil.php';
         break;
     //ESTAS SON LAS RUTAS PARA EL CONTROLADOR

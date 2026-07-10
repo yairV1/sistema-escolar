@@ -38,12 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
       moveSlider(tab);
 
       // Actualizar botón "Nuevo"
-      if (tab.dataset.tab === 'estudiantes') {
-        btnNuevoLabel.textContent = 'Nuevo estudiante';
-        btnNuevo.href = '#nuevo-estudiante';
-      } else {
-        btnNuevoLabel.textContent = 'Nuevo docente';
-        btnNuevo.href = 'RegistroDocentes';
+      const btnNuevoConfig = {
+        estudiantes:     { label: 'Nuevo estudiante',     href: `${window.BASE_URL_JS || ''}RegistroEstudiantes` },
+        docentes:        { label: 'Nuevo docente',        href: `${window.BASE_URL_JS || ''}RegistroDocentes` },
+        administrativos: { label: 'Nuevo administrativo', href: `${window.BASE_URL_JS || ''}RegistroAdministrativos` },
+      };
+      const config = btnNuevoConfig[tab.dataset.tab];
+      if (config) {
+        btnNuevoLabel.textContent = config.label;
+        btnNuevo.href = config.href;
       }
     });
   });
@@ -175,6 +178,56 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /* ─────────────────────────────────────
+     4b. BÚSQUEDA + FILTROS — ADMINISTRATIVOS
+  ───────────────────────────────────────── */
+  const searchAdm       = document.getElementById('searchAdm');
+  const clearSearchAdm  = document.getElementById('clearSearchAdm');
+  const filtroCargoAdm  = document.getElementById('filtroCargoAdm');
+  const filtroEstadoAdm = document.getElementById('filtroEstadoAdm');
+  const emptyAdm        = document.getElementById('emptyAdm');
+  const rowsAdm         = document.querySelectorAll('#bodyAdministrativos .lt-row');
+
+  function filtrarAdministrativos() {
+    const q      = searchAdm.value.toLowerCase().trim();
+    const cargo  = filtroCargoAdm.value;
+    const estado = filtroEstadoAdm.value;
+
+    clearSearchAdm.style.display = q ? 'flex' : 'none';
+
+    let visible = 0;
+
+    rowsAdm.forEach(row => {
+      const texto  = row.textContent.toLowerCase();
+      const matchQ = !q      || texto.includes(q);
+      const matchC = !cargo  || row.dataset.cargo  === cargo;
+      const matchE = !estado || row.dataset.estado === estado;
+      const show = matchQ && matchC && matchE;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    if (emptyAdm) emptyAdm.style.display = visible === 0 ? 'flex' : 'none';
+  }
+
+  if (searchAdm) {
+    searchAdm.addEventListener('input',        filtrarAdministrativos);
+    filtroCargoAdm.addEventListener('change',  filtrarAdministrativos);
+    filtroEstadoAdm.addEventListener('change', filtrarAdministrativos);
+    clearSearchAdm.addEventListener('click', () => {
+      searchAdm.value = '';
+      filtrarAdministrativos();
+      searchAdm.focus();
+    });
+  }
+
+  window.resetFiltrosAdm = function() {
+    searchAdm.value       = '';
+    filtroCargoAdm.value  = '';
+    filtroEstadoAdm.value = '';
+    filtrarAdministrativos();
+  };
+
+  /* ─────────────────────────────────────
      5. SELECT ALL — CHECKBOXES
   ───────────────────────────────────────── */
   function setupCheckAll(checkAllId, bodyId) {
@@ -199,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupCheckAll('checkAllEst', 'bodyEstudiantes');
   setupCheckAll('checkAllDoc', 'bodyDocentes');
+  setupCheckAll('checkAllAdm', 'bodyAdministrativos');
 
   /* ─────────────────────────────────────
      6. ORDENAMIENTO DE COLUMNAS
@@ -239,8 +293,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const colMap = {
       nombre:   1,
       codigo:   2,
+      cedula:   2,
       grado:    3,
       area:     3,
+      cargo:    3,
       prom:     4,
       asist:    5,
       contrato: 5,
@@ -251,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupSort('bodyEstudiantes');
   setupSort('bodyDocentes');
+  setupSort('bodyAdministrativos');
 
   /* ─────────────────────────────────────
      7. TOGGLE VISTA TABLA / TARJETAS
@@ -274,13 +331,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupViewToggle('viewTableEst', 'viewCardEst', 'tableViewEst');
   setupViewToggle('viewTableDoc', 'viewCardDoc', 'tableViewDoc');
+  setupViewToggle('viewTableAdm', 'viewCardAdm', 'tableViewAdm');
 
   /* ─────────────────────────────────────
      8. EXPORTAR
   ───────────────────────────────────────── */
   document.getElementById('btnExport')?.addEventListener('click', () => {
-    const activeTab  = document.querySelector('.lt-tab.active')?.dataset.tab;
-    const label = activeTab === 'docentes' ? 'docentes' : 'estudiantes';
+    const activeTab = document.querySelector('.lt-tab.active')?.dataset.tab;
+    const labels = { estudiantes: 'estudiantes', docentes: 'docentes', administrativos: 'administrativos' };
+    const label = labels[activeTab] || 'estudiantes';
     showToast(`Exportando listado de ${label} a Excel…`, 'success');
   });
 

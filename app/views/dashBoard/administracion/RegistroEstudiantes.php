@@ -39,7 +39,6 @@ const PARENTESCO_DB_A_FORM = [
     <!-- Overlay móvil -->
     <div class="admin-overlay" id="adminOverlay"></div>
 
-    <?php include_once __DIR__ . '/../../layouts/administrativo/nav.php'; ?>
 
     <!-- =====================================================
        CONTENIDO PRINCIPAL

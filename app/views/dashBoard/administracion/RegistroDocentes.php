@@ -18,8 +18,6 @@
 
     <div class="admin-overlay" id="adminOverlay"></div>
 
-    <?php include_once __DIR__ . '/../../layouts/administrativo/nav.php'; ?>
-
     <main class="admin-main" id="adminMain">
         <div class="admin-container">
 
@@ -227,10 +225,14 @@
                                     <i class="fas fa-tint wf-icon"></i>
                                     <select id="grupoSang" name="grupoSang" class="wf-input wf-select">
                                         <option value="">No informa</option>
-                                        <option>A+</option><option>A-</option>
-                                        <option>B+</option><option>B-</option>
-                                        <option>AB+</option><option>AB-</option>
-                                        <option>O+</option><option>O-</option>
+                                        <option>A+</option>
+                                        <option>A-</option>
+                                        <option>B+</option>
+                                        <option>B-</option>
+                                        <option>AB+</option>
+                                        <option>AB-</option>
+                                        <option>O+</option>
+                                        <option>O-</option>
                                     </select>
                                 </div>
                             </div>
@@ -279,16 +281,26 @@
                                     <i class="fas fa-city wf-icon"></i>
                                     <select id="localidad" name="localidad" class="wf-input wf-select" required>
                                         <option value="">Seleccionar localidad…</option>
-                                        <option>Usaquén</option><option>Chapinero</option>
-                                        <option>Santa Fe</option><option>San Cristóbal</option>
-                                        <option>Usme</option><option>Tunjuelito</option>
-                                        <option>Bosa</option><option>Kennedy</option>
-                                        <option>Fontibón</option><option>Engativá</option>
-                                        <option>Suba</option><option>Barrios Unidos</option>
-                                        <option>Teusaquillo</option><option>Los Mártires</option>
-                                        <option>Antonio Nariño</option><option>Puente Aranda</option>
-                                        <option>La Candelaria</option><option>Rafael Uribe Uribe</option>
-                                        <option>Ciudad Bolívar</option><option>Sumapaz</option>
+                                        <option>Usaquén</option>
+                                        <option>Chapinero</option>
+                                        <option>Santa Fe</option>
+                                        <option>San Cristóbal</option>
+                                        <option>Usme</option>
+                                        <option>Tunjuelito</option>
+                                        <option>Bosa</option>
+                                        <option>Kennedy</option>
+                                        <option>Fontibón</option>
+                                        <option>Engativá</option>
+                                        <option>Suba</option>
+                                        <option>Barrios Unidos</option>
+                                        <option>Teusaquillo</option>
+                                        <option>Los Mártires</option>
+                                        <option>Antonio Nariño</option>
+                                        <option>Puente Aranda</option>
+                                        <option>La Candelaria</option>
+                                        <option>Rafael Uribe Uribe</option>
+                                        <option>Ciudad Bolívar</option>
+                                        <option>Sumapaz</option>
                                     </select>
                                 </div>
                                 <span class="wf-error" id="err-localidad"></span>
@@ -360,9 +372,12 @@
                                     <select id="emergParentesco" name="emergParentesco" class="wf-input wf-select" required>
                                         <option value="">Seleccionar…</option>
                                         <option>Cónyuge / Pareja</option>
-                                        <option>Madre</option><option>Padre</option>
-                                        <option>Hijo/a</option><option>Hermano/a</option>
-                                        <option>Amigo/a</option><option>Otro</option>
+                                        <option>Madre</option>
+                                        <option>Padre</option>
+                                        <option>Hijo/a</option>
+                                        <option>Hermano/a</option>
+                                        <option>Amigo/a</option>
+                                        <option>Otro</option>
                                     </select>
                                 </div>
                                 <span class="wf-error" id="err-emergParentesco"></span>
@@ -619,12 +634,21 @@
                                     <i class="fas fa-users wf-icon"></i>
                                     <select id="directorGrupo" name="directorGrupo" class="wf-input wf-select">
                                         <option value="">No asignado</option>
-                                        <option>6°A</option><option>6°B</option><option>6°C</option>
-                                        <option>7°A</option><option>7°B</option><option>7°C</option>
-                                        <option>8°A</option><option>8°B</option>
-                                        <option>9°A</option><option>9°B</option><option>9°C</option>
-                                        <option>10°A</option><option>10°B</option>
-                                        <option>11°A</option><option>11°B</option>
+                                        <option>6°A</option>
+                                        <option>6°B</option>
+                                        <option>6°C</option>
+                                        <option>7°A</option>
+                                        <option>7°B</option>
+                                        <option>7°C</option>
+                                        <option>8°A</option>
+                                        <option>8°B</option>
+                                        <option>9°A</option>
+                                        <option>9°B</option>
+                                        <option>9°C</option>
+                                        <option>10°A</option>
+                                        <option>10°B</option>
+                                        <option>11°A</option>
+                                        <option>11°B</option>
                                     </select>
                                 </div>
                             </div>
@@ -809,9 +833,10 @@
             </div>
         </div>
     </div>
-
+    
+    <script src="<?= BASE_URL ?>/public/assets/layouts/admin/js/Sidebar.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/admin.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/registro_docente.js"></script>
-    <script src="<?= BASE_URL ?>/public/assets/layouts/admin/js/Sidebar.js"></script>
 </body>
+
 </html>

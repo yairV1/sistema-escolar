@@ -7,9 +7,12 @@ $activosEst = count(array_filter($estudiantes, fn($e) => $e['estado_academico'] 
 $inactivosEst = $totalEst - $activosEst;
 
 $avatarPalette = [
-    ['bg' => '#e8f5ee', 'fg' => '#2d7a4f'], ['bg' => '#eff6ff', 'fg' => '#3182ce'],
-    ['bg' => '#fff7ed', 'fg' => '#dd6b20'], ['bg' => '#faf5ff', 'fg' => '#6b46c1'],
-    ['bg' => '#e0f2fe', 'fg' => '#0891b2'], ['bg' => '#fff5f5', 'fg' => '#e53e3e'],
+    ['bg' => '#e8f5ee', 'fg' => '#2d7a4f'],
+    ['bg' => '#eff6ff', 'fg' => '#3182ce'],
+    ['bg' => '#fff7ed', 'fg' => '#dd6b20'],
+    ['bg' => '#faf5ff', 'fg' => '#6b46c1'],
+    ['bg' => '#e0f2fe', 'fg' => '#0891b2'],
+    ['bg' => '#fff5f5', 'fg' => '#e53e3e'],
 ];
 
 function gradoLabel(?string $nombreCurso): string
@@ -19,6 +22,21 @@ function gradoLabel(?string $nombreCurso): string
     $grupo = substr($nombreCurso, strlen($grado));
     $label = $grado === 'PRE' ? 'Preescolar' : $grado . '°';
     return $grupo !== '' ? "$label$grupo" : $label;
+}
+$mensajeExito = $_SESSION['mensaje_exito'] ?? null;
+unset($_SESSION['mensaje_exito']);
+
+// $administrativos: pendiente de un AdministrativoController/modelo real (Módulo 1).
+$administrativos = $administrativos ?? [];
+$totalAdm = count($administrativos);
+$activosAdm = count(array_filter($administrativos, fn($a) => $a['estado'] === 'activo'));
+$inactivosAdm = $totalAdm - $activosAdm;
+ 
+function iniciales(string $nombre, string $apellido): string
+{
+    $n = mb_substr($nombre, 0, 1);
+    $a = mb_substr($apellido, 0, 1);
+    return mb_strtoupper($n . $a, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>
@@ -41,7 +59,6 @@ function gradoLabel(?string $nombreCurso): string
 
     <div class="admin-overlay" id="adminOverlay"></div>
 
-    <?php include_once __DIR__ . '/../../layouts/administrativo/nav.php'; ?>
     <main class="admin-main" id="adminMain">
         <div class="admin-container">
 
@@ -81,6 +98,12 @@ function gradoLabel(?string $nombreCurso): string
                         <i class="fas fa-chalkboard-teacher"></i>
                         <span>Docentes</span>
                         <span class="lt-tab-count" id="countDocentes">87</span>
+                    </button>
+
+                    <button class="lt-tab" data-tab="administrativos">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Administrativos</span>
+                        <span class="lt-tab-count" id="countAdministrativos">0</span>
                     </button>
 
                     <!-- Indicador deslizante -->
@@ -223,8 +246,8 @@ function gradoLabel(?string $nombreCurso): string
                     <div class="lt-empty" id="emptyEst" style="display:<?= $totalEst === 0 ? 'flex' : 'none' ?>;">
                         <i class="fas fa-user-graduate"></i>
                         <p><?= $totalEst === 0
-                            ? 'Todavía no hay estudiantes registrados.'
-                            : 'No se encontraron estudiantes con los filtros aplicados.' ?></p>
+                                ? 'Todavía no hay estudiantes registrados.'
+                                : 'No se encontraron estudiantes con los filtros aplicados.' ?></p>
                         <?php if ($totalEst === 0): ?>
                             <a href="<?= BASE_URL ?>RegistroEstudiantes" class="lt-empty-reset">Registrar el primero</a>
                         <?php else: ?>
@@ -578,13 +601,158 @@ function gradoLabel(?string $nombreCurso): string
 
             </div><!-- /panel-docentes -->
 
+            <div class="lt-panel" id="panel-administrativos">
+
+                <?php if ($mensajeExito): ?>
+                    <div class="lt-flash-success">
+                        <i class="fas fa-circle-check"></i> <?= htmlspecialchars($mensajeExito) ?>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Barra de filtros -->
+                <div class="lt-filters">
+                    <div class="lt-search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input
+                            type="text"
+                            id="searchAdm"
+                            class="lt-search"
+                            placeholder="Buscar por nombre, cédula o cargo…"
+                            autocomplete="off" />
+                        <button class="lt-search-clear" id="clearSearchAdm" style="display:none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="lt-filter-group">
+                        <select class="lt-select" id="filtroCargoAdm">
+                            <option value="">Todos los cargos</option>
+                            <option>Secretaría Académica</option>
+                            <option>Coordinación</option>
+                            <option>Tesorería</option>
+                            <option>Recursos Humanos</option>
+                            <option>Servicios Generales</option>
+                            <option>Biblioteca</option>
+                            <option>Sistemas</option>
+                            <option>Otro</option>
+                        </select>
+                        <select class="lt-select" id="filtroEstadoAdm">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="lt-view-toggle">
+                        <button class="lt-view-btn active" id="viewTableAdm" title="Vista tabla">
+                            <i class="fas fa-table"></i>
+                        </button>
+                        <button class="lt-view-btn" id="viewCardAdm" title="Vista tarjetas">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumen rápido -->
+                <div class="lt-summary-strip" id="summaryAdm">
+                    <div class="lss-item">
+                        <strong id="totalAdmMostrados"><?= $totalAdm ?></strong>
+                        <span>Total</span>
+                    </div>
+                    <div class="lss-sep"></div>
+                    <div class="lss-item green">
+                        <strong><?= $activosAdm ?></strong>
+                        <span>Activos</span>
+                    </div>
+                    <div class="lss-sep"></div>
+                    <div class="lss-item gray">
+                        <strong><?= $inactivosAdm ?></strong>
+                        <span>Inactivos</span>
+                    </div>
+                </div>
+
+                <!-- VISTA TABLA de administrativos -->
+                <div class="lt-table-wrap" id="tableViewAdm">
+                    <table class="lt-table" id="tablaAdministrativos">
+                        <thead>
+                            <tr>
+                                <th class="th-check">
+                                    <label class="lt-check-all">
+                                        <input type="checkbox" id="checkAllAdm" />
+                                        <span class="lt-checkmark"></span>
+                                    </label>
+                                </th>
+                                <th class="th-sort" data-col="nombre">Administrativo <i class="fas fa-sort"></i></th>
+                                <th class="th-sort" data-col="cedula">Cédula <i class="fas fa-sort"></i></th>
+                                <th class="th-sort" data-col="cargo">Cargo <i class="fas fa-sort"></i></th>
+                                <th>Teléfono</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyAdministrativos">
+                            <?php foreach ($administrativos as $i => $adm): ?>
+                                <?php
+                                $nombreCompletoAdm = $adm['nombre'] . ' ' . $adm['apellido'];
+                                $colorAdm = $avatarPalette[$i % count($avatarPalette)];
+                                ?>
+                                <tr class="lt-row" data-id="<?= (int) $adm['id'] ?>" data-entity="administrativo"
+                                    data-cargo="<?= htmlspecialchars($adm['cargo']) ?>" data-estado="<?= $adm['estado'] === 'activo' ? 'activo' : 'inactivo' ?>">
+                                    <td><label class="lt-check-row"><input type="checkbox" /><span class="lt-checkmark"></span></label></td>
+                                    <td>
+                                        <div class="lt-user-cell">
+                                            <div class="lt-avatar" style="background:<?= $colorAdm['bg'] ?>;color:<?= $colorAdm['fg'] ?>"><?= htmlspecialchars(iniciales($adm['nombre'], $adm['apellido'])) ?></div>
+                                            <div class="lt-user-info">
+                                                <p class="lt-user-name"><?= htmlspecialchars($nombreCompletoAdm) ?></p>
+                                                <p class="lt-user-sub"><?= htmlspecialchars($adm['email']) ?></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><code class="lt-code"><?= htmlspecialchars($adm['cedula']) ?></code></td>
+                                    <td><?= htmlspecialchars($adm['cargo']) ?></td>
+                                    <td><?= htmlspecialchars($adm['telefono']) ?></td>
+                                    <td><span class="lt-status <?= $adm['estado'] === 'activo' ? 'activo' : 'inactivo' ?>"><?= ucfirst($adm['estado']) ?></span></td>
+                                    <td>
+                                        <div class="lt-actions">
+                                            <button class="lt-act-btn" title="Ver perfil"><i class="fas fa-eye"></i></button>
+                                            <button class="lt-act-btn" title="Editar"><i class="fas fa-pen"></i></button>
+                                            <button class="lt-act-btn red" title="Desactivar"><i class="fas fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <!-- Empty state -->
+                    <div class="lt-empty" id="emptyAdm" style="display:<?= $totalAdm === 0 ? 'flex' : 'none' ?>;">
+                        <i class="fas fa-user-cog"></i>
+                        <p><?= $totalAdm === 0
+                                ? 'Todavía no hay administrativos registrados.'
+                                : 'No se encontraron administrativos con los filtros aplicados.' ?></p>
+                        <?php if ($totalAdm === 0): ?>
+                            <a href="<?= BASE_URL ?>RegistroAdministrativos" class="lt-empty-reset">Registrar el primero</a>
+                        <?php else: ?>
+                            <button class="lt-empty-reset" onclick="resetFiltrosAdm()">Limpiar filtros</button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div class="lt-pagination" id="paginAdm">
+                    <div class="lt-page-info">
+                        Mostrando <strong><?= $totalAdm ?></strong> de <strong><?= $totalAdm ?></strong> administrativos
+                    </div>
+                </div>
+
+            </div><!-- /panel-administrativos -->
         </div>
     </main>
 
     <!-- Toast container -->
     <div id="toastContainer"></div>
 
-    <script>window.BASE_URL_JS = "<?= BASE_URL ?>";</script>
+    <script>
+        window.BASE_URL_JS = "<?= BASE_URL ?>";
+    </script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/admin.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashBoard/administrativo/js/listado.js"></script>
     <script src="<?= BASE_URL ?>/public/assets/layouts/admin/js/Sidebar.js"></script>
