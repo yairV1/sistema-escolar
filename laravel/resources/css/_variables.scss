@@ -1,0 +1,83 @@
+// =============================================================
+// DESIGN TOKENS — Colegio San Cristóbal
+// Fuente única de verdad para color, tipografía, radios y sombras.
+// Estas variables Sass alimentan la compilación de Bootstrap;
+// más abajo se exponen también como custom properties CSS para
+// que el toggle de tema (data-bs-theme) pueda cambiarlas en runtime.
+// =============================================================
+
+// ---- Paleta institucional (evolución de login.css) ----
+$verde-oscuro:   #1e5436;
+$verde-principal:#2d7a4f;
+$verde-medio:    #4a9e6b;
+$verde-claro:    #e8f5ee;
+$verde-suave:    #d4edd9;
+$dorado:         #c8a84b;
+$dorado-suave:   #e8dcb8;
+$gris-texto:     #4a5568;
+$gris-oscuro:    #1a2e20;
+$gris-claro:     #f7f9f7;
+
+// ---- Tipografía ----
+$font-serif: 'Playfair Display', serif;
+$font-sans:  'DM Sans', sans-serif;
+
+// ---- Overrides de variables de Bootstrap (deben ir antes de @import "bootstrap/scss/variables") ----
+$primary:       $verde-principal;
+$secondary:     $gris-texto;
+$success:       $verde-principal;
+$danger:        #e53e3e;
+$warning:       $dorado;
+$light:         $gris-claro;
+$dark:          $gris-oscuro;
+
+$font-family-base: $font-sans;
+$headings-font-family: $font-serif;
+$headings-font-weight: 600;
+
+$border-radius:      .5rem;
+$border-radius-sm:    .375rem;
+$border-radius-lg:    .875rem;
+$border-radius-xl:    1rem;
+$border-radius-pill:  50rem;
+
+$btn-border-radius:    $border-radius-pill;
+$btn-border-radius-sm: $border-radius-pill;
+$btn-border-radius-lg: $border-radius-pill;
+
+$input-border-radius:    $border-radius-sm;
+$input-border-radius-lg: $border-radius;
+
+$enable-shadows: false;
+$transition-base: all .2s ease;
+
+// ---- Custom properties adicionales (no cubiertas por Bootstrap) ----
+// Se declaran después de que Bootstrap genera las suyas (--bs-*),
+// así que conviven en :root sin pisarlas.
+:root {
+    --cs-dorado: #{$dorado};
+    --cs-dorado-suave: #{$dorado-suave};
+    --cs-verde-oscuro: #{$verde-oscuro};
+    --cs-verde-claro: #{$verde-claro};
+    --cs-verde-suave: #{$verde-suave};
+    --cs-font-serif: #{$font-serif};
+
+    --cs-shadow-sm: 0 4px 24px rgba(45, 122, 79, .10);
+    --cs-shadow-md: 0 8px 40px rgba(45, 122, 79, .18);
+    --cs-shadow-lg: 0 24px 80px rgba(0, 0, 0, .2);
+
+    --cs-transition: all .2s ease;
+    --cs-transition-slow: all .3s ease;
+}
+
+[data-bs-theme="dark"] {
+    --cs-dorado: #d9bc6c;
+    --cs-dorado-suave: #4a4022;
+    --cs-verde-oscuro: #a8e6bf;
+    --cs-verde-claro: #17301f;
+    --cs-verde-suave: #1f3a28;
+
+    --cs-shadow-sm: 0 4px 24px rgba(0, 0, 0, .35);
+    --cs-shadow-md: 0 8px 40px rgba(0, 0, 0, .45);
+    --cs-shadow-lg: 0 24px 80px rgba(0, 0, 0, .6);
+}

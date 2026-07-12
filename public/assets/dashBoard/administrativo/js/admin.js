@@ -295,11 +295,30 @@ document.addEventListener('DOMContentLoaded', () => {
      14. CERRAR SESIÓN
   ───────────────────────────────────────── */
   const handleLogout = () => {
-    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+    if (typeof Swal === 'undefined') {
+      if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+        window.location.href = (window.BASE_URL_JS || '/colegio/') + 'logout';
+      }
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tendrás que volver a iniciar sesión para acceder al panel.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#2d7a4f',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+      focusCancel: true,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
       document.body.style.opacity = '0';
       document.body.style.transition = 'opacity 0.4s ease';
       setTimeout(() => { window.location.href = (window.BASE_URL_JS || '/colegio/') + 'logout'; }, 400);
-    }
+    });
   };
   document.getElementById('topbarLogout')?.addEventListener('click', handleLogout);
 

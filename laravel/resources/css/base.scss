@@ -1,0 +1,31 @@
+// =============================================================
+// BASE — reset ligero y tipografía global
+// =============================================================
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    color: var(--cs-verde-oscuro, var(--bs-body-color));
+}
+
+h1, h2, h3, h4, .font-serif {
+    font-family: var(--cs-font-serif);
+}
+
+// Foco visible consistente en toda la app (accesibilidad)
+:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+// Respeta la preferencia del usuario de reducir movimiento
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

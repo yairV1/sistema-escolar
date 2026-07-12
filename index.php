@@ -33,7 +33,10 @@ switch ($request) {
         break;
 
     case 'login':
-        // Si ya hay sesión activa con rol de panel admin, no tiene sentido volver a mostrar el login.
+        // Se mantiene activo (a diferencia de 'inicio') porque Laravel y el
+        // sistema legacy tienen sesiones independientes: mientras el resto
+        // del panel (Listados, Matrículas, etc.) no esté migrado, este login
+        // sigue siendo necesario para poder acceder a esas páginas.
         if (Auth::estaAutenticado() && in_array(Auth::rol(), Auth::ROLES_PANEL_ADMIN, true)) {
             header('Location: ' . BASE_URL . 'inicio');
             break;
@@ -70,32 +73,40 @@ switch ($request) {
     //ESTAS SON LAS VISTAS (protegidas: requieren sesión con rol admin/rector)
 
     case 'inicio':
-        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
-        require BASE_PATH . '/app/views/dashBoard/administracion/Inicio.php';
+        // Migrado a Laravel (Fase 2): dashboard real con datos de la BD.
+        header('Location: ' . BASE_URL . 'laravel/public/inicio');
         break;
 
     case 'RegistroEstudiantes':
-        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
-        require BASE_PATH . '/app/views/dashBoard/administracion/RegistroEstudiantes.php';
+        // Migrado a Laravel (Fase 5): wizard real con backend completo.
+        // Preserva el modo edición (?id=X) del enlace legacy.
+        $idEdicion = (int) ($_GET['id'] ?? 0);
+        $destino = $idEdicion > 0
+            ? "registro/estudiantes/{$idEdicion}/editar"
+            : 'registro/estudiantes';
+        header('Location: ' . BASE_URL . 'laravel/public/' . $destino);
         break;
 
     case 'RegistroDocentes':
-        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
-        require BASE_PATH . '/app/views/dashBoard/administracion/RegistroDocentes.php';
+        // Migrado a Laravel (Fase 5): antes era 100% maqueta sin backend.
+        header('Location: ' . BASE_URL . 'laravel/public/registro/docentes');
         break;
     case 'RegistroAdministrativos':
-        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
-        require BASE_PATH . '/app/views/dashBoard/administracion/RegistroAdministrativo.php';
+        // Migrado a Laravel (Fase 5): antes era 100% maqueta, el POST
+        // original apuntaba a una ruta /administrativos/guardar inexistente.
+        header('Location: ' . BASE_URL . 'laravel/public/registro/administrativos');
         break;
 
     case 'Listados':
-        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
-        require BASE_PATH . '/app/views/dashBoard/administracion/Listados.php';
+        // Migrado a Laravel (Fase 3): 3 pestañas con datos reales, búsqueda,
+        // filtros y paginación server-side.
+        header('Location: ' . BASE_URL . 'laravel/public/listados');
         break;
 
     case 'Matriculas':
-        Auth::requiereRol(Auth::ROLES_PANEL_ADMIN);
-        require BASE_PATH . '/app/views/dashBoard/administracion/Matriculas.php';
+        // Migrado a Laravel (Fase 4): listado real con búsqueda, filtros,
+        // paginación y cambio de estado real (la vista legacy era 100% maqueta).
+        header('Location: ' . BASE_URL . 'laravel/public/matriculas');
         break;
 
     case 'Estadisticas':

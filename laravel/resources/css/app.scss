@@ -1,0 +1,26 @@
+// =============================================================
+// ENTRYPOINT — compilado por Vite
+// =============================================================
+
+// 1. Funciones de Bootstrap (necesarias antes de cualquier override)
+@import "bootstrap/scss/functions";
+
+// 2. Overrides de variables + design tokens propios
+@import "variables";
+
+// 3. Bootstrap completo (variables, mixins y todos los componentes)
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+// 4. Sistema propio, construido sobre Bootstrap
+@import "base";
+@import "themes/dark";
+@import "components/buttons";
+@import "components/forms";
+@import "components/alerts";
+@import "components/modal";
+@import "layouts/auth";
+@import "layouts/panel";
+@import "layouts/dashboard";
+@import "layouts/wizard";

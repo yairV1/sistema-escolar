@@ -1,5 +1,8 @@
 /* =============================================
-   COLEGIO SAN CRISTÓBAL — LOGIN SCRIPT
+   COLEGIO SAN CRISTÓBAL — LOGIN SCRIPT v2
+   Sin selector de rol: campo único "usuario" que acepta
+   código de estudiante o correo institucional. El backend
+   determina el tipo de cuenta a partir de las credenciales.
    ============================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,11 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
        ========================================== */
     const loginForm = document.getElementById('loginForm');
     const btnLogin = document.getElementById('btnLogin');
-    const loginAlert = document.getElementById('loginAlert');
     const togglePw = document.getElementById('togglePw');
     const passwordInput = document.getElementById('password');
     const usuarioInput = document.getElementById('usuario');
-    const usuarioLabel = document.getElementById('usuarioLabel');
     const usuarioError = document.getElementById('usuarioError');
     const passwordError = document.getElementById('passwordError');
     const forgotLink = document.getElementById('forgotLink');
@@ -25,65 +26,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalSuccessText = document.getElementById('modalSuccessText');
     const modalError = document.getElementById('modalError');
     const modalErrorText = document.getElementById('modalErrorText');
+    const themeToggle = document.getElementById('themeToggle');
 
     /* ==========================================
-       1. SELECTOR DE ROL — cambia placeholder y label
+       0. TEMA CLARO / OSCURO
+       El estado inicial ya se fija en <head> (evita el parpadeo);
+       aquí solo se engancha el click del botón.
        ========================================== */
-    const roleLabels = {
-        estudiante: {
-            label: 'Código de estudiante',
-            placeholder: 'Ej. 2024-EST-0042'
-        },
-        docente: {
-            label: 'Correo institucional',
-            placeholder: 'Ej. docente@sancristobal.edu.co'
-        },
-        acudiente: {
-            label: 'Número de documento',
-            placeholder: 'Ej. 80123456'
-        },
-        rector: {
-            label: 'Correo institucional',
-            placeholder: 'Ej. rector@sancristobal.edu.co'
-        },
-        admin: {
-            label: 'Correo institucional',
-            placeholder: 'Ej. administrativo@sancristobal.edu.co'
-        }
-
-    };
-
-    let activeRole = 'estudiante';
-
-    document.querySelectorAll('.role-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            activeRole = btn.dataset.role;
-
-            const config = roleLabels[activeRole];
-            usuarioLabel.textContent = config.label;
-            usuarioInput.placeholder = config.placeholder;
-            usuarioInput.value = '';
-            clearErrors();
-            hideAlert();
-        });
+    themeToggle?.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('cs-theme', next);
     });
 
     /* ==========================================
-       2. MOSTRAR / OCULTAR CONTRASEÑA
+       1. MOSTRAR / OCULTAR CONTRASEÑA
        ========================================== */
     togglePw.addEventListener('click', () => {
         const isPassword = passwordInput.type === 'password';
         passwordInput.type = isPassword ? 'text' : 'password';
-        togglePw.querySelector('i').className = isPassword
-            ? 'fas fa-eye-slash'
-            : 'fas fa-eye';
+        togglePw.innerHTML = isPassword
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.66 3.79M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
         togglePw.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
     });
 
     /* ==========================================
-       3. VALIDACIÓN EN TIEMPO REAL
+       2. VALIDACIÓN EN TIEMPO REAL + LABELS FLOTANTES
        ========================================== */
     usuarioInput.addEventListener('input', () => {
         if (usuarioInput.value.trim()) {
@@ -97,12 +67,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Labels flotantes: se marcan como "arriba" si el input trae valor
+    // (ej. autocompletado del navegador) al cargar o al perder el foco.
+    [usuarioInput, passwordInput, recoveryEmail].forEach(input => {
+        if (!input) return;
+        syncFloatingLabel(input);
+        input.addEventListener('input', () => syncFloatingLabel(input));
+        input.addEventListener('blur', () => syncFloatingLabel(input));
+    });
+
+    function syncFloatingLabel(input) {
+        const label = input.closest('.field')?.querySelector('label');
+        if (!label) return;
+        label.classList.toggle('up', input.value.trim().length > 0);
+    }
+
     /* ==========================================
-       4. ENVÍO DEL FORMULARIO
+       3. ENVÍO DEL FORMULARIO
+       Campo único: si el valor tiene forma de correo se valida
+       como correo institucional; si no, se trata como código
+       de estudiante/documento. El backend resuelve el tipo real
+       de cuenta a partir de las credenciales recibidas.
        ========================================== */
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        hideAlert();
         clearErrors();
 
         const usuario = usuarioInput.value.trim();
@@ -113,7 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!usuario) {
             showFieldError(usuarioInput, usuarioError, 'Este campo es obligatorio');
             valid = false;
-        } else if (['docente', 'rector', 'admin'].includes(activeRole) && !isEmail(usuario)) {
+        } else if (usuario.includes('@') && !isEmail(usuario)) {
+            // Si parece un intento de correo, exigir formato válido.
+            // Si no tiene "@", se acepta como código de estudiante/documento.
             showFieldError(usuarioInput, usuarioError, 'Ingresa un correo institucional válido');
             valid = false;
         }
@@ -144,23 +134,24 @@ document.addEventListener('DOMContentLoaded', () => {
             setLoading(false);
 
             if (json.success) {
-                showAlert('success', `<i class="fas fa-check-circle"></i> ¡Bienvenido! Redirigiendo al portal...`);
+                showToast('success', '¡Bienvenido! Redirigiendo al portal...');
                 setTimeout(() => {
                     window.location.href = json.redirect || (window.BASE_URL_JS || '/colegio/');
                 }, 1200);
             } else {
-                showAlert('error', `<i class="fas fa-exclamation-circle"></i> ${json.message || 'Credenciales incorrectas.'}`);
+                showFieldError(passwordInput, passwordError, json.message || 'Usuario o contraseña incorrectos.');
                 passwordInput.value = '';
                 passwordInput.focus();
+                syncFloatingLabel(passwordInput);
             }
         } catch (err) {
             setLoading(false);
-            showAlert('error', `<i class="fas fa-exclamation-circle"></i> No se pudo conectar con el servidor. Intenta de nuevo.`);
+            showToast('error', 'No se pudo conectar con el servidor. Intenta de nuevo.');
         }
     });
 
     /* ==========================================
-       5. MODAL — RECUPERAR CONTRASEÑA
+       4. MODAL — RECUPERAR CONTRASEÑA
        ========================================== */
     forgotLink.addEventListener('click', (e) => {
         e.preventDefault();
@@ -180,15 +171,14 @@ document.addEventListener('DOMContentLoaded', () => {
     btnRecovery.addEventListener('click', async () => {
         const email = recoveryEmail.value.trim();
         if (!email || !isEmail(email)) {
-            recoveryEmail.style.borderColor = '#e53e3e';
-            recoveryEmail.style.boxShadow = '0 0 0 3px rgba(229,62,62,0.10)';
+            recoveryEmail.classList.add('invalid');
             recoveryEmail.focus();
             return;
         }
+        recoveryEmail.classList.remove('invalid');
 
         modalError.style.display = 'none';
-        btnRecovery.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-        btnRecovery.disabled = true;
+        setModalRecoveryLoading(true);
 
         try {
             const body = new URLSearchParams({ correo: email });
@@ -204,29 +194,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnRecovery.style.display = 'none';
                 modalSuccess.style.display = 'flex';
                 recoveryEmail.value = '';
-                recoveryEmail.style.borderColor = '';
-                recoveryEmail.style.boxShadow = '';
+                recoveryEmail.classList.remove('invalid');
+                syncFloatingLabel(recoveryEmail);
 
                 setTimeout(() => {
                     closeModal();
                     btnRecovery.style.display = 'flex';
-                    btnRecovery.innerHTML = '<span class="btn-text">Enviar instrucciones</span><i class="fas fa-paper-plane btn-icon"></i>';
-                    btnRecovery.disabled = false;
+                    setModalRecoveryLoading(false);
                     modalSuccess.style.display = 'none';
                 }, 3000);
             } else {
                 modalErrorText.textContent = json.message || 'No se pudo enviar el correo.';
-                modalError.style.display = 'block';
-                btnRecovery.innerHTML = '<span class="btn-text">Enviar instrucciones</span><i class="fas fa-paper-plane btn-icon"></i>';
-                btnRecovery.disabled = false;
+                modalError.style.display = 'flex';
+                setModalRecoveryLoading(false);
             }
         } catch (err) {
             modalErrorText.textContent = 'No se pudo conectar con el servidor.';
-            modalError.style.display = 'block';
-            btnRecovery.innerHTML = '<span class="btn-text">Enviar instrucciones</span><i class="fas fa-paper-plane btn-icon"></i>';
-            btnRecovery.disabled = false;
+            modalError.style.display = 'flex';
+            setModalRecoveryLoading(false);
         }
     });
+
+    function setModalRecoveryLoading(state) {
+        const label = btnRecovery.querySelector('.btn-label');
+        const arrow = btnRecovery.querySelector('.btn-arrow');
+        const spinner = btnRecovery.querySelector('.spinner');
+        if (state) {
+            label.textContent = 'Enviando...';
+            arrow.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            btnRecovery.disabled = true;
+        } else {
+            label.textContent = 'Enviar instrucciones';
+            arrow.style.display = '';
+            spinner.style.display = 'none';
+            btnRecovery.disabled = false;
+        }
+    }
 
     function openModal() {
         modalOverlay.classList.add('open');
@@ -241,33 +245,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ==========================================
-       6. ANIMACIÓN DE ENTRADA — elementos
+       5. ANIMACIÓN DE ENTRADA — elementos [data-anim]
        ========================================== */
-    const animElements = document.querySelectorAll(
-        '.login-header, .role-selector, .form-group, .form-options, .btn-login, .login-divider, .btn-registro, .login-help'
-    );
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animElements = document.querySelectorAll('[data-anim]');
 
     animElements.forEach((el, i) => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(16px)';
-        el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        if (prefersReduced) {
+            el.style.opacity = '1';
+            return;
+        }
+        const type = el.dataset.animType;
+        const startTransform = type === 'slide' ? 'translateY(14px)'
+            : type === 'zoom' ? 'scale(0.96)'
+            : 'translateY(6px)';
+        el.style.transform = startTransform;
+        el.style.transition = 'opacity 620ms cubic-bezier(0.22,1,0.36,1), transform 620ms cubic-bezier(0.22,1,0.36,1)';
         setTimeout(() => {
             el.style.opacity = '1';
             el.style.transform = 'none';
-        }, 80 + i * 60);
+        }, 90 + i * 90);
+    });
+
+    /* ==========================================
+       6. RIPPLE EFFECT — botones
+       ========================================== */
+    document.querySelectorAll('.btn-primary, .btn-ghost').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (btn.disabled) return;
+            const rect = btn.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            const size = Math.max(rect.width, rect.height);
+            ripple.className = 'ripple';
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            btn.appendChild(ripple);
+            ripple.addEventListener('animationend', () => ripple.remove());
+        });
     });
 
     /* ==========================================
        UTILIDADES
        ========================================== */
     function showFieldError(input, errorEl, msg) {
-        input.classList.add('error');
-        errorEl.textContent = msg;
+        input.classList.add('invalid');
+        errorEl.innerHTML = msg
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg><span>' + msg + '</span>'
+            : '';
     }
 
     function clearFieldError(input, errorEl) {
-        input.classList.remove('error');
-        errorEl.textContent = '';
+        input.classList.remove('invalid');
+        errorEl.innerHTML = '';
     }
 
     function clearErrors() {
@@ -275,31 +305,34 @@ document.addEventListener('DOMContentLoaded', () => {
         clearFieldError(passwordInput, passwordError);
     }
 
-    function showAlert(type, html) {
-        loginAlert.innerHTML = html;
-        loginAlert.className = `login-alert ${type}`;
-        loginAlert.style.display = 'flex';
-        loginAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function hideAlert() {
-        loginAlert.style.display = 'none';
-        loginAlert.className = 'login-alert';
+    function showToast(type, message) {
+        if (typeof Toastify === 'undefined') return;
+        Toastify({
+            text: message,
+            duration: 4000,
+            gravity: 'top',
+            position: 'right',
+            offset: { y: 70 },
+            close: true,
+            stopOnFocus: true,
+            escapeMarkup: true,
+            className: type === 'success' ? 'toast-success' : 'toast-error',
+        }).showToast();
     }
 
     function setLoading(state) {
-        const btnText = btnLogin.querySelector('.btn-text');
-        const btnIcon = btnLogin.querySelector('.btn-icon');
-        const btnSpinner = btnLogin.querySelector('.btn-spinner');
+        const btnLabel = btnLogin.querySelector('.btn-label');
+        const btnArrow = btnLogin.querySelector('.btn-arrow');
+        const btnSpinner = btnLogin.querySelector('.spinner');
 
         if (state) {
-            btnText.textContent = 'Verificando...';
-            btnIcon.style.display = 'none';
-            btnSpinner.style.display = 'inline';
+            btnLabel.textContent = 'Verificando...';
+            btnArrow.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
             btnLogin.disabled = true;
         } else {
-            btnText.textContent = 'Ingresar al portal';
-            btnIcon.style.display = '';
+            btnLabel.textContent = 'Ingresar al portal';
+            btnArrow.style.display = '';
             btnSpinner.style.display = 'none';
             btnLogin.disabled = false;
         }
@@ -307,10 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isEmail(val) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-    }
-
-    function fakeApiCall(ms) {
-        return new Promise(res => setTimeout(res, ms));
     }
 
 });
