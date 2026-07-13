@@ -5,6 +5,9 @@ desktop.ini
 logo-removebg-preview-_1_.ico
 README.md
 
-# archivo de confi
-config/
+# credenciales de BD del legacy (el resto de legacy/config/ sí se versiona)
+/legacy/config/database.php
 
+.claude
+.docs/
+readme.MD

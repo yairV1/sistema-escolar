@@ -1,0 +1,17 @@
+// =============================================================
+// TEMA OSCURO
+// Bootstrap 5.3+ ya remapea sus propias variables (--bs-*) bajo
+// [data-bs-theme="dark"]; aquí solo ajustamos lo que es propio
+// del sistema de diseño (--cs-*, ver _variables.scss) y detalles
+// puntuales que Bootstrap no cubre por defecto.
+// =============================================================
+
+[data-bs-theme="dark"] {
+    .auth-visual {
+        background: linear-gradient(150deg, #0d2818 0%, #143f26 55%, #1e5436 100%);
+    }
+
+    .btn-primary {
+        box-shadow: none;
+    }
+}

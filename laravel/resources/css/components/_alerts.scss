@@ -1,0 +1,59 @@
+// =============================================================
+// Skin de marca para Toastify (notificaciones) y SweetAlert2
+// (confirmaciones). Las librerías se configuran en JS
+// (resources/js/components/alerts/*); aquí solo se ajusta el look.
+// =============================================================
+
+// ---- Toastify ----
+.toastify {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--bs-border-radius) !important;
+    font-family: var(--bs-font-sans-serif);
+    font-size: .85rem;
+    padding: .8rem 1rem !important;
+    box-shadow: var(--cs-shadow-md) !important;
+}
+
+// Barra de progreso (duración fija: ver CS_TOAST_DURATION en toast.js)
+.toastify::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255, 255, 255, .55);
+    animation: cs-toast-progress 4000ms linear forwards;
+}
+
+@keyframes cs-toast-progress {
+    to { width: 0; }
+}
+
+.toastify.cs-toast-success {
+    background: var(--bs-success) !important;
+}
+
+.toastify.cs-toast-error {
+    background: var(--bs-danger) !important;
+}
+
+.toastify.cs-toast-info {
+    background: var(--cs-verde-oscuro) !important;
+}
+
+// ---- SweetAlert2 ----
+.swal2-popup.cs-swal {
+    border-radius: var(--bs-border-radius-xl);
+    font-family: var(--bs-font-sans-serif);
+}
+
+.swal2-popup.cs-swal .swal2-title {
+    font-family: var(--cs-font-serif);
+}
+
+.swal2-popup.cs-swal .swal2-confirm.btn,
+.swal2-popup.cs-swal .swal2-cancel.btn {
+    margin: 0 .35rem;
+}

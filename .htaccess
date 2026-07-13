@@ -1,19 +1,31 @@
-# Activa el motor de reescritura de URLs de Apache
+# =============================================================
+# Rewrite interno para exponer Laravel sin el prefijo /laravel/public/.
+# El legacy vive en legacy/ y se sirve normal (tiene su propio .htaccess
+# ahí adentro); todo lo demás bajo /colegio/ se reescribe por detrás
+# hacia laravel/public/, sin que el navegador vea ese cambio.
+# =============================================================
 RewriteEngine On
-
-# Define la ruta base del proyecto dentro del servidor
-# Si tu proyecto está dentro de htdocs/colegio, se usa así
 RewriteBase /colegio/
 
-# Ignora archivos o carpetas reales
-# Si el recurso solicitado es un archivo real (CSS, JS, imagen, PDF, etc.), NO lo reescribe
-RewriteCond %{REQUEST_FILENAME} !-f
+# La landing pública (case '/' del router legacy, la página del sitio web
+# del colegio) todavía no está migrada a Laravel. Va primero porque "/"
+# también matchea la regla de "carpeta real" de abajo (colegio/ existe
+# físicamente) y quedaría atrapada por el DirectoryIndex antes de llegar
+# a cualquier otra regla.
+RewriteRule ^$ legacy/ [R=302,L]
 
-# Ignora archivos o carpetas reales
-# Si el recurso solicitado es una carpeta real, tampoco lo reescribe
-RewriteCond %{REQUEST_FILENAME} !-d
+# Deja pasar archivos o carpetas reales tal cual (incluye legacy/,
+# scripts/, docs/, y cualquier otra cosa que exista físicamente acá).
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# Si no es archivo ni carpeta real, redirige todo a index.php
-# QSA = pasa los parámetros de la URL
-# L = indica que es la última regla a ejecutar
-RewriteRule ^(.*)$ index.php [QSA,L]
+# Assets estáticos que sí existen dentro de laravel/public/ (build/, etc.):
+# se sirven directo desde ahí, sin pasar por PHP.
+RewriteCond %{DOCUMENT_ROOT}/colegio/laravel/public/$1 -f
+RewriteRule ^(.*)$ laravel/public/$1 [L]
+
+# Cualquier otra ruta (las rutas reales de Laravel) pasa por el shim de
+# index.php, que corrige SCRIPT_NAME antes de cargar Laravel.
+RewriteCond %{REQUEST_URI} !^/colegio/legacy/
+RewriteRule ^ index.php [L]

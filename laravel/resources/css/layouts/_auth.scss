@@ -1,0 +1,10 @@
+.auth-visual {
+    background: linear-gradient(150deg, $verde-oscuro 0%, $verde-principal 55%, $verde-medio 100%);
+}
+
+.theme-icon-dark { display: none; }
+
+[data-bs-theme="dark"] {
+    .theme-icon-light { display: none; }
+    .theme-icon-dark { display: inline-block; }
+}
