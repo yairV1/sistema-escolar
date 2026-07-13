@@ -38,7 +38,7 @@ if (form) {
 
         try {
             const payload = Object.fromEntries(new FormData(form).entries());
-            const { data } = await window.axios.post('/registro/docentes', payload);
+            const { data } = await window.axios.post(window.__RUTA_GUARDAR__, payload);
 
             toast.success(`${data.message} Código: ${data.codigo}`);
             setTimeout(() => {

@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/js/pages/listados/listados.js',
                 'resources/js/pages/matriculas/matriculas.js',
                 'resources/js/pages/gestion-academica/gestion-academica.js',
+                'resources/js/pages/gestion-academica/curso-detalle.js',
                 'resources/js/pages/registro/estudiantes.js',
                 'resources/js/pages/registro/docentes.js',
                 'resources/js/pages/registro/administrativos.js',
