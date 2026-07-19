@@ -83,7 +83,7 @@
                             <div class="empty-state">
                                 <div class="empty-icon"><i class="fas fa-file-signature"></i></div>
                                 <p class="mb-2">Aún no hay matrículas registradas.</p>
-                                <a href="{{ config('legacy.url') }}RegistroEstudiantes" class="btn btn-sm btn-primary">
+                                <a href="{{ route('registro.estudiantes.create') }}" class="btn btn-sm btn-primary">
                                     Registrar el primer estudiante
                                 </a>
                             </div>
@@ -119,7 +119,7 @@
                             <div class="empty-state">
                                 <div class="empty-icon"><i class="fas fa-chalkboard-teacher"></i></div>
                                 <p class="mb-2">Aún no hay docentes registrados.</p>
-                                <a href="{{ config('legacy.url') }}RegistroDocentes" class="btn btn-sm btn-primary">
+                                <a href="{{ route('registro.docentes.create') }}" class="btn btn-sm btn-primary">
                                     Registrar el primer docente
                                 </a>
                             </div>
@@ -150,7 +150,7 @@
                             <div class="empty-state">
                                 <div class="empty-icon"><i class="fas fa-user-graduate"></i></div>
                                 <p class="mb-2">Aún no hay estudiantes matriculados.</p>
-                                <a href="{{ config('legacy.url') }}RegistroEstudiantes" class="btn btn-sm btn-primary">
+                                <a href="{{ route('registro.estudiantes.create') }}" class="btn btn-sm btn-primary">
                                     Registrar el primer estudiante
                                 </a>
                             </div>

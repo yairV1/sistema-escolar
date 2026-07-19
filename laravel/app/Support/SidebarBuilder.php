@@ -4,9 +4,8 @@ namespace App\Support;
 
 /**
  * Construye el HTML del sidebar a partir de config('panel_menu').
- * Port del SidebarBuilder legacy (app/helpers/Panel/SidebarBuilder.php):
- * misma lógica de accordion/badges/roles, solo cambia la resolución de
- * URLs (route() de Laravel o fallback al sistema legacy — ver resolveUrl()).
+ * Misma lógica de accordion/badges/roles que el sistema original que
+ * reemplazó; cada item resuelve su URL contra una route() de Laravel.
  */
 class SidebarBuilder
 {
@@ -154,18 +153,9 @@ class SidebarBuilder
         );
     }
 
-    /** Route de Laravel si el módulo ya está migrado; si no, el sistema legacy. */
     private function resolveUrl(array $item): string
     {
-        if (! empty($item['route'])) {
-            return route($item['route']);
-        }
-
-        if (! empty($item['legacy'])) {
-            return rtrim(config('legacy.url'), '/').'/'.ltrim($item['legacy'], '/');
-        }
-
-        return '#';
+        return empty($item['route']) ? '#' : route($item['route']);
     }
 
     private function isPageActive(?string $page): bool

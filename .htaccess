@@ -1,21 +1,13 @@
 # =============================================================
 # Rewrite interno para exponer Laravel sin el prefijo /laravel/public/.
-# El legacy vive en legacy/ y se sirve normal (tiene su propio .htaccess
-# ahí adentro); todo lo demás bajo /colegio/ se reescribe por detrás
-# hacia laravel/public/, sin que el navegador vea ese cambio.
+# Todo bajo /colegio/ se reescribe por detrás hacia laravel/public/,
+# sin que el navegador vea ese cambio.
 # =============================================================
 RewriteEngine On
 RewriteBase /colegio/
 
-# La landing pública (case '/' del router legacy, la página del sitio web
-# del colegio) todavía no está migrada a Laravel. Va primero porque "/"
-# también matchea la regla de "carpeta real" de abajo (colegio/ existe
-# físicamente) y quedaría atrapada por el DirectoryIndex antes de llegar
-# a cualquier otra regla.
-RewriteRule ^$ legacy/ [R=302,L]
-
-# Deja pasar archivos o carpetas reales tal cual (incluye legacy/,
-# scripts/, docs/, y cualquier otra cosa que exista físicamente acá).
+# Deja pasar archivos o carpetas reales tal cual (scripts/, docs/, y
+# cualquier otra cosa que exista físicamente acá).
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
@@ -27,5 +19,4 @@ RewriteRule ^(.*)$ laravel/public/$1 [L]
 
 # Cualquier otra ruta (las rutas reales de Laravel) pasa por el shim de
 # index.php, que corrige SCRIPT_NAME antes de cargar Laravel.
-RewriteCond %{REQUEST_URI} !^/colegio/legacy/
 RewriteRule ^ index.php [L]

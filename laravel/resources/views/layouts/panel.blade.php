@@ -70,7 +70,7 @@
             </div>
             <div class="td-divider"></div>
             <ul class="td-menu">
-                <li><a href="{{ config('legacy.url') }}Perfil" class="td-item"><i class="fas fa-user-circle"></i> Mi perfil</a></li>
+                <li><a href="{{ route('perfil.show') }}" class="td-item"><i class="fas fa-user-circle"></i> Mi perfil</a></li>
             </ul>
             <div class="td-divider"></div>
             <form action="{{ route('logout') }}" method="POST">

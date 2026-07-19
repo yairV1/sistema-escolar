@@ -78,7 +78,12 @@
             <div class="col-lg-6">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h2 class="h6 fw-semibold mb-3"><i class="fas fa-diagram-project text-primary me-1"></i> Materias y profesores asignados</h2>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h6 fw-semibold mb-0"><i class="fas fa-diagram-project text-primary me-1"></i> Materias y profesores asignados</h2>
+                            <a href="{{ route('boletines.index', ['curso' => $curso->id_curso]) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-file-lines me-1"></i> Boletines
+                            </a>
+                        </div>
 
                         @if ($asignaciones->isEmpty())
                             <div class="empty-state">
@@ -91,9 +96,19 @@
                         @else
                             <ul class="list-group list-group-flush">
                                 @foreach ($asignaciones as $asignacion)
-                                    <li class="list-group-item px-0">
-                                        <div class="fw-semibold">{{ $asignacion->materia->nombre_materia }}</div>
-                                        <div class="small text-secondary">{{ trim($asignacion->profesor->usuario->nombres.' '.$asignacion->profesor->usuario->apellidos) }}</div>
+                                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-semibold">{{ $asignacion->materia->nombre_materia }}</div>
+                                            <div class="small text-secondary">{{ trim($asignacion->profesor->usuario->nombres.' '.$asignacion->profesor->usuario->apellidos) }}</div>
+                                        </div>
+                                        <div class="d-flex gap-1">
+                                            <a href="{{ route('calificaciones.asignaciones.show', $asignacion) }}" class="btn btn-sm btn-outline-primary" title="Calificar">
+                                                <i class="fas fa-marker"></i>
+                                            </a>
+                                            <a href="{{ route('asistencia.show', $asignacion) }}" class="btn btn-sm btn-outline-primary" title="Asistencia">
+                                                <i class="fas fa-clipboard-check"></i>
+                                            </a>
+                                        </div>
                                     </li>
                                 @endforeach
                             </ul>
