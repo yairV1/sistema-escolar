@@ -14,8 +14,8 @@ export function initSidebar() {
         sidebar.classList.add('collapsed');
         document.body.classList.add('sidebar-collapsed');
         const icon = collapseBtn.querySelector('i');
-        icon.classList.remove('fa-chevron-left');
-        icon.classList.add('fa-chevron-right');
+        icon.classList.remove('bi-chevron-left');
+        icon.classList.add('bi-chevron-right');
         collapseBtn.setAttribute('title', 'Expandir menú');
     }
 
@@ -80,8 +80,8 @@ export function initSidebar() {
             localStorage.setItem('sidebar-collapsed', isCollapsed);
 
             const icon = collapseBtn.querySelector('i');
-            icon.classList.toggle('fa-chevron-left', !isCollapsed);
-            icon.classList.toggle('fa-chevron-right', isCollapsed);
+            icon.classList.toggle('bi-chevron-left', !isCollapsed);
+            icon.classList.toggle('bi-chevron-right', isCollapsed);
             collapseBtn.setAttribute('title', isCollapsed ? 'Expandir menú' : 'Contraer menú');
         });
     }
@@ -117,10 +117,30 @@ export function initSidebar() {
         }
     });
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
-            closeMobileSidebar();
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userMenuDropup = document.getElementById('userMenuDropup');
+
+    function closeUserMenu() {
+        userMenuDropup?.classList.remove('open');
+        userMenuToggle?.setAttribute('aria-expanded', 'false');
+    }
+
+    userMenuToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = userMenuDropup.classList.toggle('open');
+        userMenuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    document.addEventListener('click', (e) => {
+        if (userMenuDropup?.classList.contains('open') && !e.target.closest('.sidebar-footer')) {
+            closeUserMenu();
         }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (sidebar.classList.contains('mobile-open')) closeMobileSidebar();
+        if (userMenuDropup?.classList.contains('open')) closeUserMenu();
     });
 
     window.SidebarControls = {

@@ -25,7 +25,7 @@
 </head>
 <body class="has-sidebar">
     @php
-        $sidebarBuilder = new \App\Support\SidebarBuilder(
+        $sidebarBuilder = new \App\Shared\SidebarBuilder(
             config('panel_menu'),
             $currentPage ?? '',
             [auth()->user()?->rolSlug],
@@ -40,18 +40,18 @@
     @endphp
 
     <button class="sidebar-mobile-trigger" id="topbarMenu" aria-label="Abrir menú">
-        <i class="fas fa-bars"></i>
+        <i class="bi bi-list"></i>
     </button>
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <div class="sidebar-logo"><i class="bi bi-mortarboard"></i></div>
             <div class="sidebar-brand">
                 <span class="sb-name">San <strong>Cristóbal</strong></span>
                 <span class="sb-sub">Panel {{ $usuario?->rolLabel }}</span>
             </div>
             <button class="sidebar-collapse" id="sidebarCollapse" title="Contraer" aria-label="Contraer menú">
-                <i class="fas fa-chevron-left"></i>
+                <i class="bi bi-chevron-left"></i>
             </button>
         </div>
 
@@ -60,25 +60,25 @@
         </nav>
 
         <div class="sidebar-footer">
-            <div class="td-header">
+            <button type="button" class="td-header" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
                 <div class="td-avatar">{{ $iniciales }}</div>
-                <div>
+                <div class="td-info">
                     <p class="td-name">{{ $nombreCompleto }}</p>
                     <p class="td-email">{{ $usuario?->correo }}</p>
-                    <span class="td-badge">{{ $usuario?->rolLabel }}</span>
                 </div>
+                <i class="bi bi-three-dots-vertical td-kebab"></i>
+            </button>
+
+            <div class="td-dropup" id="userMenuDropup">
+                <a href="{{ route('perfil.show') }}" class="td-item"><i class="bi bi-person-circle"></i> Mi perfil</a>
+                <div class="td-divider"></div>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="button" class="td-item td-logout" data-logout>
+                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    </button>
+                </form>
             </div>
-            <div class="td-divider"></div>
-            <ul class="td-menu">
-                <li><a href="{{ route('perfil.show') }}" class="td-item"><i class="fas fa-user-circle"></i> Mi perfil</a></li>
-            </ul>
-            <div class="td-divider"></div>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="button" class="td-logout" data-logout title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i> <span>Cerrar sesión</span>
-                </button>
-            </form>
         </div>
     </aside>
 

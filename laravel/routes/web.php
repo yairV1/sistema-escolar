@@ -1,23 +1,23 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\Panel\AsistenciaController;
-use App\Http\Controllers\Panel\BoletinesController;
-use App\Http\Controllers\Panel\CalificacionesController;
-use App\Http\Controllers\Panel\ComunicadosController;
-use App\Http\Controllers\Panel\DashboardController;
-use App\Http\Controllers\Panel\EditarLandingController;
-use App\Http\Controllers\Panel\EstadisticasController;
-use App\Http\Controllers\Panel\GestionAcademicaController;
-use App\Http\Controllers\Panel\ListadosController;
-use App\Http\Controllers\Panel\MatriculasController;
-use App\Http\Controllers\Panel\ObservacionesController;
-use App\Http\Controllers\Panel\PerfilController;
-use App\Http\Controllers\Panel\Registro\RegistroAdministrativosController;
-use App\Http\Controllers\Panel\Registro\RegistroDocentesController;
-use App\Http\Controllers\Panel\Registro\RegistroEstudiantesController;
-use App\Http\Controllers\WebsiteController;
+use App\Modules\Auth\Controllers\LoginController;
+use App\Modules\Auth\Controllers\PasswordResetController;
+use App\Modules\Calificaciones\Controllers\CalificacionesController;
+use App\Modules\Comunicados\Controllers\ComunicadosController;
+use App\Modules\Dashboard\Controllers\DashboardController;
+use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
+use App\Modules\Landing\Controllers\EditarLandingController;
+use App\Modules\Landing\Controllers\WebsiteController;
+use App\Modules\Matriculas\Controllers\MatriculasController;
+use App\Modules\Observaciones\Controllers\ObservacionesController;
+use App\Modules\Perfil\Controllers\PerfilController;
+use App\Modules\Rector\Controllers\AsistenciaController;
+use App\Modules\Reportes\Controllers\BoletinesController;
+use App\Modules\Reportes\Controllers\EstadisticasController;
+use App\Modules\Usuarios\Controllers\ListadosController;
+use App\Modules\Usuarios\Controllers\Registro\RegistroAdministrativosController;
+use App\Modules\Usuarios\Controllers\Registro\RegistroDocentesController;
+use App\Modules\Usuarios\Controllers\Registro\RegistroEstudiantesController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [WebsiteController::class, 'index'])->name('home');

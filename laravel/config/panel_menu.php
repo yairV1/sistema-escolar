@@ -5,10 +5,10 @@
  * CONFIGURACIÓN DEL SIDEBAR (panel administrativo)
  * =====================================================
  * Única fuente de verdad para la navegación del panel. Cada item apunta
- * a una `route` de Laravel, resuelta por App\Support\SidebarBuilder.
+ * a una `route` de Laravel, resuelta por App\Shared\SidebarBuilder.
  *
  * Estructura soportada: top, sections > items > children, badge, roles.
- * Ver App\Support\SidebarBuilder.
+ * Ver App\Shared\SidebarBuilder.
  * =====================================================
  */
 
@@ -94,11 +94,26 @@ return [
                     'page'  => 'comunicacion',
                     'children' => [
                         ['title' => 'Comunicados',         'route' => 'comunicados.index', 'page' => 'Comunicados'],
+                        ['title' => 'Notificaciones', 'route' => 'notificaciones.index', 'page' => 'Notificaciones'],
+                    ],
+                ],
+            ],
+        ],
+
+        [
+            'section' => 'Ajustes',
+            'items' => [
+                [
+                    'title' => 'Ajustes del Sistema',
+                    'icon'  => 'fas fa-cogs',
+                    'page'  => 'ajustes',
+                    'children' => [
                         ['title' => 'Editar Landing Page', 'route' => 'editar-landing.index', 'page' => 'EditarLanding'],
                     ],
                 ],
             ],
         ],
+
 
     ],
 ];
