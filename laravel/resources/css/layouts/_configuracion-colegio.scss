@@ -1,0 +1,209 @@
+// =============================================================
+// CONFIGURACIÓN DEL COLEGIO — dropzone de logo + galería institucional
+// =============================================================
+
+.configuracion-colegio {
+    max-width: 920px;
+}
+
+// ---------- Logo dropzone ----------
+.logo-row {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.logo-dropzone {
+    flex: 0 0 168px;
+    height: 168px;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--bs-tertiary-bg);
+    transition: var(--cs-transition);
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-dropzone:hover,
+.logo-dropzone:focus-visible,
+.logo-dropzone.drag-over {
+    border-color: $verde-medio;
+    background: var(--cs-verde-claro);
+}
+
+.logo-dropzone:focus-visible { outline: 2px solid $verde-principal; outline-offset: 2px; }
+
+.logo-dropzone img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 14px;
+}
+
+.dz-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    pointer-events: none;
+}
+
+.dz-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--cs-verde-claro);
+    color: $verde-principal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.dz-placeholder span {
+    font-size: .76rem;
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.dz-placeholder span b { color: $verde-principal; }
+
+.dz-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(26, 46, 32, .65);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 11px;
+}
+.dz-remove:hover { background: rgba(26, 46, 32, .85); }
+
+.logo-meta {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+// ---------- Galería ----------
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+@media (max-width: 760px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.g-item {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    overflow: hidden;
+    background: var(--bs-tertiary-bg);
+    position: relative;
+    transition: box-shadow var(--cs-transition), opacity var(--cs-transition);
+}
+
+.g-item[draggable="true"] { cursor: grab; }
+.g-item.dragging { opacity: .4; }
+.g-item.drag-over { box-shadow: 0 0 0 2px $verde-principal inset; }
+
+.g-thumb {
+    height: 100px;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.g-drag {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(26, 46, 32, .55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.g-del {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(229, 62, 62, .9);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+.g-del:hover { background: var(--bs-danger); }
+
+.g-meta { padding: 8px 10px; }
+
+.g-tag {
+    display: inline-flex;
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    background: var(--cs-verde-claro);
+    color: var(--cs-verde-oscuro);
+    padding: 2px 8px;
+    border-radius: 50rem;
+    margin-bottom: 5px;
+}
+
+.g-cap { font-size: .72rem; color: var(--bs-secondary-color); }
+
+.g-item.add-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 158px;
+    border: 2px dashed var(--bs-border-color);
+    color: var(--bs-secondary-color);
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    width: 100%;
+}
+.g-item.add-tile:hover:not(:disabled) { border-color: $verde-medio; background: var(--cs-verde-claro); }
+.g-item.add-tile:disabled { opacity: .5; cursor: not-allowed; }
+.g-item.add-tile span { font-size: .74rem; font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-dropzone, .g-item, .dz-remove, .g-del {
+        transition: none !important;
+    }
+}

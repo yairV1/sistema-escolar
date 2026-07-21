@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Retira `users` y `password_reset_tokens`: restos del scaffold default de
  * `laravel new` que nunca se usaron (el auth real vive en `usuarios`, ver
- * App\Models\Usuario; la recuperación de contraseña usa una tabla propia,
- * ver App\Models\PasswordReset). Confirmado sin datos antes de retirarlas.
+ * App\Modules\Auth\Models\Usuario; la recuperación de contraseña usa una tabla propia,
+ * ver App\Modules\Auth\Models\PasswordReset). Confirmado sin datos antes de retirarlas.
  */
 return new class extends Migration
 {

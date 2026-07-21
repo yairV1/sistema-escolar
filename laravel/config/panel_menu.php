@@ -4,18 +4,11 @@
  * =====================================================
  * CONFIGURACIÓN DEL SIDEBAR (panel administrativo)
  * =====================================================
- * Única fuente de verdad para la navegación del panel, migrada desde
- * el config/menu.php del sistema legacy (misma estructura y contenido).
+ * Única fuente de verdad para la navegación del panel. Cada item apunta
+ * a una `route` de Laravel, resuelta por App\Shared\SidebarBuilder.
  *
- * Cada item apunta o a una `route` de Laravel (módulo ya migrado) o a
- * un path `legacy` (módulo que todavía vive en el sistema PHP plano,
- * resuelto por App\Support\SidebarBuilder contra config('legacy.url')).
- * Así el sidebar nunca tiene links rotos mientras dura la migración
- * incremental: apenas un módulo se migra, solo hace falta agregarle
- * `route` aquí (y quitar/ignorar `legacy`).
- *
- * Estructura soportada: igual que el legacy (top, sections > items >
- * children, badge, roles). Ver App\Support\SidebarBuilder.
+ * Estructura soportada: top, sections > items > children, badge, roles.
+ * Ver App\Shared\SidebarBuilder.
  * =====================================================
  */
 
@@ -78,14 +71,15 @@ return [
                     'icon'  => 'fas fa-clipboard-check',
                     'page'  => 'evaluaciones',
                     'children' => [
-                        ['title' => 'Observaciones', 'legacy' => 'Observaciones', 'page' => 'Observaciones'],
-                        ['title' => 'Boletines',     'legacy' => 'Reportes',      'page' => 'Reportes'],
+                        ['title' => 'Calificaciones', 'route' => 'calificaciones.index', 'page' => 'Calificaciones'],
+                        ['title' => 'Observaciones',  'route' => 'observaciones.index',  'page' => 'Observaciones'],
+                        ['title' => 'Boletines',      'route' => 'boletines.index',      'page' => 'Boletines'],
                     ],
                 ],
                 [
                     'title' => 'Estadísticas',
                     'icon'  => 'fas fa-chart-bar',
-                    'legacy' => 'Estadisticas',
+                    'route' => 'estadisticas',
                     'page'  => 'Estadisticas',
                 ],
             ],
@@ -99,26 +93,28 @@ return [
                     'icon'  => 'fas fa-bullhorn',
                     'page'  => 'comunicacion',
                     'children' => [
-                        ['title' => 'Comunicados',         'legacy' => 'Comunicados',   'page' => 'Comunicados'],
-                        ['title' => 'Editar Landing Page', 'legacy' => 'EditarLanding', 'page' => 'EditarLanding'],
+                        ['title' => 'Comunicados',         'route' => 'comunicados.index', 'page' => 'Comunicados'],
+                        // ['title' => 'Notificaciones', 'route' => 'notificaciones.index', 'page' => 'Notificaciones'],
                     ],
                 ],
             ],
         ],
 
         [
-            'section' => 'Administración',
-            // 'roles' a nivel de sección oculta TODA la sección si el usuario no cumple
-            'roles' => ['admin', 'rector'],
+            'section' => 'Ajustes',
             'items' => [
                 [
-                    'title' => 'Sistema',
+                    'title' => 'Ajustes del Sistema',
                     'icon'  => 'fas fa-cogs',
-                    'legacy' => 'EditarLanding',
-                    'page'  => 'sistema',
+                    'page'  => 'ajustes',
+                    'children' => [
+                        ['title' => 'Editar Landing Page', 'route' => 'editar-landing.index', 'page' => 'EditarLanding'],
+                        ['title' => 'Configuración del Colegio', 'route' => 'configuracion-colegio.index', 'page' => 'ConfiguracionColegio', 'roles' => ['admin', 'rector']],
+                    ],
                 ],
             ],
         ],
+
 
     ],
 ];

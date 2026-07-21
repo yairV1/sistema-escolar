@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * NOTA: originalmente este archivo (scaffold default de `laravel new`)
      * también creaba `users` y `password_reset_tokens`. Esta app autentica
-     * contra la tabla `usuarios` del sistema legacy (ver App\Models\Usuario
+     * contra la tabla `usuarios` del sistema legacy (ver App\Modules\Auth\Models\Usuario
      * y config/auth.php), así que esas dos tablas nunca se usaron y fueron
      * retiradas por la migración 2026_07_12_000001_drop_default_scaffold_tables.
      * Solo `sessions` es real (SESSION_DRIVER=database).

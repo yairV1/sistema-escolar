@@ -1,17 +1,27 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\Panel\DashboardController;
-use App\Http\Controllers\Panel\GestionAcademicaController;
-use App\Http\Controllers\Panel\ListadosController;
-use App\Http\Controllers\Panel\MatriculasController;
-use App\Http\Controllers\Panel\Registro\RegistroAdministrativosController;
-use App\Http\Controllers\Panel\Registro\RegistroDocentesController;
-use App\Http\Controllers\Panel\Registro\RegistroEstudiantesController;
+use App\Modules\Auth\Controllers\LoginController;
+use App\Modules\Auth\Controllers\PasswordResetController;
+use App\Modules\Calificaciones\Controllers\CalificacionesController;
+use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
+use App\Modules\Comunicados\Controllers\ComunicadosController;
+use App\Modules\Dashboard\Controllers\DashboardController;
+use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
+use App\Modules\Landing\Controllers\EditarLandingController;
+use App\Modules\Landing\Controllers\WebsiteController;
+use App\Modules\Matriculas\Controllers\MatriculasController;
+use App\Modules\Observaciones\Controllers\ObservacionesController;
+use App\Modules\Perfil\Controllers\PerfilController;
+use App\Modules\Rector\Controllers\AsistenciaController;
+use App\Modules\Reportes\Controllers\BoletinesController;
+use App\Modules\Reportes\Controllers\EstadisticasController;
+use App\Modules\Usuarios\Controllers\ListadosController;
+use App\Modules\Usuarios\Controllers\Registro\RegistroAdministrativosController;
+use App\Modules\Usuarios\Controllers\Registro\RegistroDocentesController;
+use App\Modules\Usuarios\Controllers\Registro\RegistroEstudiantesController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login');
+Route::get('/', [WebsiteController::class, 'index'])->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -84,4 +94,89 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('registro')->name('regi
     Route::post('/administrativos', [RegistroAdministrativosController::class, 'store'])->name('administrativos.store');
     Route::get('/administrativos/{usuario}/editar', [RegistroAdministrativosController::class, 'edit'])->name('administrativos.edit');
     Route::post('/administrativos/{usuario}', [RegistroAdministrativosController::class, 'update'])->name('administrativos.update');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
+    Route::get('/', [CalificacionesController::class, 'index'])->name('index');
+
+    Route::post('/periodos', [CalificacionesController::class, 'storePeriodo'])->name('periodos.store');
+    Route::post('/periodos/{periodo}', [CalificacionesController::class, 'updatePeriodo'])->name('periodos.update');
+    Route::post('/periodos/{periodo}/desactivar', [CalificacionesController::class, 'desactivarPeriodo'])->name('periodos.desactivar');
+    Route::post('/periodos/{periodo}/activar', [CalificacionesController::class, 'activarPeriodo'])->name('periodos.activar');
+
+    Route::post('/tipos-actividad', [CalificacionesController::class, 'storeTipoActividad'])->name('tipos-actividad.store');
+    Route::post('/tipos-actividad/{tipoActividad}', [CalificacionesController::class, 'updateTipoActividad'])->name('tipos-actividad.update');
+    Route::post('/tipos-actividad/{tipoActividad}/desactivar', [CalificacionesController::class, 'desactivarTipoActividad'])->name('tipos-actividad.desactivar');
+    Route::post('/tipos-actividad/{tipoActividad}/activar', [CalificacionesController::class, 'activarTipoActividad'])->name('tipos-actividad.activar');
+
+    Route::get('/asignaciones/{asignacion}', [CalificacionesController::class, 'asignacion'])->name('asignaciones.show');
+    Route::post('/asignaciones/{asignacion}/actividades', [CalificacionesController::class, 'storeActividad'])->name('actividades.store');
+    Route::post('/actividades/{actividad}', [CalificacionesController::class, 'updateActividad'])->name('actividades.update');
+    Route::post('/actividades/{actividad}/desactivar', [CalificacionesController::class, 'desactivarActividad'])->name('actividades.desactivar');
+    Route::post('/actividades/{actividad}/activar', [CalificacionesController::class, 'activarActividad'])->name('actividades.activar');
+
+    Route::get('/actividades/{actividad}/notas', [CalificacionesController::class, 'notas'])->name('actividades.notas');
+    Route::post('/actividades/{actividad}/notas', [CalificacionesController::class, 'guardarNotas'])->name('actividades.notas.guardar');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('observaciones')->name('observaciones.')->group(function () {
+    Route::get('/', [ObservacionesController::class, 'index'])->name('index');
+    Route::post('/', [ObservacionesController::class, 'store'])->name('store');
+    Route::post('/{observacion}', [ObservacionesController::class, 'update'])->name('update');
+    Route::post('/{observacion}/desactivar', [ObservacionesController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{observacion}/activar', [ObservacionesController::class, 'activar'])->name('activar');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('boletines')->name('boletines.')->group(function () {
+    Route::get('/', [BoletinesController::class, 'index'])->name('index');
+    Route::post('/generar', [BoletinesController::class, 'generar'])->name('generar');
+    Route::get('/{boletin}', [BoletinesController::class, 'show'])->name('show');
+    Route::post('/{boletin}/publicar', [BoletinesController::class, 'publicar'])->name('publicar');
+    Route::post('/{boletin}/anular', [BoletinesController::class, 'anular'])->name('anular');
+    Route::post('/{boletin}/borrador', [BoletinesController::class, 'volverBorrador'])->name('borrador');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('asistencia')->name('asistencia.')->group(function () {
+    Route::get('/asignaciones/{asignacion}', [AsistenciaController::class, 'show'])->name('show');
+    Route::post('/asignaciones/{asignacion}', [AsistenciaController::class, 'guardar'])->name('guardar');
+    Route::get('/asignaciones/{asignacion}/historial', [AsistenciaController::class, 'historial'])->name('historial');
+});
+
+Route::get('/estadisticas', [EstadisticasController::class, 'index'])
+    ->middleware(['auth', 'role:admin,rector'])
+    ->name('estadisticas');
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('comunicados')->name('comunicados.')->group(function () {
+    Route::get('/', [ComunicadosController::class, 'index'])->name('index');
+    Route::post('/', [ComunicadosController::class, 'store'])->name('store');
+});
+
+Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () {
+    Route::get('/', [PerfilController::class, 'show'])->name('show');
+    Route::post('/', [PerfilController::class, 'update'])->name('update');
+    Route::post('/password', [PerfilController::class, 'updatePassword'])->name('password');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('editar-landing')->name('editar-landing.')->group(function () {
+    Route::get('/', [EditarLandingController::class, 'index'])->name('index');
+    Route::post('/contenido', [EditarLandingController::class, 'updateContenido'])->name('contenido.update');
+
+    Route::post('/noticias', [EditarLandingController::class, 'storeNoticia'])->name('noticias.store');
+    Route::post('/noticias/{noticia}', [EditarLandingController::class, 'updateNoticia'])->name('noticias.update');
+    Route::post('/noticias/{noticia}/desactivar', [EditarLandingController::class, 'desactivarNoticia'])->name('noticias.desactivar');
+    Route::post('/noticias/{noticia}/activar', [EditarLandingController::class, 'activarNoticia'])->name('noticias.activar');
+
+    Route::post('/galeria', [EditarLandingController::class, 'storeGaleria'])->name('galeria.store');
+    Route::post('/galeria/{galeria}', [EditarLandingController::class, 'updateGaleria'])->name('galeria.update');
+    Route::post('/galeria/{galeria}/desactivar', [EditarLandingController::class, 'desactivarGaleria'])->name('galeria.desactivar');
+    Route::post('/galeria/{galeria}/activar', [EditarLandingController::class, 'activarGaleria'])->name('galeria.activar');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('configuracion-colegio')->name('configuracion-colegio.')->group(function () {
+    Route::get('/', [ConfiguracionColegioController::class, 'index'])->name('index');
+    Route::post('/', [ConfiguracionColegioController::class, 'update'])->name('update');
+
+    Route::post('/imagenes', [ConfiguracionColegioController::class, 'storeImagen'])->name('imagenes.store');
+    Route::post('/imagenes/{imagen}/eliminar', [ConfiguracionColegioController::class, 'destroyImagen'])->name('imagenes.eliminar');
+    Route::post('/imagenes/reordenar', [ConfiguracionColegioController::class, 'reordenarImagenes'])->name('imagenes.reordenar');
 });
