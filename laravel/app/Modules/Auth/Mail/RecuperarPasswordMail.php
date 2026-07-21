@@ -3,6 +3,7 @@
 namespace App\Modules\Auth\Mail;
 
 use App\Modules\Auth\Models\Usuario;
+use App\Modules\Colegio\Models\ColegioConfiguracion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -21,7 +22,7 @@ class RecuperarPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Recupera tu contraseña — Colegio San Cristóbal',
+            subject: 'Recupera tu contraseña — '.ColegioConfiguracion::singleton()->nombre_colegio,
         );
     }
 
@@ -32,6 +33,7 @@ class RecuperarPasswordMail extends Mailable
             with: [
                 'nombre' => trim($this->usuario->nombres.' '.$this->usuario->apellidos),
                 'enlace' => $this->enlace,
+                'colegioNombre' => ColegioConfiguracion::singleton()->nombre_colegio,
             ],
         );
     }

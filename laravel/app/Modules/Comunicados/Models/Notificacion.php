@@ -16,6 +16,14 @@ class Notificacion extends Model
 
     public const TIPOS = ['informativa', 'academica', 'disciplinaria', 'pago', 'sistema'];
 
+    public const TIPOS_LABELS = [
+        'informativa' => 'Informativa',
+        'academica' => 'Académica',
+        'disciplinaria' => 'Disciplinaria',
+        'pago' => 'Pago',
+        'sistema' => 'Sistema',
+    ];
+
     public const CANALES = ['interno', 'correo', 'whatsapp', 'todos'];
 
     protected $fillable = [

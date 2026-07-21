@@ -94,7 +94,7 @@ return [
                     'page'  => 'comunicacion',
                     'children' => [
                         ['title' => 'Comunicados',         'route' => 'comunicados.index', 'page' => 'Comunicados'],
-                        ['title' => 'Notificaciones', 'route' => 'notificaciones.index', 'page' => 'Notificaciones'],
+                        // ['title' => 'Notificaciones', 'route' => 'notificaciones.index', 'page' => 'Notificaciones'],
                     ],
                 ],
             ],
@@ -109,6 +109,7 @@ return [
                     'page'  => 'ajustes',
                     'children' => [
                         ['title' => 'Editar Landing Page', 'route' => 'editar-landing.index', 'page' => 'EditarLanding'],
+                        ['title' => 'Configuración del Colegio', 'route' => 'configuracion-colegio.index', 'page' => 'ConfiguracionColegio', 'roles' => ['admin', 'rector']],
                     ],
                 ],
             ],

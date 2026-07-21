@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
-    <title>@yield('title', 'Panel') · Colegio San Cristóbal</title>
+    <title>@yield('title', 'Panel') · {{ $colegioConfiguracion->nombre_colegio }}</title>
 
     <script>
         (function () {
@@ -47,7 +47,7 @@
         <div class="sidebar-header">
             <div class="sidebar-logo"><i class="bi bi-mortarboard"></i></div>
             <div class="sidebar-brand">
-                <span class="sb-name">San <strong>Cristóbal</strong></span>
+                <span class="sb-name">{{ $colegioConfiguracion->nombre_colegio }}</span>
                 <span class="sb-sub">Panel {{ $usuario?->rolLabel }}</span>
             </div>
             <button class="sidebar-collapse" id="sidebarCollapse" title="Contraer" aria-label="Contraer menú">

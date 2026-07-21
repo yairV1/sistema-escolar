@@ -5,6 +5,13 @@
 // del sistema legacy. Mismos nombres de clase (así el JS portado
 // no necesita cambiar selectores) + soporte de tema oscuro, que
 // el legacy no tenía.
+//
+// v2 — mejoras de accesibilidad, contraste y experiencia de usuario:
+//   - Fix: indicador activo (::before) ahora se posiciona correctamente
+//   - Fix: contraste del badge "info" en modo oscuro (WCAG AA)
+//   - Nuevo: tooltips en estado colapsado (usa data-label en el HTML)
+//   - Nuevo: transición suave para el dropup del menú de usuario
+//   - Nuevo: estado aria-pressed para el toggle de tema
 // =============================================================
 
 :root {
@@ -21,7 +28,7 @@
     --sb-text-faint: #9aab9f;
 
     --sb-badge-info-bg: #e8f5ee;
-    --sb-badge-info-text: #1e5436;
+    --sb-badge-info-text: #1a7a4a;
     --sb-badge-pendiente-bg: #fff7ed;
     --sb-badge-pendiente-text: #c05621;
     --sb-badge-urgente-bg: #fff5f5;
@@ -33,6 +40,7 @@
     --sb-width-collapsed: 76px;
     --sb-radius-sm: 8px;
     --sb-shadow-md: 0 6px 28px rgba(30, 84, 54, .13);
+    --sb-shadow-tooltip: 0 4px 14px rgba(0, 0, 0, .18);
     --sb-transition: 200ms ease;
 }
 
@@ -129,10 +137,13 @@ body.has-sidebar.sidebar-collapsed {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background var(--sb-transition), color var(--sb-transition);
+    transition: background var(--sb-transition), color var(--sb-transition), transform var(--sb-transition);
     flex-shrink: 0;
 }
 .sidebar-collapse:hover { background: var(--sb-bg-alt); color: var(--sb-text); }
+.sidebar-collapse:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: 2px; }
+.sidebar.collapsed .sidebar-collapse i { transform: rotate(180deg); }
+.sidebar-collapse i { display: inline-block; transition: transform var(--sb-transition); }
 
 .sidebar.collapsed .sidebar-brand { opacity: 0; pointer-events: none; width: 0; }
 .sidebar.collapsed .sidebar-header { flex-direction: column; padding: 16px 10px; gap: 10px; }
@@ -162,7 +173,11 @@ body.has-sidebar.sidebar-collapsed {
 .sidebar.collapsed .nav-group-label { opacity: 0; height: 0; padding: 0; margin: 0; }
 
 // ---------- Links ----------
+// FIX: position: relative movido aquí (antes solo estaba en .sidebar li,
+// pero el ::before del indicador activo vive en .slink/.slink-toggle,
+// así que se posicionaba respecto al ancestro posicionado equivocado).
 .slink, .slink-toggle {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 11px;
@@ -204,7 +219,9 @@ body.has-sidebar.sidebar-collapsed {
 .slink.active::before, .slink-toggle.active::before {
     content: '';
     position: absolute;
-    left: 0;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 3px;
     height: 20px;
     background: var(--sb-primary);
@@ -214,6 +231,43 @@ body.has-sidebar.sidebar-collapsed {
 .sidebar li { position: relative; }
 
 .slink:focus-visible, .slink-toggle:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: 2px; }
+
+// ---------- Tooltips en estado colapsado ----------
+// Requiere data-label="Texto del link" en cada <a class="slink"> / <button class="slink-toggle">
+// generado por SidebarBuilder. Sin JS: puro CSS con transición de aparición.
+.sidebar.collapsed .slink,
+.sidebar.collapsed .slink-toggle {
+    justify-content: center;
+    padding: 9px 0;
+}
+.sidebar.collapsed .slink i:first-child,
+.sidebar.collapsed .slink-toggle i:first-child { width: auto; }
+
+.sidebar.collapsed .slink span:not(.slink-badge),
+.sidebar.collapsed .slink-toggle span:not(.slink-badge) { display: none; }
+
+.sidebar.collapsed .slink[data-label]:hover::after,
+.sidebar.collapsed .slink-toggle[data-label]:hover::after {
+    content: attr(data-label);
+    position: fixed;
+    left: calc(var(--sb-width-collapsed) + 10px);
+    background: var(--sb-text);
+    color: var(--sb-bg);
+    padding: 6px 11px;
+    border-radius: var(--sb-radius-sm);
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: var(--sb-shadow-tooltip);
+    z-index: 1050;
+    pointer-events: none;
+    animation: sb-tooltip-in 120ms ease forwards;
+}
+
+@keyframes sb-tooltip-in {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
+}
 
 // ---------- Accordion ----------
 .nav-parent { margin-bottom: 2px; }
@@ -269,7 +323,17 @@ body.has-sidebar.sidebar-collapsed {
 .badge-pendiente { background: var(--sb-badge-pendiente-bg); color: var(--sb-badge-pendiente-text); }
 .badge-urgente { background: var(--sb-badge-urgente-bg); color: var(--sb-badge-urgente-text); }
 .badge-novedad { background: var(--sb-badge-novedad-bg); color: var(--sb-badge-novedad-text); }
-.sidebar.collapsed .slink-badge { display: none; }
+.sidebar.collapsed .slink-badge {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    display: block;
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    font-size: 0;
+    border-radius: 50%;
+}
 
 // ---------- Pie del sidebar (perfil + menú kebab) ----------
 .sidebar-footer { position: relative; flex-shrink: 0; border-top: 1px solid var(--sb-border); padding: 10px; }
@@ -294,11 +358,16 @@ body.has-sidebar.sidebar-collapsed {
 .td-info { flex: 1; overflow: hidden; }
 .td-name { font-size: .85rem; font-weight: 700; margin-bottom: 2px; color: var(--sb-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .td-email { font-size: .7rem; color: var(--sb-text-muted); margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.td-kebab { color: var(--sb-text-muted); font-size: 14px; flex-shrink: 0; }
+.td-kebab { color: var(--sb-text-muted); font-size: 14px; flex-shrink: 0; transition: transform var(--sb-transition); }
+.td-header[aria-expanded="true"] .td-kebab { transform: rotate(90deg); }
 
+// FIX: transición de entrada/salida en vez de display: none/block a secas.
+// display se mantiene en "block" siempre; opacity/visibility/transform
+// controlan la aparición para permitir animación.
 .td-dropup {
     position: absolute;
     left: 10px;
+    right: 10px;
     bottom: calc(100% + 8px);
     width: 220px;
     background: var(--sb-bg);
@@ -306,15 +375,24 @@ body.has-sidebar.sidebar-collapsed {
     border-radius: var(--sb-radius-sm);
     box-shadow: var(--sb-shadow-md);
     padding: 6px;
-    display: none;
     z-index: 10;
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity var(--sb-transition), transform var(--sb-transition), visibility var(--sb-transition);
 }
-.td-dropup.open { display: block; }
+.td-dropup.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
 
 .td-divider { height: 1px; background: var(--sb-border); margin: 4px 0; }
 .td-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 12px; border-radius: var(--sb-radius-sm); font-size: .82rem; color: var(--sb-text-muted); background: none; border: none; cursor: pointer; text-align: left; transition: var(--sb-transition); }
 .td-item i { color: var(--sb-primary); width: 14px; }
 .td-item:hover { background: var(--sb-bg-alt); color: var(--sb-text); }
+.td-item:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: -2px; }
 .td-logout { color: #e53e3e; font-weight: 600; }
 .td-logout i { color: #e53e3e; }
 .td-logout:hover { background: #fff5f5; color: #e53e3e; }
@@ -323,6 +401,7 @@ body.has-sidebar.sidebar-collapsed {
 .sidebar.collapsed .sidebar-footer .td-header { justify-content: center; padding: 8px 4px; }
 .sidebar.collapsed .sidebar-footer .td-info,
 .sidebar.collapsed .sidebar-footer .td-kebab { display: none; }
+.sidebar.collapsed .td-dropup { left: calc(100% + 10px); bottom: 0; }
 
 // ---------- Botón móvil + overlay ----------
 .sidebar-mobile-trigger {
@@ -342,7 +421,10 @@ body.has-sidebar.sidebar-collapsed {
     justify-content: center;
     font-size: 16px;
     cursor: pointer;
+    transition: background var(--sb-transition);
 }
+.sidebar-mobile-trigger:hover { background: var(--sb-bg-alt); }
+.sidebar-mobile-trigger:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: 2px; }
 
 @media (max-width: 1024px) {
     .sidebar { transform: translateX(-100%); box-shadow: var(--sb-shadow-md); }
@@ -361,14 +443,31 @@ body.has-sidebar.sidebar-collapsed {
     .sidebar-overlay.visible { display: block; opacity: 1; }
 
     .panel-content { padding-top: 64px; }
+
+    // En móvil no hay estado "collapsed" con tooltip: el sidebar
+    // siempre se muestra expandido cuando está abierto.
+    .sidebar.mobile-open.collapsed { width: var(--sb-width); }
+    .sidebar.mobile-open.collapsed .sidebar-brand { opacity: 1; pointer-events: auto; width: auto; }
+    .sidebar.mobile-open.collapsed .nav-group-label { opacity: 1; height: auto; padding: 0 10px 8px; }
+    .sidebar.mobile-open.collapsed .slink,
+    .sidebar.mobile-open.collapsed .slink-toggle { justify-content: flex-start; padding: 9px 10px; }
+    .sidebar.mobile-open.collapsed .slink span:not(.slink-badge),
+    .sidebar.mobile-open.collapsed .slink-toggle span:not(.slink-badge) { display: inline; }
 }
 
 @media (min-width: 1025px) {
     .sidebar-overlay { display: none; }
 }
 
+// ---------- Toggle de tema ----------
+[data-theme-toggle] .theme-icon-dark { display: none; }
+[data-bs-theme="dark"] [data-theme-toggle] .theme-icon-light { display: none; }
+[data-bs-theme="dark"] [data-theme-toggle] .theme-icon-dark { display: inline-block; }
+
 @media (prefers-reduced-motion: reduce) {
-    .sidebar, .slink, .slink-toggle, .slink-child, .accordion-arrow, .nav-children, .child-dot {
+    .sidebar, .slink, .slink-toggle, .slink-child, .accordion-arrow, .nav-children,
+    .child-dot, .td-dropup, .td-kebab, .sidebar-collapse i {
         transition: none !important;
+        animation: none !important;
     }
 }

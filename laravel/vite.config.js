@@ -23,6 +23,7 @@ export default defineConfig({
                 'resources/js/pages/comunicados/comunicados.js',
                 'resources/js/pages/perfil/perfil.js',
                 'resources/js/pages/editar-landing/editar-landing.js',
+                'resources/js/pages/configuracion-colegio/configuracion-colegio.js',
                 'resources/js/pages/registro/estudiantes.js',
                 'resources/js/pages/registro/docentes.js',
                 'resources/js/pages/registro/administrativos.js',

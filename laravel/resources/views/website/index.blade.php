@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Colegio San Cristóbal | Educando el Futuro</title>
+  <title>{{ $colegioConfiguracion->nombre_colegio }} | Educando el Futuro</title>
   <link rel="stylesheet" href="{{ asset('assets/webSite/css/styleCole.css') }}" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -17,7 +17,7 @@
         <div class="logo-icon">
           <i class="fas fa-graduation-cap"></i>
         </div>
-        <span class="logo-text">San <strong>Cristóbal</strong></span>
+        <span class="logo-text">{{ $colegioConfiguracion->nombre_colegio }}</span>
       </a>
 
       <button class="hamburger" id="hamburger" aria-label="Menú">
@@ -182,7 +182,7 @@
       <div class="registro-wrapper">
         <div class="registro-info">
           <span class="section-tag light">Inscripciones abiertas</span>
-          <h2>¿Quieres hacer parte de <span class="highlight-light">San Cristóbal?</span></h2>
+          <h2>¿Quieres hacer parte de <span class="highlight-light">{{ $colegioConfiguracion->nombre_colegio }}?</span></h2>
           <p>Completa el formulario y uno de nuestros asesores se comunicará contigo en menos de 24 horas para guiarte en el proceso de admisión.</p>
           <ul class="registro-beneficios">
             <li><i class="fas fa-check-circle"></i> Proceso 100% en línea</li>
@@ -292,7 +292,7 @@
         <div class="footer-brand">
           <div class="nav-logo">
             <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
-            <span class="logo-text">San <strong>Cristóbal</strong></span>
+            <span class="logo-text">{{ $colegioConfiguracion->nombre_colegio }}</span>
           </div>
           <p>Formando líderes con valores desde 1985. Una institución comprometida con la excelencia educativa y el desarrollo humano integral.</p>
           <div class="social-links">
@@ -325,7 +325,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2025 Colegio San Cristóbal. Todos los derechos reservados.</p>
+        <p>© {{ date('Y') }} {{ $colegioConfiguracion->nombre_colegio }}. Todos los derechos reservados.</p>
         <div class="footer-legal">
           <a href="#">Política de privacidad</a>
           <a href="#">Términos de uso</a>

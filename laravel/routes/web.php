@@ -3,6 +3,7 @@
 use App\Modules\Auth\Controllers\LoginController;
 use App\Modules\Auth\Controllers\PasswordResetController;
 use App\Modules\Calificaciones\Controllers\CalificacionesController;
+use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
 use App\Modules\Dashboard\Controllers\DashboardController;
 use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
@@ -169,4 +170,13 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('editar-landing')->name
     Route::post('/galeria/{galeria}', [EditarLandingController::class, 'updateGaleria'])->name('galeria.update');
     Route::post('/galeria/{galeria}/desactivar', [EditarLandingController::class, 'desactivarGaleria'])->name('galeria.desactivar');
     Route::post('/galeria/{galeria}/activar', [EditarLandingController::class, 'activarGaleria'])->name('galeria.activar');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('configuracion-colegio')->name('configuracion-colegio.')->group(function () {
+    Route::get('/', [ConfiguracionColegioController::class, 'index'])->name('index');
+    Route::post('/', [ConfiguracionColegioController::class, 'update'])->name('update');
+
+    Route::post('/imagenes', [ConfiguracionColegioController::class, 'storeImagen'])->name('imagenes.store');
+    Route::post('/imagenes/{imagen}/eliminar', [ConfiguracionColegioController::class, 'destroyImagen'])->name('imagenes.eliminar');
+    Route::post('/imagenes/reordenar', [ConfiguracionColegioController::class, 'reordenarImagenes'])->name('imagenes.reordenar');
 });

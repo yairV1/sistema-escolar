@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
-    <title>@yield('title', 'Iniciar sesión') · Colegio San Cristóbal</title>
+    <title>@yield('title', 'Iniciar sesión') · {{ $colegioConfiguracion->nombre_colegio }}</title>
 
     {{-- Fija el tema antes del primer paint para evitar el parpadeo --}}
     <script>
@@ -36,7 +36,7 @@
                          style="width:58px;height:58px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);">
                         <i class="bi bi-mortarboard-fill fs-4"></i>
                     </div>
-                    <h1 class="font-serif fw-semibold mb-2">Colegio San Cristóbal</h1>
+                    <h1 class="font-serif fw-semibold mb-2">{{ $colegioConfiguracion->nombre_colegio }}</h1>
                     <p class="text-white-50 mb-4">Portal académico institucional</p>
 
                     <div class="d-flex flex-column gap-3">
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <p class="text-white-50 small mb-0">&copy; {{ date('Y') }} Colegio San Cristóbal</p>
+                <p class="text-white-50 small mb-0">&copy; {{ date('Y') }} {{ $colegioConfiguracion->nombre_colegio }}</p>
             </div>
 
             <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5 position-relative">

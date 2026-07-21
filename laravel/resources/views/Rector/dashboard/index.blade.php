@@ -11,7 +11,7 @@
                     <i class="fas fa-circle me-1" style="font-size:.5rem;"></i> Año lectivo {{ now()->year }}
                 </div>
                 <h1 class="h3 fw-semibold mb-1 font-serif">Bienvenido, {{ auth()->user()->nombres }} 👋</h1>
-                <p class="mb-0 text-white-50">{{ auth()->user()->rolLabel }} · Colegio San Cristóbal · Bogotá</p>
+                <p class="mb-0 text-white-50">{{ auth()->user()->rolLabel }} · {{ $colegioConfiguracion->nombre_colegio }} · {{ $colegioConfiguracion->ciudad }}</p>
             </div>
             <div class="text-white-50 small text-end">
                 <div id="dashFecha">—</div>

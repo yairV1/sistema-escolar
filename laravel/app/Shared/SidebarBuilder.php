@@ -42,10 +42,11 @@ class SidebarBuilder
             }
             $isActive = $this->isPageActive($item['page'] ?? null);
             $out .= sprintf(
-                '<li><a href="%s" class="slink%s" data-page="%s"><i class="%s"></i><span>%s</span></a></li>',
+                '<li><a href="%s" class="slink%s" data-page="%s" data-label="%s"><i class="%s"></i><span>%s</span></a></li>',
                 $this->resolveUrl($item),
                 $isActive ? ' active' : '',
                 $this->esc($item['page'] ?? ''),
+                $this->esc($item['title']),
                 $this->esc($item['icon']),
                 $this->esc($item['title']),
             );
@@ -88,10 +89,11 @@ class SidebarBuilder
         $isActive = $this->isPageActive($item['page'] ?? null);
 
         return sprintf(
-            '<li><a href="%s" class="slink%s" data-page="%s"><i class="%s"></i><span>%s</span>%s</a></li>',
+            '<li><a href="%s" class="slink%s" data-page="%s" data-label="%s"><i class="%s"></i><span>%s</span>%s</a></li>',
             $this->resolveUrl($item),
             $isActive ? ' active' : '',
             $this->esc($item['page'] ?? ''),
+            $this->esc($item['title']),
             $this->esc($item['icon']),
             $this->esc($item['title']),
             $this->renderBadge($item['badge'] ?? null),
@@ -121,7 +123,7 @@ class SidebarBuilder
 
         return sprintf(
             '<li class="nav-parent%s">
-                <button type="button" class="slink slink-toggle%s" aria-expanded="%s">
+                <button type="button" class="slink slink-toggle%s" aria-expanded="%s" data-label="%s">
                     <i class="%s"></i>
                     <span>%s</span>
                     %s
@@ -132,6 +134,7 @@ class SidebarBuilder
             $isOpen ? ' is-open' : '',
             $childrenActive ? ' active' : '',
             $isOpen ? 'true' : 'false',
+            $this->esc($item['title']),
             $this->esc($item['icon']),
             $this->esc($item['title']),
             $this->renderBadge($item['badge'] ?? null),
