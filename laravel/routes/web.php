@@ -2,12 +2,14 @@
 
 use App\Modules\Auth\Controllers\LoginController;
 use App\Modules\Auth\Controllers\PasswordResetController;
+use App\Modules\Auth\Controllers\RolController;
 use App\Modules\Calificaciones\Controllers\CalificacionesController;
 use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
 use App\Modules\Dashboard\Controllers\DashboardController;
 use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
 use App\Modules\Landing\Controllers\EditarLandingController;
+use App\Modules\Landing\Controllers\SolicitudAdmisionController;
 use App\Modules\Landing\Controllers\WebsiteController;
 use App\Modules\Matriculas\Controllers\MatriculasController;
 use App\Modules\Observaciones\Controllers\ObservacionesController;
@@ -22,6 +24,10 @@ use App\Modules\Usuarios\Controllers\Registro\RegistroEstudiantesController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [WebsiteController::class, 'index'])->name('home');
+
+Route::post('/solicitudes-admision', [SolicitudAdmisionController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('solicitudes-admision.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -53,6 +59,7 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(func
 Route::middleware(['auth', 'role:admin,rector'])->prefix('matriculas')->group(function () {
     Route::get('/', [MatriculasController::class, 'index'])->name('matriculas');
     Route::post('/{matricula}/estado', [MatriculasController::class, 'cambiarEstado'])->name('matriculas.estado');
+    Route::post('/solicitudes/{solicitud}/estado', [MatriculasController::class, 'cambiarEstadoSolicitud'])->name('matriculas.solicitudes.estado');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('gestion-academica')->name('gestion-academica.')->group(function () {
@@ -179,4 +186,11 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('configuracion-colegio'
     Route::post('/imagenes', [ConfiguracionColegioController::class, 'storeImagen'])->name('imagenes.store');
     Route::post('/imagenes/{imagen}/eliminar', [ConfiguracionColegioController::class, 'destroyImagen'])->name('imagenes.eliminar');
     Route::post('/imagenes/reordenar', [ConfiguracionColegioController::class, 'reordenarImagenes'])->name('imagenes.reordenar');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('roles')->name('roles.')->group(function () {
+    Route::get('/', [RolController::class, 'index'])->name('index');
+    Route::post('/{rol}', [RolController::class, 'update'])->name('update');
+    Route::post('/{rol}/desactivar', [RolController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{rol}/activar', [RolController::class, 'activar'])->name('activar');
 });

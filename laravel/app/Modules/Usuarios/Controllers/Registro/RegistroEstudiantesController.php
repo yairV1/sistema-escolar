@@ -3,19 +3,26 @@
 namespace App\Modules\Usuarios\Controllers\Registro;
 
 use App\Core\Http\Controllers\Controller;
+use App\Modules\Matriculas\Models\SolicitudAdmision;
 use App\Modules\Usuarios\Models\Estudiante;
 use App\Modules\Usuarios\Requests\Registro\EstudianteStoreRequest;
 use App\Modules\Usuarios\Requests\Registro\EstudianteUpdateRequest;
 use App\Modules\Usuarios\Services\EstudianteRegistroService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class RegistroEstudiantesController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
+        $solicitud = null;
+        if ($idSolicitud = $request->query('solicitud')) {
+            $solicitud = SolicitudAdmision::where('estado', '!=', 'convertida')->find($idSolicitud);
+        }
+
         return view('Rector.usuarios.registro.estudiantes', [
             'currentPage' => 'RegistroEstudiantes',
             'estudiante' => null,
@@ -23,6 +30,7 @@ class RegistroEstudiantesController extends Controller
             'grado' => '',
             'grupo' => '',
             'acudiente' => null,
+            'solicitud' => $solicitud,
         ]);
     }
 
@@ -65,6 +73,7 @@ class RegistroEstudiantesController extends Controller
             'grado' => $grado,
             'grupo' => $grupo,
             'acudiente' => $acudiente,
+            'solicitud' => null,
         ]);
     }
 

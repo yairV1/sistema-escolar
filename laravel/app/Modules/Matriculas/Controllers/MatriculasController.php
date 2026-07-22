@@ -5,6 +5,7 @@ namespace App\Modules\Matriculas\Controllers;
 use App\Core\Http\Controllers\Controller;
 use App\Modules\GestionAcademica\Models\Curso;
 use App\Modules\Matriculas\Models\Matricula;
+use App\Modules\Matriculas\Models\SolicitudAdmision;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -48,6 +49,9 @@ class MatriculasController extends Controller
             'cursos' => Curso::orderBy('nivel_academico')->orderBy('nombre_curso')->get(),
             'anios' => Matricula::query()->distinct()->orderByDesc('anio_lectivo')->pluck('anio_lectivo'),
             'matriculas' => $matriculas,
+            'solicitudes' => SolicitudAdmision::whereIn('estado', ['pendiente', 'contactada'])
+                ->orderByDesc('created_at')
+                ->get(),
             'resumen' => [
                 'total' => Matricula::count(),
                 'activas' => Matricula::where('estado_matricula', 'activa')->count(),
@@ -68,6 +72,20 @@ class MatriculasController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'El estado de la matrícula se actualizó correctamente.',
+        ]);
+    }
+
+    public function cambiarEstadoSolicitud(Request $request, SolicitudAdmision $solicitud): JsonResponse
+    {
+        $validated = $request->validate([
+            'estado' => 'required|in:contactada,descartada',
+        ]);
+
+        $solicitud->update(['estado' => $validated['estado']]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'La solicitud se actualizó correctamente.',
         ]);
     }
 }

@@ -121,7 +121,7 @@
         {{-- Horario semanal --}}
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 horario-toolbar">
                     <h2 class="h6 fw-semibold mb-0"><i class="fas fa-calendar-week text-primary me-1"></i> Horario semanal</h2>
                     @if ($asignaciones->isEmpty())
                         <button type="button" class="btn btn-primary btn-sm" disabled title="Asigná al menos una materia primero">
@@ -134,55 +134,16 @@
                     @endif
                 </div>
 
-                @if ($horarios->isEmpty())
+                @if ($asignaciones->isEmpty())
                     <div class="empty-state">
                         <div class="empty-icon"><i class="fas fa-calendar-week"></i></div>
-                        <p class="mb-0">
-                            @if ($asignaciones->isEmpty())
-                                Asigná materias a este curso para poder armar el horario.
-                            @else
-                                Aún no hay horario cargado para este curso.
-                            @endif
-                        </p>
+                        <p class="mb-0">Asigná materias a este curso para poder armar el horario.</p>
                     </div>
                 @else
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Día</th>
-                                    <th>Hora</th>
-                                    <th>Materia</th>
-                                    <th>Profesor</th>
-                                    <th>Salón</th>
-                                    <th class="text-end">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($horarios as $horario)
-                                    <tr>
-                                        <td class="text-capitalize">{{ $horario->dia_semana }}</td>
-                                        <td>{{ \Illuminate\Support\Carbon::parse($horario->hora_inicio)->format('g:i A') }} – {{ \Illuminate\Support\Carbon::parse($horario->hora_fin)->format('g:i A') }}</td>
-                                        <td>{{ $horario->asignacion->materia->nombre_materia }}</td>
-                                        <td>{{ trim($horario->asignacion->profesor->usuario->nombres.' '.$horario->asignacion->profesor->usuario->apellidos) }}</td>
-                                        <td>{{ $horario->salon ?: '—' }}</td>
-                                        <td class="text-end">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Editar"
-                                                    data-bs-toggle="modal" data-bs-target="#modalEditarHorario{{ $horario->id_horario }}">
-                                                <i class="fas fa-pen"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" data-desactivar
-                                                    data-url="{{ route('gestion-academica.horarios.desactivar', $horario) }}"
-                                                    data-nombre="este horario"
-                                                    title="Quitar">
-                                                <i class="fas fa-ban"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                    @if ($horarios->isEmpty())
+                        <p class="small text-secondary mb-2">Todavía no hay clases cargadas. Hacé click en cualquier celda para agregar una.</p>
+                    @endif
+                    @include('Rector.gestion-academica.partials.horario-grid', ['horarios' => $horarios, 'puedeAgregar' => true])
                 @endif
             </div>
         </div>
@@ -190,6 +151,22 @@
 
     @php
         $diasOpciones = ['lunes' => 'Lunes', 'martes' => 'Martes', 'miercoles' => 'Miércoles', 'jueves' => 'Jueves', 'viernes' => 'Viernes', 'sabado' => 'Sábado'];
+
+        // Mismo criterio de color que horario-grid.blade.php, para que el punto
+        // del modal coincida con el bloque que el usuario acaba de clickear.
+        $normalizarModal = fn ($texto) => str_replace(['á', 'é', 'í', 'ó', 'ú'], ['a', 'e', 'i', 'o', 'u'], mb_strtolower(trim($texto)));
+        $patronesColorModal = [
+            'educacion fisica' => 'var(--cat-2)', 'matematic' => 'var(--cat-1)', 'espanol' => 'var(--cat-6)',
+            'lengua castellana' => 'var(--cat-6)', 'quimic' => 'var(--cat-4)', 'religion' => 'var(--cat-7)',
+            'fisica' => 'var(--cat-8)', 'ingles' => 'var(--cat-9)',
+        ];
+        $colorMateriaModal = function ($idMateria, $nombre) use ($normalizarModal, $patronesColorModal) {
+            $nombreNormalizado = $normalizarModal($nombre);
+            foreach ($patronesColorModal as $patron => $variable) {
+                if (str_contains($nombreNormalizado, $patron)) return $variable;
+            }
+            return 'var(--cat-'.(($idMateria % 8) + 1).')';
+        };
     @endphp
 
     {{-- Modal: nuevo horario --}}
@@ -252,6 +229,10 @@
 
     {{-- Modales: editar horario (uno por fila) --}}
     @foreach ($horarios as $horario)
+        @php
+            $profesorModal = trim($horario->asignacion->profesor->usuario->nombres.' '.$horario->asignacion->profesor->usuario->apellidos);
+            $colorModal = $colorMateriaModal($horario->asignacion->id_materia, $horario->asignacion->materia->nombre_materia);
+        @endphp
         <div class="modal fade" id="modalEditarHorario{{ $horario->id_horario }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -261,6 +242,13 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
                         <div class="modal-body">
+                            <div class="horario-modal__resumen" style="--bloque-color: {{ $colorModal }};">
+                                <span class="horario-modal__dot"></span>
+                                <div>
+                                    <div class="horario-modal__resumen-materia">{{ $horario->asignacion->materia->nombre_materia }}</div>
+                                    <div class="horario-modal__resumen-meta">{{ $profesorModal }} · {{ $curso->nombre_curso }}</div>
+                                </div>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label">Materia / Profesor *</label>
@@ -300,6 +288,14 @@
                             </div>
                         </div>
                         <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-danger me-auto" data-desactivar
+                                    data-url="{{ route('gestion-academica.horarios.desactivar', $horario) }}"
+                                    data-nombre="esta clase"
+                                    data-confirm-title="Eliminar clase"
+                                    data-confirm-text="¿Está seguro que desea eliminar esta clase?"
+                                    data-confirm-btn="Eliminar">
+                                <i class="fas fa-trash me-1"></i> Eliminar clase
+                            </button>
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Guardar cambios</button>
                         </div>

@@ -68,6 +68,31 @@ $transition-base: all .2s ease;
 
     --cs-transition: all .2s ease;
     --cs-transition-slow: all .3s ease;
+
+    // Paleta categórica (identidad de materias/eventos en calendarios y horarios).
+    // Validada con el método dataviz (script validate_palette.js): 8 tonos en
+    // orden fijo — NUNCA reordenar ni reasignar por índice de aparición, cada
+    // materia se ancla a su color por id_materia (ver horario-grid.blade.php),
+    // así el mismo color identifica siempre a la misma materia sin importar
+    // en qué curso o con qué otras materias aparezca. Separación CVD y de
+    // visión normal por encima del piso, contraste verificado contra las
+    // superficies reales de la app (#fff claro / #212529 oscuro).
+    // El resaltado de "hoy" en el horario usa gris neutro, no un tono de esta
+    // paleta — así un bloque de clase nunca se confunde con ese indicador.
+    --cat-1: #2a78d6; // azul
+    --cat-2: #eb6834; // naranja
+    --cat-3: #1baf7a; // aqua
+    --cat-4: #eda100; // amarillo
+    --cat-5: #e87ba4; // magenta
+    --cat-6: #008300; // verde saturado (distinto del verde institucional apagado)
+    --cat-7: #4a3aa7; // violeta
+    --cat-8: #e34948; // rojo
+    --cat-9: #1595c2; // celeste
+
+    // Resaltado neutro (sin matiz) para indicadores estructurales como la
+    // columna de "hoy" en un calendario — nunca un tono con color, para que
+    // no compita con los bloques de evento que sí usan --cat-*.
+    --cs-resaltado-neutro: rgba(11, 11, 11, .04);
 }
 
 [data-bs-theme="dark"] {
@@ -80,4 +105,16 @@ $transition-base: all .2s ease;
     --cs-shadow-sm: 0 4px 24px rgba(0, 0, 0, .35);
     --cs-shadow-md: 0 8px 40px rgba(0, 0, 0, .45);
     --cs-shadow-lg: 0 24px 80px rgba(0, 0, 0, .6);
+
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-5: #d55181;
+    --cat-6: #008300;
+    --cat-7: #9085e9;
+    --cat-8: #e66767;
+    --cat-9: #3fc4e8;
+
+    --cs-resaltado-neutro: rgba(255, 255, 255, .05);
 }

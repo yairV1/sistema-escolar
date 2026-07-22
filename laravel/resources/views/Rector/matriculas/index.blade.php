@@ -27,6 +27,65 @@
             @endforeach
         </div>
 
+        @if ($solicitudes->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold"><i class="fas fa-inbox me-1"></i> Solicitudes de admisión desde la web</span>
+                    <span class="badge text-bg-warning">{{ $solicitudes->count() }}</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Acudiente</th>
+                                <th>Estudiante</th>
+                                <th>Grado de interés</th>
+                                <th>Contacto</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($solicitudes as $solicitud)
+                                <tr>
+                                    <td>{{ $solicitud->nombre_acudiente }} {{ $solicitud->apellido_acudiente }}</td>
+                                    <td>{{ $solicitud->nombre_estudiante }}</td>
+                                    <td>{{ $solicitud->grado_interes }}</td>
+                                    <td>
+                                        <div class="small">{{ $solicitud->correo }}</div>
+                                        <div class="small text-secondary">{{ $solicitud->telefono }}</div>
+                                    </td>
+                                    <td>{{ $solicitud->created_at->format('d/m/Y') }}</td>
+                                    <td>
+                                        <span class="badge text-bg-{{ $solicitud->estado === 'pendiente' ? 'warning' : 'info' }}">
+                                            {{ ucfirst($solicitud->estado) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ route('registro.estudiantes.create', ['solicitud' => $solicitud->id_solicitud]) }}"
+                                           class="btn btn-sm btn-outline-success">Convertir en matrícula</a>
+                                        @if ($solicitud->estado === 'pendiente')
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-cambiar-estado-solicitud
+                                                    data-url="{{ route('matriculas.solicitudes.estado', $solicitud) }}"
+                                                    data-estado="contactada" data-nombre="{{ $solicitud->nombre_estudiante }}" data-accion="Marcar como contactada">
+                                                Contactada
+                                            </button>
+                                        @endif
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-cambiar-estado-solicitud
+                                                data-url="{{ route('matriculas.solicitudes.estado', $solicitud) }}"
+                                                data-estado="descartada" data-nombre="{{ $solicitud->nombre_estudiante }}" data-accion="Descartar">
+                                            Descartar
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
         <form method="GET" action="{{ route('matriculas') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
             <div class="col-12 col-md-4">
                 <div class="input-group">

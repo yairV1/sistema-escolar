@@ -4,6 +4,7 @@ namespace App\Modules\Dashboard\Controllers;
 
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Matriculas\Models\Matricula;
+use App\Modules\Matriculas\Models\SolicitudAdmision;
 use App\Modules\Usuarios\Models\Estudiante;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class DashboardController extends Controller
 
         $docentesActivos = Profesor::where('estado_laboral', 'activo')->count();
 
-        $solicitudesPendientes = Matricula::where('estado_matricula', 'pendiente')->count();
+        $solicitudesPendientes = SolicitudAdmision::where('estado', 'pendiente')->count();
 
         $promedioInstitucional = DB::table('boletines')->avg('promedio_general');
 

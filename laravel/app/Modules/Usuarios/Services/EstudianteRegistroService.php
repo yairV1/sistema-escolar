@@ -5,6 +5,7 @@ namespace App\Modules\Usuarios\Services;
 use App\Modules\Auth\Models\Usuario;
 use App\Modules\GestionAcademica\Models\Curso;
 use App\Modules\Matriculas\Models\Matricula;
+use App\Modules\Matriculas\Models\SolicitudAdmision;
 use App\Modules\Usuarios\Models\Acudiente;
 use App\Modules\Usuarios\Models\Estudiante;
 use Illuminate\Support\Facades\DB;
@@ -55,8 +56,15 @@ class EstudianteRegistroService
                 'observaciones_gral' => $d['condicion_medica'] ?? null,
             ]);
 
-            self::asignarCursoYMatricula($estudiante->id_estudiante, $d);
+            $idMatricula = self::asignarCursoYMatricula($estudiante->id_estudiante, $d);
             self::vincularAcudiente($estudiante->id_estudiante, $d);
+
+            if (! empty($d['id_solicitud'])) {
+                SolicitudAdmision::whereKey($d['id_solicitud'])->update([
+                    'estado' => 'convertida',
+                    'id_matricula' => $idMatricula,
+                ]);
+            }
 
             return ['id_estudiante' => $estudiante->id_estudiante, 'codigo_estudiante' => $estudiante->codigo_estudiante];
         });
@@ -98,7 +106,7 @@ class EstudianteRegistroService
     }
 
     /** Port de Curso::asignarCursoYMatricula() (legacy). */
-    private static function asignarCursoYMatricula(int $idEstudiante, array $d): void
+    private static function asignarCursoYMatricula(int $idEstudiante, array $d): int
     {
         $grupo = $d['grupo'] ?: 'A';
         $nombreCurso = $d['grado'].$grupo;
@@ -116,10 +124,10 @@ class EstudianteRegistroService
         if ($matricula) {
             $matricula->update(['id_curso' => $idCurso, 'observacion' => $d['tipo_matricula'] ?? null]);
 
-            return;
+            return $matricula->id_matricula;
         }
 
-        Matricula::create([
+        $matricula = Matricula::create([
             'id_estudiante' => $idEstudiante,
             'id_curso' => $idCurso,
             'anio_lectivo' => (int) $d['anio_lectivo'],
@@ -127,6 +135,8 @@ class EstudianteRegistroService
             'estado_matricula' => 'activa',
             'observacion' => $d['tipo_matricula'] ?? null,
         ]);
+
+        return $matricula->id_matricula;
     }
 
     private static function vincularAcudiente(int $idEstudiante, array $d): void

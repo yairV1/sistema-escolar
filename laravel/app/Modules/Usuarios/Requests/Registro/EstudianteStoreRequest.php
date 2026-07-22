@@ -14,6 +14,8 @@ class EstudianteStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_solicitud' => ['nullable', 'integer', 'exists:solicitudes_admision,id_solicitud'],
+
             // Paso 1 — Datos personales
             'primer_nombre' => ['required', 'string', 'max:100'],
             'segundo_nombre' => ['nullable', 'string', 'max:100'],

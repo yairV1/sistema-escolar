@@ -667,6 +667,19 @@ a { text-decoration: none; }
 .form-success.show { display: flex; }
 .form-success i { color: var(--verde-principal); font-size: 1.2rem; }
 
+.form-error {
+  display: none;
+  background: #fdecea;
+  border: 1px solid #e53e3e;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: var(--radio-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 16px;
+}
+.form-error.show { display: block; }
+
 /* ========================================
    CONTACTO
    ======================================== */

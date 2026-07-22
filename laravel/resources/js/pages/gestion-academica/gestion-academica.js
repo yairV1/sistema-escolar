@@ -1,5 +1,6 @@
-import { initAutosubmit, initEstadoToggle, initCrudForms } from '../../components/listActions';
+import { initAutosubmit, initEstadoToggle, initCrudForms, initModalNuevoHorario } from '../../components/listActions';
 
 initAutosubmit();
 initEstadoToggle();
 initCrudForms();
+initModalNuevoHorario();

@@ -110,6 +110,7 @@ return [
                     'children' => [
                         ['title' => 'Editar Landing Page', 'route' => 'editar-landing.index', 'page' => 'EditarLanding'],
                         ['title' => 'Configuración del Colegio', 'route' => 'configuracion-colegio.index', 'page' => 'ConfiguracionColegio', 'roles' => ['admin', 'rector']],
+                    ['title' => 'Roles', 'route' => 'roles.index', 'page' => 'Roles', 'roles' => ['admin', 'rector']],
                     ],
                 ],
             ],
