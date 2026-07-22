@@ -90,6 +90,8 @@ class CalificacionesController extends Controller
 
     public function asignacion(Request $request, AsignacionAcademica $asignacion): View
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
         $asignacion->load(['materia', 'curso', 'profesor.usuario']);
 
         $query = $asignacion->actividades()->with(['periodo', 'tipo']);
@@ -108,9 +110,11 @@ class CalificacionesController extends Controller
         ]);
     }
 
-    public function notas(Actividad $actividad): View
+    public function notas(Request $request, Actividad $actividad): View
     {
         $actividad->load(['asignacion.curso', 'asignacion.materia', 'periodo', 'tipo']);
+
+        abort_unless($request->user()->puedeGestionarAsignacion($actividad->asignacion), 403);
 
         $estudiantes = $actividad->asignacion->curso->matriculas()
             ->where('estado_matricula', 'activa')
@@ -130,6 +134,8 @@ class CalificacionesController extends Controller
 
     public function guardarNotas(Request $request, Actividad $actividad): JsonResponse
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($actividad->asignacion), 403);
+
         $data = $request->validate([
             'notas' => ['required', 'array'],
             'notas.*.id_estudiante' => ['required', 'integer', 'exists:estudiantes,id_estudiante'],
@@ -220,6 +226,8 @@ class CalificacionesController extends Controller
 
     public function storeActividad(ActividadRequest $request, AsignacionAcademica $asignacion): JsonResponse
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
         try {
             $actividad = Actividad::create($request->validated() + ['id_asignacion' => $asignacion->id_asignacion, 'estado' => 'activa']);
         } catch (QueryException $e) {
@@ -231,6 +239,8 @@ class CalificacionesController extends Controller
 
     public function updateActividad(ActividadRequest $request, Actividad $actividad): JsonResponse
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($actividad->asignacion), 403);
+
         try {
             $actividad->update($request->validated());
         } catch (QueryException $e) {
@@ -242,6 +252,8 @@ class CalificacionesController extends Controller
 
     public function desactivarActividad(Actividad $actividad): JsonResponse
     {
+        abort_unless(auth()->user()->puedeGestionarAsignacion($actividad->asignacion), 403);
+
         $actividad->update(['estado' => 'anulada']);
 
         return response()->json(['success' => true, 'message' => 'Actividad anulada correctamente.']);
@@ -249,6 +261,8 @@ class CalificacionesController extends Controller
 
     public function activarActividad(Actividad $actividad): JsonResponse
     {
+        abort_unless(auth()->user()->puedeGestionarAsignacion($actividad->asignacion), 403);
+
         $actividad->update(['estado' => 'activa']);
 
         return response()->json(['success' => true, 'message' => 'Actividad reactivada correctamente.']);

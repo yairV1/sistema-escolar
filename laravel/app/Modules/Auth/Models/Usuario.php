@@ -2,8 +2,11 @@
 
 namespace App\Modules\Auth\Models;
 
+use App\Modules\GestionAcademica\Models\AsignacionAcademica;
+use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -70,6 +73,11 @@ class Usuario extends Authenticatable
         return $this->belongsTo(Rol::class, 'id_rol', 'id_rol');
     }
 
+    public function profesor(): HasOne
+    {
+        return $this->hasOne(Profesor::class, 'id_usuario', 'id_usuario');
+    }
+
     protected function rolSlug(): Attribute
     {
         return Attribute::make(
@@ -92,5 +100,10 @@ class Usuario extends Authenticatable
     public function estaActivo(): bool
     {
         return $this->estado_usuario === 'activo';
+    }
+
+    public function puedeGestionarAsignacion(AsignacionAcademica $asignacion): bool
+    {
+        return $this->tienePanelAdmin() || $this->profesor?->id_profesor === $asignacion->id_profesor;
     }
 }

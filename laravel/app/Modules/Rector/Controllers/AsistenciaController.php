@@ -14,6 +14,8 @@ class AsistenciaController extends Controller
 {
     public function show(Request $request, AsignacionAcademica $asignacion): View
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
         $asignacion->load(['materia', 'curso', 'profesor.usuario']);
         $fecha = $request->query('fecha', now()->toDateString());
 
@@ -39,6 +41,8 @@ class AsistenciaController extends Controller
 
     public function guardar(Request $request, AsignacionAcademica $asignacion): JsonResponse
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
         $data = $request->validate([
             'fecha' => ['required', 'date'],
             'registros' => ['required', 'array'],
@@ -64,8 +68,10 @@ class AsistenciaController extends Controller
         return response()->json(['success' => true, 'message' => 'Asistencia guardada correctamente.']);
     }
 
-    public function historial(AsignacionAcademica $asignacion): View
+    public function historial(Request $request, AsignacionAcademica $asignacion): View
     {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
         $resumen = Asistencia::where('id_asignacion', $asignacion->id_asignacion)
             ->selectRaw('fecha, COUNT(*) as total, SUM(estado_asistencia = "presente") as presentes, SUM(estado_asistencia = "ausente") as ausentes, SUM(estado_asistencia = "tarde") as tardes, SUM(estado_asistencia = "excusa") as excusas')
             ->groupBy('fecha')

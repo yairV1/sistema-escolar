@@ -7,6 +7,7 @@ use App\Modules\Calificaciones\Controllers\CalificacionesController;
 use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
 use App\Modules\Dashboard\Controllers\DashboardController;
+use App\Modules\Docente\Controllers\DocenteController;
 use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
 use App\Modules\Landing\Controllers\EditarLandingController;
 use App\Modules\Landing\Controllers\SolicitudAdmisionController;
@@ -45,6 +46,10 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 Route::get('/inicio', [DashboardController::class, 'index'])
     ->middleware(['auth', 'role:admin,rector'])
     ->name('inicio');
+
+Route::get('/mi-panel', [DocenteController::class, 'dashboard'])
+    ->middleware(['auth', 'role:docente'])
+    ->name('docente.dashboard');
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(function () {
     Route::get('/', [ListadosController::class, 'index'])->name('listados');
@@ -115,7 +120,11 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('calificaciones')->name
     Route::post('/tipos-actividad/{tipoActividad}', [CalificacionesController::class, 'updateTipoActividad'])->name('tipos-actividad.update');
     Route::post('/tipos-actividad/{tipoActividad}/desactivar', [CalificacionesController::class, 'desactivarTipoActividad'])->name('tipos-actividad.desactivar');
     Route::post('/tipos-actividad/{tipoActividad}/activar', [CalificacionesController::class, 'activarTipoActividad'])->name('tipos-actividad.activar');
+});
 
+// Rutas de calificaciones acotadas a una asignación puntual: además de admin/rector,
+// las puede usar el profesor dueño de esa asignación (ver Usuario::puedeGestionarAsignacion).
+Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
     Route::get('/asignaciones/{asignacion}', [CalificacionesController::class, 'asignacion'])->name('asignaciones.show');
     Route::post('/asignaciones/{asignacion}/actividades', [CalificacionesController::class, 'storeActividad'])->name('actividades.store');
     Route::post('/actividades/{actividad}', [CalificacionesController::class, 'updateActividad'])->name('actividades.update');
@@ -143,7 +152,7 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('boletines')->name('bol
     Route::post('/{boletin}/borrador', [BoletinesController::class, 'volverBorrador'])->name('borrador');
 });
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('asistencia')->name('asistencia.')->group(function () {
+Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('asistencia')->name('asistencia.')->group(function () {
     Route::get('/asignaciones/{asignacion}', [AsistenciaController::class, 'show'])->name('show');
     Route::post('/asignaciones/{asignacion}', [AsistenciaController::class, 'guardar'])->name('guardar');
     Route::get('/asignaciones/{asignacion}/historial', [AsistenciaController::class, 'historial'])->name('historial');
