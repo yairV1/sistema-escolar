@@ -14,6 +14,8 @@ export default defineConfig({
                 'resources/js/pages/matriculas/matriculas.js',
                 'resources/js/pages/gestion-academica/gestion-academica.js',
                 'resources/js/pages/gestion-academica/curso-detalle.js',
+                'resources/js/pages/calendario/calendario.js',
+                'resources/js/pages/calendario/categorias.js',
                 'resources/js/pages/calificaciones/calificaciones.js',
                 'resources/js/pages/calificaciones/asignacion.js',
                 'resources/js/pages/calificaciones/notas.js',

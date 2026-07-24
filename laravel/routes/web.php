@@ -3,6 +3,13 @@
 use App\Modules\Auth\Controllers\LoginController;
 use App\Modules\Auth\Controllers\PasswordResetController;
 use App\Modules\Auth\Controllers\RolController;
+use App\Modules\Calendario\Controllers\CalendarioController;
+use App\Modules\Calendario\Controllers\CalendarioExportController;
+use App\Modules\Calendario\Controllers\EventoAdjuntoController;
+use App\Modules\Calendario\Controllers\EventoCategoriaController;
+use App\Modules\Calendario\Controllers\EventoComentarioController;
+use App\Modules\Calendario\Controllers\EventoController;
+use App\Modules\Calendario\Controllers\NotificacionPanelController;
 use App\Modules\Calificaciones\Controllers\CalificacionesController;
 use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
@@ -171,6 +178,63 @@ Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () 
     Route::get('/', [PerfilController::class, 'show'])->name('show');
     Route::post('/', [PerfilController::class, 'update'])->name('update');
     Route::post('/password', [PerfilController::class, 'updatePassword'])->name('password');
+});
+
+// Panel-wide, no una acción de calendario — hoy Calendario es el único
+// productor de Notification, ver NotificacionPanelController.
+Route::middleware('auth')->prefix('notificaciones')->name('notificaciones.')->group(function () {
+    Route::get('/', [NotificacionPanelController::class, 'index'])->name('index');
+    Route::post('/leer-todas', [NotificacionPanelController::class, 'leerTodas'])->name('leer-todas');
+});
+
+// Suscripción .ics sin sesión (Google/Outlook la consultan periódicamente
+// sin cookies) — el token de 64 caracteres es la única protección, ver
+// CalendarioExportController::suscripcion(). Registrada antes del grupo
+// con el wildcard /calendario/{evento} por el mismo motivo que
+// calendario/categorias arriba, aunque en este caso no hay colisión real
+// (dos segmentos extra vs. uno solo).
+Route::get('/calendario/ics/{usuario}/{token}', [CalendarioExportController::class, 'suscripcion'])->name('calendario.ics');
+
+// Admin-only: gestión de categorías (color/ícono/permisos/orden) — decisión
+// institucional, no una acción de calendario personal. Registrada ANTES del
+// grupo con el wildcard /calendario/{evento}: si fuera al revés, una
+// petición a /calendario/categorias resolvería {evento}="categorias" en
+// vez de llegar acá (Laravel matchea rutas en orden de registro).
+Route::middleware(['auth', 'role:admin,rector'])->prefix('calendario/categorias')->name('calendario.categorias.')->group(function () {
+    Route::get('/', [EventoCategoriaController::class, 'index'])->name('index');
+    Route::post('/', [EventoCategoriaController::class, 'store'])->name('store');
+    Route::post('/{categoria}', [EventoCategoriaController::class, 'update'])->name('update');
+    Route::post('/{categoria}/desactivar', [EventoCategoriaController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{categoria}/activar', [EventoCategoriaController::class, 'activar'])->name('activar');
+});
+
+// Sin restricción de rol: cada rol ve/edita un subconjunto distinto por
+// scoping de datos y Policy (VisibilidadCalendarioService, EventoPolicy),
+// no por acceso a la ruta.
+Route::middleware('auth')->prefix('calendario')->name('calendario.')->group(function () {
+    Route::get('/', [CalendarioController::class, 'index'])->name('index');
+    Route::get('/feed', [CalendarioController::class, 'feed'])->name('feed');
+
+    // Registradas antes del wildcard /{evento}: si fueran después, GET
+    // /calendario/exportar resolvería {evento}="exportar" en vez de llegar
+    // acá (mismo motivo que calendario/categorias más arriba).
+    Route::get('/exportar', [CalendarioExportController::class, 'descargar'])->name('exportar');
+    Route::post('/exportar/token', [CalendarioExportController::class, 'generarToken'])->name('exportar.token');
+
+    Route::post('/', [EventoController::class, 'store'])->name('store');
+    Route::get('/{evento}', [EventoController::class, 'show'])->name('show');
+    Route::post('/{evento}', [EventoController::class, 'update'])->name('update');
+    Route::post('/{evento}/mover', [EventoController::class, 'mover'])->name('mover');
+    Route::post('/{evento}/duplicar', [EventoController::class, 'duplicar'])->name('duplicar');
+    Route::post('/{evento}/estado', [EventoController::class, 'cambiarEstado'])->name('estado');
+    Route::post('/{evento}/desactivar', [EventoController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{evento}/activar', [EventoController::class, 'activar'])->name('activar');
+
+    Route::post('/{evento}/adjuntos', [EventoAdjuntoController::class, 'store'])->name('adjuntos.store');
+    Route::post('/adjuntos/{adjunto}/eliminar', [EventoAdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
+
+    Route::post('/{evento}/comentarios', [EventoComentarioController::class, 'store'])->name('comentarios.store');
+    Route::post('/comentarios/{comentario}/eliminar', [EventoComentarioController::class, 'destroy'])->name('comentarios.destroy');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('editar-landing')->name('editar-landing.')->group(function () {

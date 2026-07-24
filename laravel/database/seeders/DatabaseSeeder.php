@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             PermissionsSeeder::class,
             PermissionRoleSeeder::class,
             ColegioConfiguracionSeeder::class,
+            EventoCategoriaSeeder::class,
         ]);
     }
 }

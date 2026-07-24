@@ -85,14 +85,18 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <main class="panel-content">
-        <button type="button"
-                class="btn btn-outline-secondary rounded-circle position-fixed"
-                style="width:40px;height:40px;top:16px;right:16px;z-index:1020;"
-                data-theme-toggle
-                aria-label="Cambiar tema">
-            <i class="bi bi-moon-stars theme-icon-light"></i>
-            <i class="bi bi-sun theme-icon-dark"></i>
-        </button>
+        <div class="panel-topbar-actions position-fixed d-flex gap-2" style="top:16px;right:16px;z-index:1020;">
+            @include('layouts.partials._campanita-notificaciones')
+
+            <button type="button"
+                    class="btn btn-outline-secondary rounded-circle"
+                    style="width:40px;height:40px;"
+                    data-theme-toggle
+                    aria-label="Cambiar tema">
+                <i class="bi bi-moon-stars theme-icon-light"></i>
+                <i class="bi bi-sun theme-icon-dark"></i>
+            </button>
+        </div>
 
         @yield('content')
     </main>

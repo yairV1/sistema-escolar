@@ -30,6 +30,12 @@ return [
             'page'  => 'DocenteDashboard',
             'roles' => ['docente'],
         ],
+        [
+            'title' => 'Calendario',
+            'icon'  => 'fas fa-calendar-alt',
+            'route' => 'calendario.index',
+            'page'  => 'Calendario',
+        ],
     ],
 
     // ---------- SECCIONES ----------
@@ -108,9 +114,6 @@ return [
                         // ['title' => 'Notificaciones', 'route' => 'notificaciones.index', 'page' => 'Notificaciones'],
                     ],
                 ],
-                'title' => 'Calendario Escolar',
-                'icon'  => 'fas fa-calendar-alt',
-                'page'  => 'calendario'
             ],
         ],
 

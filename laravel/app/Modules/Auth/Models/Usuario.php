@@ -97,6 +97,12 @@ class Usuario extends Authenticatable
         return in_array($this->rolSlug, self::ROLES_PANEL_ADMIN, true);
     }
 
+    /** Los 7 slugs de rol válidos — usado para validar entradas dinámicas (ej. permisos por categoría). */
+    public static function allRoleSlugs(): array
+    {
+        return array_values(self::ROLE_SLUGS);
+    }
+
     public function estaActivo(): bool
     {
         return $this->estado_usuario === 'activo';

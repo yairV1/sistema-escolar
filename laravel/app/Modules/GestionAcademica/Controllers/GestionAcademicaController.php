@@ -16,6 +16,7 @@ use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class GestionAcademicaController extends Controller
@@ -281,6 +282,8 @@ class GestionAcademicaController extends Controller
             return $this->respuestaDuplicado($e, 'Ya existe ese bloque horario para esa asignación.');
         }
 
+        $this->invalidarCacheCalendario();
+
         return response()->json(['success' => true, 'message' => 'Horario creado correctamente.', 'id' => $horario->id_horario]);
     }
 
@@ -296,12 +299,16 @@ class GestionAcademicaController extends Controller
             return $this->respuestaDuplicado($e, 'Ya existe ese bloque horario para esa asignación.');
         }
 
+        $this->invalidarCacheCalendario();
+
         return response()->json(['success' => true, 'message' => 'Horario actualizado correctamente.']);
     }
 
     public function desactivarHorario(Horario $horario): JsonResponse
     {
         $horario->update(['estado' => 'inactivo']);
+
+        $this->invalidarCacheCalendario();
 
         return response()->json(['success' => true, 'message' => 'Horario desactivado correctamente.']);
     }
@@ -310,7 +317,20 @@ class GestionAcademicaController extends Controller
     {
         $horario->update(['estado' => 'activo']);
 
+        $this->invalidarCacheCalendario();
+
         return response()->json(['success' => true, 'message' => 'Horario reactivado correctamente.']);
+    }
+
+    /**
+     * Bump de la versión que usa HorarioOccurrenceSource (módulo Calendario)
+     * como parte de su clave de caché — cualquier mutación de horarios
+     * invalida al instante el calendario derivado, sin esperar TTL ni
+     * depender de Cache::tags (no soportado por el driver `database`).
+     */
+    private function invalidarCacheCalendario(): void
+    {
+        Cache::increment('calendario:horarios_version');
     }
 
     /**
