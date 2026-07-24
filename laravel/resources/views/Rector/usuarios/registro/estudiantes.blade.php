@@ -7,6 +7,20 @@
     $nombresPartes = $u ? explode(' ', $u->nombres, 2) : [];
     $apellidosPartes = $u ? explode(' ', $u->apellidos, 2) : [];
     $parentescoForm = $acudiente ? (array_search($acudiente->parentesco, \App\Modules\Usuarios\Models\Estudiante::PARENTESCO_MAP) ?: 'otro') : '';
+
+    if (! $estudiante && $solicitud) {
+        $partesSolicitud = explode(' ', trim($solicitud->nombre_estudiante));
+        $apellidosPartes = count($partesSolicitud) > 1 ? [array_pop($partesSolicitud)] : [];
+        $nombresPartes = [implode(' ', $partesSolicitud)];
+
+        $gradoSolicitud = '';
+        if (str_contains(mb_strtolower($solicitud->grado_interes), 'preescolar')) {
+            $gradoSolicitud = 'PRE';
+        } elseif (preg_match('/\d+/', $solicitud->grado_interes, $m)) {
+            $gradoSolicitud = $m[0];
+        }
+        $grado = $gradoSolicitud;
+    }
 @endphp
 
 @section('content')
@@ -25,8 +39,16 @@
             <div class="wizard-pill" data-step-link="4"><span class="step-num"><span>4</span></span> Acudiente</div>
         </div>
 
+        @if ($solicitud)
+            <div class="alert alert-info small">
+                <i class="fas fa-inbox me-1"></i> Datos precargados desde la solicitud de admisión enviada por
+                {{ $solicitud->nombre_acudiente }} {{ $solicitud->apellido_acudiente }}. Revisa y completa el resto de campos antes de guardar.
+            </div>
+        @endif
+
         <form id="wizardForm" novalidate>
             <input type="hidden" id="idEstudiante" value="{{ $estudiante?->id_estudiante }}">
+            <input type="hidden" name="id_solicitud" value="{{ $solicitud?->id_solicitud }}">
 
             {{-- Paso 1 — Datos personales --}}
             <div class="wizard-step card mb-3" data-step="1">
@@ -256,7 +278,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Nombre completo del acudiente @if(!$estudiante) *@endif</label>
                             <input type="text" class="form-control" name="acudiente_nombres" id="acudiente_nombres"
-                                   value="{{ $acudiente->nombres ?? '' }} {{ $acudiente->apellidos ?? '' }}"
+                                   value="{{ $acudiente ? trim($acudiente->nombres.' '.$acudiente->apellidos) : ($solicitud ? trim($solicitud->nombre_acudiente.' '.$solicitud->apellido_acudiente) : '') }}"
                                    data-feedback="err-acudiente_nombres" @if(!$estudiante) required @endif>
                             <div class="invalid-feedback" id="err-acudiente_nombres"></div>
                         </div>
@@ -291,7 +313,7 @@
                         <div class="col-md-4">
                             <label class="form-label">Teléfono principal @if(!$estudiante) *@endif</label>
                             <input type="text" class="form-control" name="acudiente_telefono" id="acudiente_telefono"
-                                   value="{{ $acudiente->telefono ?? '' }}" data-feedback="err-acudiente_telefono">
+                                   value="{{ $acudiente->telefono ?? $solicitud?->telefono ?? '' }}" data-feedback="err-acudiente_telefono">
                             <div class="invalid-feedback" id="err-acudiente_telefono"></div>
                         </div>
                         <div class="col-md-4">
@@ -301,7 +323,7 @@
                         <div class="col-md-4">
                             <label class="form-label">Correo @if(!$estudiante) *@endif</label>
                             <input type="email" class="form-control" name="acudiente_correo" id="acudiente_correo"
-                                   value="{{ $acudiente->correo ?? '' }}" data-feedback="err-acudiente_correo">
+                                   value="{{ $acudiente->correo ?? $solicitud?->correo ?? '' }}" data-feedback="err-acudiente_correo">
                             <div class="invalid-feedback" id="err-acudiente_correo"></div>
                         </div>
                     </div>

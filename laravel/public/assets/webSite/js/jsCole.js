@@ -165,9 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================== */
   const form        = document.getElementById('registroForm');
   const formSuccess = document.getElementById('formSuccess');
+  const formError   = document.getElementById('formError');
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       // Validación básica
@@ -187,12 +188,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!valid) return;
 
-      // Simular envío
       const btn = form.querySelector('.btn-submit');
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
       btn.disabled = true;
+      formError.classList.remove('show');
 
-      setTimeout(() => {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      const url       = document.querySelector('meta[name="solicitud-admision-url"]')?.content;
+      const payload   = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const primerError = data.errors ? Object.values(data.errors)[0][0] : null;
+          throw new Error(primerError || data.message || 'No se pudo enviar la solicitud.');
+        }
+
         btn.style.display = 'none';
         formSuccess.classList.add('show');
         form.reset();
@@ -202,7 +224,12 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.disabled = false;
           formSuccess.classList.remove('show');
         }, 5000);
-      }, 1500);
+      } catch (error) {
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar solicitud';
+        btn.disabled = false;
+        formError.textContent = error.message;
+        formError.classList.add('show');
+      }
     });
 
     // Limpiar error al escribir

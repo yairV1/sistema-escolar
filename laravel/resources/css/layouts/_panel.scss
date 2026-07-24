@@ -464,6 +464,63 @@ body.has-sidebar.sidebar-collapsed {
 [data-bs-theme="dark"] [data-theme-toggle] .theme-icon-light { display: none; }
 [data-bs-theme="dark"] [data-theme-toggle] .theme-icon-dark { display: inline-block; }
 
+// ---------- Campanita de notificaciones ----------
+// Mismo patrón que .td-dropup: posición fija/absoluta + opacity/visibility/
+// transform para animar, en vez de display:none/block a secas.
+.campanita-notificaciones { position: relative; }
+
+.campanita-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #e53e3e;
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+}
+
+.campanita-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    max-height: 420px;
+    overflow-y: auto;
+    background: var(--sb-bg);
+    border: 1px solid var(--sb-border);
+    border-radius: var(--sb-radius-sm);
+    box-shadow: var(--sb-shadow-md);
+    z-index: 10;
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity var(--sb-transition), transform var(--sb-transition), visibility var(--sb-transition);
+}
+.campanita-panel.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.campanita-header { padding: 12px 14px; font-size: .82rem; font-weight: 700; color: var(--sb-text); border-bottom: 1px solid var(--sb-border); }
+
+.campanita-vacio { padding: 20px 14px; margin: 0; font-size: .8rem; color: var(--sb-text-faint); text-align: center; }
+
+.campanita-item { display: block; padding: 10px 14px; border-bottom: 1px solid var(--sb-border); text-decoration: none; transition: var(--sb-transition); }
+.campanita-item:last-child { border-bottom: none; }
+.campanita-item:hover { background: var(--sb-bg-alt); }
+.campanita-item-titulo { display: block; font-size: .82rem; font-weight: 600; color: var(--sb-text); }
+.campanita-item-meta { display: block; font-size: .72rem; color: var(--sb-text-faint); margin-top: 2px; }
+.campanita-item:not(.leida) .campanita-item-titulo::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--sb-primary); margin-right: 6px; }
+
 @media (prefers-reduced-motion: reduce) {
     .sidebar, .slink, .slink-toggle, .slink-child, .accordion-arrow, .nav-children,
     .child-dot, .td-dropup, .td-kebab, .sidebar-collapse i {

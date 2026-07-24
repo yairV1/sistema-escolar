@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+  <meta name="solicitud-admision-url" content="{{ route('solicitudes-admision.store') }}" />
   <title>{{ $colegioConfiguracion->nombre_colegio }} | Educando el Futuro</title>
   <link rel="stylesheet" href="{{ asset('assets/webSite/css/styleCole.css') }}" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -197,29 +199,29 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="nombre">Nombre del acudiente</label>
-                <input type="text" id="nombre" placeholder="Ej. María García" required />
+                <input type="text" id="nombre" name="nombre_acudiente" placeholder="Ej. María García" required />
               </div>
               <div class="form-group">
                 <label for="apellido">Apellido</label>
-                <input type="text" id="apellido" placeholder="Ej. González" required />
+                <input type="text" id="apellido" name="apellido_acudiente" placeholder="Ej. González" required />
               </div>
             </div>
             <div class="form-group">
               <label for="email">Correo electrónico</label>
-              <input type="email" id="email" placeholder="correo@ejemplo.com" required />
+              <input type="email" id="email" name="correo" placeholder="correo@ejemplo.com" required />
             </div>
             <div class="form-group">
               <label for="telefono">Teléfono / Celular</label>
-              <input type="tel" id="telefono" placeholder="300 000 0000" required />
+              <input type="tel" id="telefono" name="telefono" placeholder="300 000 0000" required />
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label for="estudiante">Nombre del estudiante</label>
-                <input type="text" id="estudiante" placeholder="Nombre completo" required />
+                <input type="text" id="estudiante" name="nombre_estudiante" placeholder="Nombre completo" required />
               </div>
               <div class="form-group">
                 <label for="grado">Grado a ingresar</label>
-                <select id="grado" required>
+                <select id="grado" name="grado_interes" required>
                   <option value="">Seleccionar...</option>
                   <option>Preescolar</option>
                   <option>Grado 1°</option>
@@ -238,11 +240,12 @@
             </div>
             <div class="form-group">
               <label for="mensaje">Mensaje adicional (opcional)</label>
-              <textarea id="mensaje" rows="3" placeholder="¿Alguna pregunta o comentario?"></textarea>
+              <textarea id="mensaje" name="mensaje" rows="3" placeholder="¿Alguna pregunta o comentario?"></textarea>
             </div>
             <button type="submit" class="btn-submit">
               <i class="fas fa-paper-plane"></i> Enviar solicitud
             </button>
+            <div class="form-error" id="formError"></div>
             <div class="form-success" id="formSuccess">
               <i class="fas fa-check-circle"></i>
               <strong>¡Solicitud enviada!</strong> Nos comunicaremos contigo pronto.

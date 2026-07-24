@@ -40,5 +40,29 @@ function initCambiarEstado() {
     });
 }
 
+function initCambiarEstadoSolicitud() {
+    document.querySelectorAll('[data-cambiar-estado-solicitud]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const { nombre, accion, estado, url } = btn.dataset;
+
+            const result = await confirmAction({
+                title: `¿${accion} la solicitud de ${nombre}?`,
+                icon: 'question',
+                confirmText: accion,
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                await window.axios.post(url, { estado });
+                toast.success('Solicitud actualizada.');
+                setTimeout(() => window.location.reload(), 900);
+            } catch (error) {
+                toast.error('No se pudo actualizar la solicitud. Intenta de nuevo.');
+            }
+        });
+    });
+}
+
 initAutosubmit();
 initCambiarEstado();
+initCambiarEstadoSolicitud();

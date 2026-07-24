@@ -1,4 +1,5 @@
-import { initEstadoToggle, initCrudForms } from '../../components/listActions';
+import { initEstadoToggle, initCrudForms, initModalNuevoHorario } from '../../components/listActions';
 
 initEstadoToggle();
 initCrudForms();
+initModalNuevoHorario();

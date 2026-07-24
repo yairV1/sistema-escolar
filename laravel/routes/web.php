@@ -2,12 +2,22 @@
 
 use App\Modules\Auth\Controllers\LoginController;
 use App\Modules\Auth\Controllers\PasswordResetController;
+use App\Modules\Auth\Controllers\RolController;
+use App\Modules\Calendario\Controllers\CalendarioController;
+use App\Modules\Calendario\Controllers\CalendarioExportController;
+use App\Modules\Calendario\Controllers\EventoAdjuntoController;
+use App\Modules\Calendario\Controllers\EventoCategoriaController;
+use App\Modules\Calendario\Controllers\EventoComentarioController;
+use App\Modules\Calendario\Controllers\EventoController;
+use App\Modules\Calendario\Controllers\NotificacionPanelController;
 use App\Modules\Calificaciones\Controllers\CalificacionesController;
 use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
 use App\Modules\Dashboard\Controllers\DashboardController;
+use App\Modules\Docente\Controllers\DocenteController;
 use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
 use App\Modules\Landing\Controllers\EditarLandingController;
+use App\Modules\Landing\Controllers\SolicitudAdmisionController;
 use App\Modules\Landing\Controllers\WebsiteController;
 use App\Modules\Matriculas\Controllers\MatriculasController;
 use App\Modules\Observaciones\Controllers\ObservacionesController;
@@ -22,6 +32,10 @@ use App\Modules\Usuarios\Controllers\Registro\RegistroEstudiantesController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [WebsiteController::class, 'index'])->name('home');
+
+Route::post('/solicitudes-admision', [SolicitudAdmisionController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('solicitudes-admision.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -40,6 +54,10 @@ Route::get('/inicio', [DashboardController::class, 'index'])
     ->middleware(['auth', 'role:admin,rector'])
     ->name('inicio');
 
+Route::get('/mi-panel', [DocenteController::class, 'dashboard'])
+    ->middleware(['auth', 'role:docente'])
+    ->name('docente.dashboard');
+
 Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(function () {
     Route::get('/', [ListadosController::class, 'index'])->name('listados');
     Route::post('/estudiantes/{estudiante}/desactivar', [ListadosController::class, 'desactivarEstudiante'])->name('listados.estudiantes.desactivar');
@@ -53,6 +71,7 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(func
 Route::middleware(['auth', 'role:admin,rector'])->prefix('matriculas')->group(function () {
     Route::get('/', [MatriculasController::class, 'index'])->name('matriculas');
     Route::post('/{matricula}/estado', [MatriculasController::class, 'cambiarEstado'])->name('matriculas.estado');
+    Route::post('/solicitudes/{solicitud}/estado', [MatriculasController::class, 'cambiarEstadoSolicitud'])->name('matriculas.solicitudes.estado');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('gestion-academica')->name('gestion-academica.')->group(function () {
@@ -108,7 +127,11 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('calificaciones')->name
     Route::post('/tipos-actividad/{tipoActividad}', [CalificacionesController::class, 'updateTipoActividad'])->name('tipos-actividad.update');
     Route::post('/tipos-actividad/{tipoActividad}/desactivar', [CalificacionesController::class, 'desactivarTipoActividad'])->name('tipos-actividad.desactivar');
     Route::post('/tipos-actividad/{tipoActividad}/activar', [CalificacionesController::class, 'activarTipoActividad'])->name('tipos-actividad.activar');
+});
 
+// Rutas de calificaciones acotadas a una asignación puntual: además de admin/rector,
+// las puede usar el profesor dueño de esa asignación (ver Usuario::puedeGestionarAsignacion).
+Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
     Route::get('/asignaciones/{asignacion}', [CalificacionesController::class, 'asignacion'])->name('asignaciones.show');
     Route::post('/asignaciones/{asignacion}/actividades', [CalificacionesController::class, 'storeActividad'])->name('actividades.store');
     Route::post('/actividades/{actividad}', [CalificacionesController::class, 'updateActividad'])->name('actividades.update');
@@ -136,7 +159,7 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('boletines')->name('bol
     Route::post('/{boletin}/borrador', [BoletinesController::class, 'volverBorrador'])->name('borrador');
 });
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('asistencia')->name('asistencia.')->group(function () {
+Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('asistencia')->name('asistencia.')->group(function () {
     Route::get('/asignaciones/{asignacion}', [AsistenciaController::class, 'show'])->name('show');
     Route::post('/asignaciones/{asignacion}', [AsistenciaController::class, 'guardar'])->name('guardar');
     Route::get('/asignaciones/{asignacion}/historial', [AsistenciaController::class, 'historial'])->name('historial');
@@ -155,6 +178,63 @@ Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () 
     Route::get('/', [PerfilController::class, 'show'])->name('show');
     Route::post('/', [PerfilController::class, 'update'])->name('update');
     Route::post('/password', [PerfilController::class, 'updatePassword'])->name('password');
+});
+
+// Panel-wide, no una acción de calendario — hoy Calendario es el único
+// productor de Notification, ver NotificacionPanelController.
+Route::middleware('auth')->prefix('notificaciones')->name('notificaciones.')->group(function () {
+    Route::get('/', [NotificacionPanelController::class, 'index'])->name('index');
+    Route::post('/leer-todas', [NotificacionPanelController::class, 'leerTodas'])->name('leer-todas');
+});
+
+// Suscripción .ics sin sesión (Google/Outlook la consultan periódicamente
+// sin cookies) — el token de 64 caracteres es la única protección, ver
+// CalendarioExportController::suscripcion(). Registrada antes del grupo
+// con el wildcard /calendario/{evento} por el mismo motivo que
+// calendario/categorias arriba, aunque en este caso no hay colisión real
+// (dos segmentos extra vs. uno solo).
+Route::get('/calendario/ics/{usuario}/{token}', [CalendarioExportController::class, 'suscripcion'])->name('calendario.ics');
+
+// Admin-only: gestión de categorías (color/ícono/permisos/orden) — decisión
+// institucional, no una acción de calendario personal. Registrada ANTES del
+// grupo con el wildcard /calendario/{evento}: si fuera al revés, una
+// petición a /calendario/categorias resolvería {evento}="categorias" en
+// vez de llegar acá (Laravel matchea rutas en orden de registro).
+Route::middleware(['auth', 'role:admin,rector'])->prefix('calendario/categorias')->name('calendario.categorias.')->group(function () {
+    Route::get('/', [EventoCategoriaController::class, 'index'])->name('index');
+    Route::post('/', [EventoCategoriaController::class, 'store'])->name('store');
+    Route::post('/{categoria}', [EventoCategoriaController::class, 'update'])->name('update');
+    Route::post('/{categoria}/desactivar', [EventoCategoriaController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{categoria}/activar', [EventoCategoriaController::class, 'activar'])->name('activar');
+});
+
+// Sin restricción de rol: cada rol ve/edita un subconjunto distinto por
+// scoping de datos y Policy (VisibilidadCalendarioService, EventoPolicy),
+// no por acceso a la ruta.
+Route::middleware('auth')->prefix('calendario')->name('calendario.')->group(function () {
+    Route::get('/', [CalendarioController::class, 'index'])->name('index');
+    Route::get('/feed', [CalendarioController::class, 'feed'])->name('feed');
+
+    // Registradas antes del wildcard /{evento}: si fueran después, GET
+    // /calendario/exportar resolvería {evento}="exportar" en vez de llegar
+    // acá (mismo motivo que calendario/categorias más arriba).
+    Route::get('/exportar', [CalendarioExportController::class, 'descargar'])->name('exportar');
+    Route::post('/exportar/token', [CalendarioExportController::class, 'generarToken'])->name('exportar.token');
+
+    Route::post('/', [EventoController::class, 'store'])->name('store');
+    Route::get('/{evento}', [EventoController::class, 'show'])->name('show');
+    Route::post('/{evento}', [EventoController::class, 'update'])->name('update');
+    Route::post('/{evento}/mover', [EventoController::class, 'mover'])->name('mover');
+    Route::post('/{evento}/duplicar', [EventoController::class, 'duplicar'])->name('duplicar');
+    Route::post('/{evento}/estado', [EventoController::class, 'cambiarEstado'])->name('estado');
+    Route::post('/{evento}/desactivar', [EventoController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{evento}/activar', [EventoController::class, 'activar'])->name('activar');
+
+    Route::post('/{evento}/adjuntos', [EventoAdjuntoController::class, 'store'])->name('adjuntos.store');
+    Route::post('/adjuntos/{adjunto}/eliminar', [EventoAdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
+
+    Route::post('/{evento}/comentarios', [EventoComentarioController::class, 'store'])->name('comentarios.store');
+    Route::post('/comentarios/{comentario}/eliminar', [EventoComentarioController::class, 'destroy'])->name('comentarios.destroy');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('editar-landing')->name('editar-landing.')->group(function () {
@@ -179,4 +259,11 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('configuracion-colegio'
     Route::post('/imagenes', [ConfiguracionColegioController::class, 'storeImagen'])->name('imagenes.store');
     Route::post('/imagenes/{imagen}/eliminar', [ConfiguracionColegioController::class, 'destroyImagen'])->name('imagenes.eliminar');
     Route::post('/imagenes/reordenar', [ConfiguracionColegioController::class, 'reordenarImagenes'])->name('imagenes.reordenar');
+});
+
+Route::middleware(['auth', 'role:admin,rector'])->prefix('roles')->name('roles.')->group(function () {
+    Route::get('/', [RolController::class, 'index'])->name('index');
+    Route::post('/{rol}', [RolController::class, 'update'])->name('update');
+    Route::post('/{rol}/desactivar', [RolController::class, 'desactivar'])->name('desactivar');
+    Route::post('/{rol}/activar', [RolController::class, 'activar'])->name('activar');
 });

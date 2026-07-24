@@ -43,6 +43,16 @@
     background: var(--cs-verde-oscuro) !important;
 }
 
+// Toast de "Deshacer" (drag&drop del calendario) — misma duración que
+// DURATION_ACCION_MS en resources/js/components/alerts/toast.js.
+.toastify.cs-toast-accion {
+    cursor: pointer;
+}
+
+.toastify.cs-toast-accion::after {
+    animation-duration: 7000ms;
+}
+
 // ---- SweetAlert2 ----
 .swal2-popup.cs-swal {
     border-radius: var(--bs-border-radius-xl);

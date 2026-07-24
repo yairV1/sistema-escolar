@@ -5,7 +5,7 @@
 @section('content')
     <div class="container-fluid p-3 p-md-4">
         <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
-            <a href="{{ route('gestion-academica.cursos.show', $asignacion->curso) }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ auth()->user()->tienePanelAdmin() ? route('gestion-academica.cursos.show', $asignacion->curso) : route('docente.dashboard') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>

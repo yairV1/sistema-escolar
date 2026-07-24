@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Modules\Calendario\Services\CalendarioFeedService;
+use App\Modules\Calendario\Services\Occurrences\ActividadOccurrenceSource;
+use App\Modules\Calendario\Services\Occurrences\EventoOccurrenceSource;
+use App\Modules\Calendario\Services\Occurrences\HorarioOccurrenceSource;
 use App\Modules\Colegio\Models\ColegioConfiguracion;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -13,7 +17,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // CalendarioFeedService recibe sus fuentes por array porque el
+        // contenedor no puede inferir "todas las implementaciones de esta
+        // interfaz" automáticamente; agregar una fuente nueva (Google
+        // Calendar, Outlook...) es sumarla acá, nada más.
+        $this->app->bind(CalendarioFeedService::class, fn ($app) => new CalendarioFeedService([
+            $app->make(HorarioOccurrenceSource::class),
+            $app->make(ActividadOccurrenceSource::class),
+            $app->make(EventoOccurrenceSource::class),
+        ]));
     }
 
     /**

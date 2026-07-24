@@ -21,6 +21,20 @@ return [
             'icon'  => 'fas fa-chart-pie',
             'route' => 'inicio',
             'page'  => 'inicio',
+            'roles' => ['admin', 'rector'],
+        ],
+        [
+            'title' => 'Mis cursos',
+            'icon'  => 'fas fa-chalkboard-teacher',
+            'route' => 'docente.dashboard',
+            'page'  => 'DocenteDashboard',
+            'roles' => ['docente'],
+        ],
+        [
+            'title' => 'Calendario',
+            'icon'  => 'fas fa-calendar-alt',
+            'route' => 'calendario.index',
+            'page'  => 'Calendario',
         ],
     ],
 
@@ -29,6 +43,7 @@ return [
 
         [
             'section' => 'Registros',
+            'roles' => ['admin', 'rector'],
             'items' => [
                 [
                     'title' => 'Usuarios',
@@ -59,6 +74,7 @@ return [
 
         [
             'section' => 'Académico',
+            'roles' => ['admin', 'rector'],
             'items' => [
                 [
                     'title' => 'Gestión Académica',
@@ -87,6 +103,7 @@ return [
 
         [
             'section' => 'Comunicación',
+            'roles' => ['admin', 'rector'],
             'items' => [
                 [
                     'title' => 'Comunicados',
@@ -102,6 +119,7 @@ return [
 
         [
             'section' => 'Ajustes',
+            'roles' => ['admin', 'rector'],
             'items' => [
                 [
                     'title' => 'Ajustes del Sistema',
@@ -110,6 +128,7 @@ return [
                     'children' => [
                         ['title' => 'Editar Landing Page', 'route' => 'editar-landing.index', 'page' => 'EditarLanding'],
                         ['title' => 'Configuración del Colegio', 'route' => 'configuracion-colegio.index', 'page' => 'ConfiguracionColegio', 'roles' => ['admin', 'rector']],
+                        ['title' => 'Roles', 'route' => 'roles.index', 'page' => 'Roles', 'roles' => ['admin', 'rector']],
                     ],
                 ],
             ],

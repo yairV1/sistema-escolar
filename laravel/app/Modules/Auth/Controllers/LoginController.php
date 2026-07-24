@@ -60,7 +60,11 @@ class LoginController extends Controller
         return response()->json([
             'success' => true,
             'message' => '¡Bienvenido! Redirigiendo...',
-            'redirect' => $usuario->tienePanelAdmin() ? route('inicio') : url('/'),
+            'redirect' => match (true) {
+                $usuario->tienePanelAdmin() => route('inicio'),
+                $usuario->rolSlug === 'docente' => route('docente.dashboard'),
+                default => url('/'),
+            },
         ]);
     }
 
