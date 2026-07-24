@@ -51,6 +51,27 @@ class RegistroEstudiantesController extends Controller
 
     public function edit(Estudiante $estudiante): View
     {
+        return view('Rector.usuarios.registro.estudiantes', [
+            'currentPage' => 'RegistroEstudiantes',
+            'estudiante' => $estudiante,
+            'solicitud' => null,
+            ...$this->datosAcademicos($estudiante),
+        ]);
+    }
+
+    public function show(Estudiante $estudiante): View
+    {
+        return view('Rector.usuarios.registro.estudiantes.show', [
+            'currentPage' => 'RegistroEstudiantes',
+            'estudiante' => $estudiante,
+            'enRiesgo' => Estudiante::idsEnRiesgo()->contains($estudiante->id_estudiante),
+            ...$this->datosAcademicos($estudiante),
+        ]);
+    }
+
+    /** Matrícula vigente, grado/grupo derivados y acudiente principal — compartido por edit() y show(). */
+    private function datosAcademicos(Estudiante $estudiante): array
+    {
         $estudiante->load(['usuario', 'matriculas' => fn ($q) => $q->latest('anio_lectivo')->with('curso')]);
 
         $matricula = $estudiante->matriculas->first();
@@ -66,15 +87,7 @@ class RegistroEstudiantesController extends Controller
             ->select('usuarios.nombres', 'usuarios.apellidos', 'usuarios.tipo_documento', 'usuarios.numero_documento', 'usuarios.correo', 'usuarios.telefono', 'acudientes.ocupacion', 'estudiante_acudiente.parentesco')
             ->first();
 
-        return view('Rector.usuarios.registro.estudiantes', [
-            'currentPage' => 'RegistroEstudiantes',
-            'estudiante' => $estudiante,
-            'matricula' => $matricula,
-            'grado' => $grado,
-            'grupo' => $grupo,
-            'acudiente' => $acudiente,
-            'solicitud' => null,
-        ]);
+        return compact('matricula', 'grado', 'grupo', 'acudiente');
     }
 
     public function update(EstudianteUpdateRequest $request, Estudiante $estudiante): JsonResponse

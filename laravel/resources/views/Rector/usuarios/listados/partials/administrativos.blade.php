@@ -82,6 +82,9 @@
                             <span class="badge text-bg-{{ $estadoColores[$admin->estado_usuario] ?? 'secondary' }}">{{ ucfirst($admin->estado_usuario) }}</span>
                         </td>
                         <td class="text-end">
+                            <a href="{{ route('registro.administrativos.show', $admin) }}" class="btn btn-sm btn-outline-secondary" title="Ver detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="{{ route('registro.administrativos.edit', $admin) }}" class="btn btn-sm btn-outline-secondary" title="Editar">
                                 <i class="fas fa-pen"></i>
                             </a>

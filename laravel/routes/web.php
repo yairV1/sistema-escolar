@@ -101,16 +101,19 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('gestion-academica')->n
 Route::middleware(['auth', 'role:admin,rector'])->prefix('registro')->name('registro.')->group(function () {
     Route::get('/estudiantes', [RegistroEstudiantesController::class, 'create'])->name('estudiantes.create');
     Route::post('/estudiantes', [RegistroEstudiantesController::class, 'store'])->name('estudiantes.store');
+    Route::get('/estudiantes/{estudiante}', [RegistroEstudiantesController::class, 'show'])->name('estudiantes.show');
     Route::get('/estudiantes/{estudiante}/editar', [RegistroEstudiantesController::class, 'edit'])->name('estudiantes.edit');
     Route::post('/estudiantes/{estudiante}', [RegistroEstudiantesController::class, 'update'])->name('estudiantes.update');
 
     Route::get('/docentes', [RegistroDocentesController::class, 'create'])->name('docentes.create');
     Route::post('/docentes', [RegistroDocentesController::class, 'store'])->name('docentes.store');
+    Route::get('/docentes/{profesor}', [RegistroDocentesController::class, 'show'])->name('docentes.show');
     Route::get('/docentes/{profesor}/editar', [RegistroDocentesController::class, 'edit'])->name('docentes.edit');
     Route::post('/docentes/{profesor}', [RegistroDocentesController::class, 'update'])->name('docentes.update');
 
     Route::get('/administrativos', [RegistroAdministrativosController::class, 'create'])->name('administrativos.create');
     Route::post('/administrativos', [RegistroAdministrativosController::class, 'store'])->name('administrativos.store');
+    Route::get('/administrativos/{usuario}', [RegistroAdministrativosController::class, 'show'])->name('administrativos.show');
     Route::get('/administrativos/{usuario}/editar', [RegistroAdministrativosController::class, 'edit'])->name('administrativos.edit');
     Route::post('/administrativos/{usuario}', [RegistroAdministrativosController::class, 'update'])->name('administrativos.update');
 });

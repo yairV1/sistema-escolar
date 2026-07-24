@@ -56,6 +56,11 @@ class RegistroAdministrativosController extends Controller
         return view('Rector.usuarios.registro.administrativos', ['currentPage' => 'RegistroAdministrativos', 'admin' => $usuario]);
     }
 
+    public function show(Usuario $usuario): View
+    {
+        return view('Rector.usuarios.registro.administrativos.show', ['currentPage' => 'RegistroAdministrativos', 'admin' => $usuario]);
+    }
+
     public function update(AdministrativoUpdateRequest $request, Usuario $usuario): JsonResponse
     {
         $d = $request->validated();

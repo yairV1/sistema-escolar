@@ -47,6 +47,16 @@ class RegistroDocentesController extends Controller
         return view('Rector.usuarios.registro.docentes', ['currentPage' => 'RegistroDocentes', 'profesor' => $profesor]);
     }
 
+    public function show(Profesor $profesor): View
+    {
+        $profesor->load([
+            'usuario',
+            'asignaciones' => fn ($q) => $q->with(['materia', 'curso'])->orderByDesc('anio_lectivo'),
+        ]);
+
+        return view('Rector.usuarios.registro.docentes.show', ['currentPage' => 'RegistroDocentes', 'profesor' => $profesor]);
+    }
+
     public function update(DocenteUpdateRequest $request, Profesor $profesor): JsonResponse
     {
         try {
