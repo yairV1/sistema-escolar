@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
-    <title>@yield('title', 'Panel') · {{ $colegioConfiguracion->nombre_colegio }}</title>
+    <title>@yield('title', 'Panel') · {{ (auth()->user()?->institucion?->nombre) ?? $colegioConfiguracion->nombre_colegio }}</title>
 
     <script>
         (function () {
@@ -31,6 +31,10 @@
             [auth()->user()?->rolSlug],
         );
         $usuario = auth()->user();
+        // Institución del usuario logueado, no la fila global de colegio_configuracion:
+        // en una plataforma multi-tenant cada admin ve el nombre/logo de SU institución,
+        // no la de la #1 codificada. $colegioConfiguracion queda como respaldo defensivo.
+        $institucionUsuario = $usuario?->institucion;
         $nombreCompleto = $usuario ? trim($usuario->nombres.' '.$usuario->apellidos) : 'Invitado';
         $iniciales = collect(explode(' ', $nombreCompleto))
             ->filter()
@@ -45,9 +49,15 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="bi bi-mortarboard"></i></div>
+            <div class="sidebar-logo">
+                @if ($institucionUsuario?->logoUrl)
+                    <img src="{{ $institucionUsuario->logoUrl }}" alt="{{ $institucionUsuario->nombre }}">
+                @else
+                    <i class="bi bi-mortarboard"></i>
+                @endif
+            </div>
             <div class="sidebar-brand">
-                <span class="sb-name">{{ $colegioConfiguracion->nombre_colegio }}</span>
+                <span class="sb-name">{{ $institucionUsuario->nombre ?? $colegioConfiguracion->nombre_colegio }}</span>
                 <span class="sb-sub">Panel {{ $usuario?->rolLabel }}</span>
             </div>
             <button class="sidebar-collapse" id="sidebarCollapse" title="Contraer" aria-label="Contraer menú">

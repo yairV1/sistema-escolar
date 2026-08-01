@@ -43,6 +43,8 @@ class DocenteRegistroService
                 'estado_laboral' => 'activo',
             ]);
 
+            $profesor->materias()->sync($d['materias'] ?? []);
+
             return ['id_profesor' => $profesor->id_profesor, 'codigo_profesor' => $profesor->codigo_profesor];
         });
     }
@@ -68,6 +70,8 @@ class DocenteRegistroService
                 'especialidad' => $d['especialidad'] ?? null,
                 'fecha_ingreso' => $d['fecha_ingreso'] ?? $profesor->fecha_ingreso,
             ]);
+
+            $profesor->materias()->sync($d['materias'] ?? []);
         });
     }
 }

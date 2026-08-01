@@ -10,8 +10,13 @@
                 <div class="small text-white-50 mb-1">
                     <i class="fas fa-circle me-1" style="font-size:.5rem;"></i> Año lectivo {{ now()->year }}
                 </div>
+                @php $institucionUsuario = auth()->user()->institucion; @endphp
                 <h1 class="h3 fw-semibold mb-1 font-serif">Bienvenido, {{ auth()->user()->nombres }} 👋</h1>
-                <p class="mb-0 text-white-50">{{ auth()->user()->rolLabel }} · {{ $colegioConfiguracion->nombre_colegio }} · {{ $colegioConfiguracion->ciudad }}</p>
+                <p class="mb-0 text-white-50">
+                    {{ auth()->user()->rolLabel }} ·
+                    {{ $institucionUsuario->nombre ?? $colegioConfiguracion->nombre_colegio }} ·
+                    {{ $institucionUsuario->ciudad ?? $colegioConfiguracion->ciudad }}
+                </p>
             </div>
             <div class="text-white-50 small text-end">
                 <div id="dashFecha">—</div>
@@ -23,8 +28,8 @@
             $kpiCards = [
                 ['icon' => 'fa-user-graduate', 'color' => 'primary', 'label' => 'Estudiantes matriculados', 'value' => $kpis['estudiantesMatriculados']],
                 ['icon' => 'fa-chalkboard-teacher', 'color' => 'info', 'label' => 'Docentes activos', 'value' => $kpis['docentesActivos']],
-                ['icon' => 'fa-star', 'color' => 'warning', 'label' => 'Promedio institucional', 'value' => $kpis['promedioInstitucional'] ? number_format($kpis['promedioInstitucional'], 1) : '—'],
-                ['icon' => 'fa-calendar-check', 'color' => 'success', 'label' => 'Asistencia promedio', 'value' => $kpis['asistenciaPromedio'] ? number_format($kpis['asistenciaPromedio'], 0).'%' : '—'],
+                ['icon' => 'fa-star', 'color' => 'warning', 'label' => 'Promedio institucional', 'value' => $kpis['promedioInstitucional'] ? number_format($kpis['promedioInstitucional'], 1) : 'N/D'],
+                ['icon' => 'fa-calendar-check', 'color' => 'success', 'label' => 'Asistencia promedio', 'value' => $kpis['asistenciaPromedio'] ? number_format($kpis['asistenciaPromedio'], 0).'%' : 'N/D'],
                 ['icon' => 'fa-file-signature', 'color' => 'secondary', 'label' => 'Solicitudes de matrícula', 'value' => $kpis['solicitudesPendientes']],
                 ['icon' => 'fa-triangle-exclamation', 'color' => 'danger', 'label' => 'Estudiantes en riesgo', 'value' => $kpis['estudiantesEnRiesgo']],
             ];
@@ -51,10 +56,8 @@
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-chart-column text-primary me-1"></i> Promedio por grado</h2>
 
                         @if ($promedioPorGrado->isEmpty())
-                            <div class="empty-state">
-                                <div class="empty-icon"><i class="fas fa-chart-column"></i></div>
-                                <p class="mb-0">Aún no hay notas registradas para calcular promedios por grado.</p>
-                            </div>
+                            <x-empty-state icon="fas fa-chart-column"
+                                           message="Aún no hay calificaciones registradas para este periodo." />
                         @else
                             @php $max = $promedioPorGrado->max('promedio') ?: 5; @endphp
                             <div class="chart-bars">
@@ -80,13 +83,10 @@
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-file-signature text-primary me-1"></i> Matrículas recientes</h2>
 
                         @if ($matriculasRecientes->isEmpty())
-                            <div class="empty-state">
-                                <div class="empty-icon"><i class="fas fa-file-signature"></i></div>
-                                <p class="mb-2">Aún no hay matrículas registradas.</p>
-                                <a href="{{ route('registro.estudiantes.create') }}" class="btn btn-sm btn-primary">
-                                    Registrar el primer estudiante
-                                </a>
-                            </div>
+                            <x-empty-state icon="fas fa-file-signature"
+                                           message="Aún no hay matrículas registradas."
+                                           action-label="Registrar el primer estudiante"
+                                           :action-url="route('registro.estudiantes.create')" />
                         @else
                             <ul class="list-group list-group-flush">
                                 @foreach ($matriculasRecientes as $matricula)
@@ -116,13 +116,10 @@
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-chalkboard-teacher text-primary me-1"></i> Docentes activos</h2>
 
                         @if ($docentesLista->isEmpty())
-                            <div class="empty-state">
-                                <div class="empty-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                                <p class="mb-2">Aún no hay docentes registrados.</p>
-                                <a href="{{ route('registro.docentes.create') }}" class="btn btn-sm btn-primary">
-                                    Registrar el primer docente
-                                </a>
-                            </div>
+                            <x-empty-state icon="fas fa-chalkboard-teacher"
+                                           message="Aún no hay docentes registrados."
+                                           action-label="Registrar el primer docente"
+                                           :action-url="route('registro.docentes.create')" />
                         @else
                             <ul class="list-group list-group-flush">
                                 @foreach ($docentesLista as $docente)
@@ -147,13 +144,10 @@
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-user-graduate text-primary me-1"></i> Estudiantes</h2>
 
                         @if ($estudiantesMuestra->isEmpty())
-                            <div class="empty-state">
-                                <div class="empty-icon"><i class="fas fa-user-graduate"></i></div>
-                                <p class="mb-2">Aún no hay estudiantes matriculados.</p>
-                                <a href="{{ route('registro.estudiantes.create') }}" class="btn btn-sm btn-primary">
-                                    Registrar el primer estudiante
-                                </a>
-                            </div>
+                            <x-empty-state icon="fas fa-user-graduate"
+                                           message="Aún no hay estudiantes matriculados."
+                                           action-label="Registrar el primer estudiante"
+                                           :action-url="route('registro.estudiantes.create')" />
                         @else
                             <ul class="list-group list-group-flush">
                                 @foreach ($estudiantesMuestra as $estudiante)
@@ -176,17 +170,58 @@
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-body empty-state">
-                        <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
-                        <p class="mb-0">Comunicados llega en una fase posterior de la migración.</p>
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h6 fw-semibold mb-0"><i class="fas fa-bullhorn text-primary me-1"></i> Comunicados recientes</h2>
+                            <a href="{{ route('comunicados.index') }}" class="small">Ver todos</a>
+                        </div>
+
+                        @if ($comunicadosRecientes->isEmpty())
+                            <x-empty-state icon="fas fa-bullhorn"
+                                           message="Aún no hay comunicados enviados."
+                                           action-label="Redactar el primer comunicado"
+                                           :action-url="route('comunicados.index')" class="flex-grow-1" />
+                        @else
+                            <ul class="list-group list-group-flush">
+                                @foreach ($comunicadosRecientes as $comunicado)
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <div class="fw-semibold">{{ $comunicado->titulo }}</div>
+                                            <div class="small text-secondary">{{ \App\Modules\Comunicados\Models\Notificacion::TIPOS_LABELS[$comunicado->tipo_notificacion] ?? ucfirst($comunicado->tipo_notificacion) }}</div>
+                                        </div>
+                                        <span class="small text-secondary">{{ \Illuminate\Support\Carbon::parse($comunicado->fecha_envio)->diffForHumans() }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-body empty-state">
-                        <div class="empty-icon"><i class="fas fa-chart-bar"></i></div>
-                        <p class="mb-0">Reportes y estadísticas llegan en una fase posterior de la migración.</p>
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h6 fw-semibold mb-3"><i class="fas fa-chart-bar text-primary me-1"></i> Reportes institucionales</h2>
+                        <p class="small text-secondary">Accesos directos a los reportes más consultados.</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="{{ route('estadisticas') }}" class="d-flex justify-content-between align-items-center text-decoration-none">
+                                    <span><i class="fas fa-chart-line text-secondary me-2"></i>Estadísticas completas</span>
+                                    <i class="fas fa-chevron-right small text-secondary"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="{{ route('boletines.index') }}" class="d-flex justify-content-between align-items-center text-decoration-none">
+                                    <span><i class="fas fa-file-lines text-secondary me-2"></i>Boletines por periodo</span>
+                                    <i class="fas fa-chevron-right small text-secondary"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="{{ route('observaciones.index') }}" class="d-flex justify-content-between align-items-center text-decoration-none">
+                                    <span><i class="fas fa-user-shield text-secondary me-2"></i>Observaciones de convivencia</span>
+                                    <i class="fas fa-chevron-right small text-secondary"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

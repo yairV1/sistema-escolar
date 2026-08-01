@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Los 7 actores institucionales de docs/arquitectura/02-arquitectura-funcional.md
- * (seccion 5) y docs/arquitectura/03-rbac.md. La tabla `roles` ya existe con
- * datos reales del sistema legacy (id_rol 1 a 7 ya poblados), por lo que este
- * seeder es idempotente por id_rol: solo inserta lo que falte, nunca
- * actualiza una fila existente (no se modifican datos existentes).
+ * (seccion 5) y docs/arquitectura/03-rbac.md, mas el 8vo actor de plataforma
+ * (SuperAdmin, id_rol=8) sumado en la Fase A del pivote multi-tenant
+ * (docs/arquitectura/10-superadmin-plataforma.md). La tabla `roles` ya
+ * existe con datos reales del sistema legacy (id_rol 1 a 7 ya poblados),
+ * por lo que este seeder es idempotente por id_rol: solo inserta lo que
+ * falte, nunca actualiza una fila existente (no se modifican datos
+ * existentes).
  */
 class RolesSeeder extends Seeder
 {
@@ -26,6 +29,7 @@ class RolesSeeder extends Seeder
             ['id_rol' => 5, 'nombre_rol' => 'Docente', 'descripcion' => 'Proceso de enseñanza, evaluacion y seguimiento del estudiante', 'estado' => 'activo', 'fecha_creacion' => $ahora],
             ['id_rol' => 6, 'nombre_rol' => 'Estudiante', 'descripcion' => 'Participante de su propio proceso formativo', 'estado' => 'activo', 'fecha_creacion' => $ahora],
             ['id_rol' => 7, 'nombre_rol' => 'Acudiente', 'descripcion' => 'Acompañamiento del proceso educativo desde la familia', 'estado' => 'activo', 'fecha_creacion' => $ahora],
+            ['id_rol' => 8, 'nombre_rol' => 'SuperAdmin', 'descripcion' => 'Gestion de toda la plataforma multi-tenant: instituciones, usuarios globales, roles y permisos', 'estado' => 'activo', 'fecha_creacion' => $ahora],
         ];
 
         DB::table('roles')->insertOrIgnore($roles);

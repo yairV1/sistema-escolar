@@ -29,6 +29,11 @@
                             data-url="{{ route('boletines.generar') }}" data-curso="{{ $idCurso }}" data-periodo="{{ $idPeriodo }}">
                         <i class="fas fa-rotate me-1"></i> Generar/actualizar boletines
                     </button>
+                    @if ($boletines->isNotEmpty())
+                        <a href="{{ route('boletines.pdf-masivo', ['id_curso' => $idCurso, 'id_periodo' => $idPeriodo]) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-file-pdf me-1"></i> Generar PDF por estudiante ({{ $boletines->count() }})
+                        </a>
+                    @endif
                 @endif
             </div>
         </form>
@@ -70,6 +75,9 @@
                                 <td class="text-end">
                                     <a href="{{ route('boletines.show', $boletin) }}" class="btn btn-sm btn-outline-primary" title="Ver detalle">
                                         <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('boletines.pdf', $boletin) }}" class="btn btn-sm btn-outline-secondary" title="Descargar PDF">
+                                        <i class="fas fa-file-pdf"></i>
                                     </a>
                                     @if ($boletin->estado === 'borrador')
                                         <button type="button" class="btn btn-sm btn-outline-success" data-boletin-accion

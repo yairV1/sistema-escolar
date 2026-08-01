@@ -18,6 +18,10 @@ class LoginController extends Controller
     {
         $usuario = Auth::user();
 
+        if ($usuario && $usuario->esSuperAdmin()) {
+            return redirect()->route('superadmin.dashboard');
+        }
+
         if ($usuario && $usuario->tienePanelAdmin()) {
             return redirect()->route('inicio');
         }
@@ -53,16 +57,34 @@ class LoginController extends Controller
             ], 403);
         }
 
+        // Segundo factor confirmado: no se llama Auth::login() todavía. El id
+        // queda pendiente en sesión y TwoFactorChallengeController termina el
+        // login tras verificar el código (ver docs/arquitectura/10-superadmin-plataforma.md).
+        if ($usuario->tieneDosFactoresActivos()) {
+            $request->session()->put('two_factor.id_usuario', $usuario->id_usuario);
+            $request->session()->put('two_factor.remember', $request->boolean('remember'));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ingresa tu código de verificación.',
+                'redirect' => route('2fa.challenge.show'),
+            ]);
+        }
+
         Auth::login($usuario, $request->boolean('remember'));
         $request->session()->regenerate();
+        $request->session()->put('auth_at', now()->timestamp);
         $usuario->forceFill(['ultimo_acceso' => now()])->saveQuietly();
 
         return response()->json([
             'success' => true,
             'message' => '¡Bienvenido! Redirigiendo...',
             'redirect' => match (true) {
+                $usuario->esSuperAdmin() => route('superadmin.dashboard'),
                 $usuario->tienePanelAdmin() => route('inicio'),
                 $usuario->rolSlug === 'docente' => route('docente.dashboard'),
+                $usuario->rolSlug === 'estudiante' => route('estudiante.inicio'),
+                $usuario->rolSlug === 'acudiente' => route('acudiente.inicio'),
                 default => url('/'),
             },
         ]);

@@ -42,6 +42,15 @@
             </table>
         </div>
 
+        <div class="mb-4">
+            <h2 class="h6 fw-semibold mb-2">Materias que dicta</h2>
+            @forelse ($profesor->materias as $materia)
+                <span class="badge text-bg-light border me-1 mb-1">{{ $materia->nombre_materia }}</span>
+            @empty
+                <p class="text-secondary small mb-0">Sin materias asignadas. Puedes agregarlas editando el docente.</p>
+            @endforelse
+        </div>
+
         <div class="table-responsive">
             <h2 class="h6 fw-semibold mb-2">Asignaciones académicas</h2>
             <table class="table table-hover align-middle">

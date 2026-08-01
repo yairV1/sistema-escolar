@@ -3,6 +3,7 @@
 namespace App\Modules\Usuarios\Controllers\Registro;
 
 use App\Core\Http\Controllers\Controller;
+use App\Modules\GestionAcademica\Models\Materia;
 use App\Modules\Usuarios\Models\Profesor;
 use App\Modules\Usuarios\Requests\Registro\DocenteStoreRequest;
 use App\Modules\Usuarios\Requests\Registro\DocenteUpdateRequest;
@@ -15,7 +16,11 @@ class RegistroDocentesController extends Controller
 {
     public function create(): View
     {
-        return view('Rector.usuarios.registro.docentes', ['currentPage' => 'RegistroDocentes', 'profesor' => null]);
+        return view('Rector.usuarios.registro.docentes', [
+            'currentPage' => 'RegistroDocentes',
+            'profesor' => null,
+            'materias' => Materia::where('estado', 'activo')->orderBy('nombre_materia')->get(),
+        ]);
     }
 
     public function store(DocenteStoreRequest $request): JsonResponse
@@ -42,15 +47,20 @@ class RegistroDocentesController extends Controller
 
     public function edit(Profesor $profesor): View
     {
-        $profesor->load('usuario');
+        $profesor->load(['usuario', 'materias']);
 
-        return view('Rector.usuarios.registro.docentes', ['currentPage' => 'RegistroDocentes', 'profesor' => $profesor]);
+        return view('Rector.usuarios.registro.docentes', [
+            'currentPage' => 'RegistroDocentes',
+            'profesor' => $profesor,
+            'materias' => Materia::where('estado', 'activo')->orderBy('nombre_materia')->get(),
+        ]);
     }
 
     public function show(Profesor $profesor): View
     {
         $profesor->load([
             'usuario',
+            'materias',
             'asignaciones' => fn ($q) => $q->with(['materia', 'curso'])->orderByDesc('anio_lectivo'),
         ]);
 

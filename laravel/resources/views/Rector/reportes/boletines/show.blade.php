@@ -16,6 +16,9 @@
             </div>
             @php $estadoColores = ['borrador' => 'secondary', 'publicado' => 'success', 'anulado' => 'danger']; @endphp
             <span class="badge text-bg-{{ $estadoColores[$boletin->estado] ?? 'secondary' }} ms-2">{{ ucfirst($boletin->estado) }}</span>
+            <a href="{{ route('boletines.pdf', $boletin) }}" class="btn btn-sm btn-outline-primary ms-auto">
+                <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+            </a>
         </div>
 
         <div class="row g-3 mb-4">

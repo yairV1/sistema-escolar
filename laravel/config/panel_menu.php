@@ -36,6 +36,26 @@ return [
             'route' => 'calendario.index',
             'page'  => 'Calendario',
         ],
+        [
+            'title' => 'Inicio',
+            'icon'  => 'fas fa-house',
+            'route' => 'estudiante.inicio',
+            'page'  => 'EstudianteInicio',
+            'roles' => ['estudiante'],
+        ],
+        [
+            'title' => 'Inicio',
+            'icon'  => 'fas fa-house',
+            'route' => 'acudiente.inicio',
+            'page'  => 'AcudienteInicio',
+            'roles' => ['acudiente'],
+        ],
+        [
+            'title' => 'Soporte',
+            'icon'  => 'fas fa-life-ring',
+            'route' => 'soporte.create',
+            'page'  => 'SoporteCreate',
+        ],
     ],
 
     // ---------- SECCIONES ----------
@@ -134,6 +154,39 @@ return [
             ],
         ],
 
+        [
+            'section' => 'Soporte técnico',
+            'roles' => ['admin'],
+            'items' => [
+                ['title' => 'Bandeja de soportes', 'icon' => 'fas fa-headset', 'route' => 'soportes.index', 'page' => 'SoportesIndex'],
+            ],
+        ],
+
+        [
+            'section' => 'Mi colegio',
+            'roles' => ['estudiante'],
+            'items' => [
+                ['title' => 'Horario',     'icon' => 'fas fa-calendar-week',   'route' => 'estudiante.horario',     'page' => 'EstudianteHorario'],
+                ['title' => 'Materias',    'icon' => 'fas fa-book',            'route' => 'estudiante.materias',    'page' => 'EstudianteMaterias'],
+                ['title' => 'Notas',       'icon' => 'fas fa-star',            'route' => 'estudiante.notas',       'page' => 'EstudianteNotas'],
+                ['title' => 'Asistencia',  'icon' => 'fas fa-clipboard-check', 'route' => 'estudiante.asistencia',  'page' => 'EstudianteAsistencia'],
+                ['title' => 'Comunicados', 'icon' => 'fas fa-bullhorn',        'route' => 'estudiante.comunicados', 'page' => 'EstudianteComunicados'],
+                ['title' => 'Mi perfil',   'icon' => 'fas fa-id-card',         'route' => 'estudiante.perfil',      'page' => 'EstudiantePerfil'],
+            ],
+        ],
+
+        [
+            'section' => 'Mis acudidos',
+            'roles' => ['acudiente'],
+            'items' => [
+                ['title' => 'Estudiantes a cargo', 'icon' => 'fas fa-user-graduate',   'route' => 'acudiente.estudiantes', 'page' => 'AcudienteEstudiantes'],
+                ['title' => 'Horario',             'icon' => 'fas fa-calendar-week',   'route' => 'acudiente.horario',     'page' => 'AcudienteHorario'],
+                ['title' => 'Notas',               'icon' => 'fas fa-star',            'route' => 'acudiente.notas',       'page' => 'AcudienteNotas'],
+                ['title' => 'Asistencia',          'icon' => 'fas fa-clipboard-check', 'route' => 'acudiente.asistencia',  'page' => 'AcudienteAsistencia'],
+                ['title' => 'Comunicados',         'icon' => 'fas fa-bullhorn',        'route' => 'acudiente.comunicados', 'page' => 'AcudienteComunicados'],
+                ['title' => 'Mi perfil',           'icon' => 'fas fa-id-card',         'route' => 'acudiente.perfil',      'page' => 'AcudientePerfil'],
+            ],
+        ],
 
     ],
 ];

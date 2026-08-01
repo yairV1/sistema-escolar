@@ -5,12 +5,18 @@ namespace App\Modules\Reportes\Controllers;
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Calificaciones\Models\Nota;
 use App\Modules\Calificaciones\Models\Periodo;
+use App\Modules\Colegio\Models\ColegioConfiguracion;
 use App\Modules\GestionAcademica\Models\Curso;
+use App\Modules\Matriculas\Models\Matricula;
 use App\Modules\Reportes\Models\Boletin;
 use App\Modules\Reportes\Models\BoletinDetalle;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use ZipArchive;
 
 class BoletinesController extends Controller
 {
@@ -117,6 +123,71 @@ class BoletinesController extends Controller
             'currentPage' => 'Boletines',
             'boletin' => $boletin,
         ]);
+    }
+
+    public function pdf(Boletin $boletin): \Illuminate\Http\Response
+    {
+        $boletin->load(['estudiante.usuario', 'periodo', 'detalle.asignacion.materia', 'detalle.asignacion.profesor.usuario']);
+
+        $curso = Matricula::where('id_estudiante', $boletin->id_estudiante)
+            ->where('estado_matricula', 'activa')
+            ->with('curso')
+            ->first()?->curso;
+
+        $pdf = Pdf::loadView('Rector.reportes.boletines.pdf', [
+            'boletin' => $boletin,
+            'curso' => $curso,
+            'colegio' => ColegioConfiguracion::query()->find(1),
+        ]);
+
+        return $pdf->download(self::nombreArchivoPdf($boletin->estudiante->codigo_estudiante, $boletin->periodo->nombre_periodo));
+    }
+
+    public function pdfMasivo(Request $request): BinaryFileResponse
+    {
+        $data = $request->validate([
+            'id_curso' => ['required', 'integer', 'exists:cursos,id_curso'],
+            'id_periodo' => ['required', 'integer', 'exists:periodos_academicos,id_periodo'],
+        ]);
+
+        $curso = Curso::findOrFail($data['id_curso']);
+        $idPeriodo = (int) $data['id_periodo'];
+
+        $boletines = Boletin::where('id_periodo', $idPeriodo)
+            ->whereHas('estudiante.matriculas', fn ($q) => $q->where('id_curso', $curso->id_curso)->where('estado_matricula', 'activa'))
+            ->with(['estudiante.usuario', 'periodo', 'detalle.asignacion.materia', 'detalle.asignacion.profesor.usuario'])
+            ->orderByRaw('puesto_curso IS NULL, puesto_curso')
+            ->get();
+
+        abort_if($boletines->isEmpty(), 404, 'No hay boletines generados para este curso y periodo.');
+
+        $colegio = ColegioConfiguracion::query()->find(1);
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'boletines_');
+        $zip = new ZipArchive();
+        $zip->open($zipPath, ZipArchive::OVERWRITE);
+
+        foreach ($boletines as $boletin) {
+            $contenidoPdf = Pdf::loadView('Rector.reportes.boletines.pdf', [
+                'boletin' => $boletin,
+                'curso' => $curso,
+                'colegio' => $colegio,
+            ])->output();
+
+            $zip->addFromString(self::nombreArchivoPdf($boletin->estudiante->codigo_estudiante, $boletin->periodo->nombre_periodo), $contenidoPdf);
+        }
+
+        $zip->close();
+
+        $nombrePeriodo = $boletines->first()->periodo->nombre_periodo ?? $idPeriodo;
+        $nombreZip = Str::slug("boletines-{$curso->nombre_curso}-{$nombrePeriodo}").'.zip';
+
+        return response()->download($zipPath, $nombreZip)->deleteFileAfterSend(true);
+    }
+
+    private static function nombreArchivoPdf(string $codigo, string $periodo): string
+    {
+        return Str::slug("boletin-{$codigo}-{$periodo}").'.pdf';
     }
 
     public function publicar(Boletin $boletin): JsonResponse

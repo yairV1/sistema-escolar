@@ -7,6 +7,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "endroid/qr-code": "^6.0",
         "laravel/framework": "^12.0",
         "laravel/reverb": "^1.11",
         "laravel/tinker": "^2.10.1"
@@ -49,6 +51,9 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "cache:clear": [
+            "@php artisan optimize:clear --ansi"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -80,6 +85,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
         }
     },
     "minimum-stability": "stable",

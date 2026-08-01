@@ -180,6 +180,38 @@ class PermissionsSeeder extends Seeder
             'dashboard' => [
                 'dashboard.ver' => 'Acceder al panel de indicadores.',
             ],
+
+            // Modulo plataforma (Fase A del pivote multi-tenant, ver
+            // docs/arquitectura/10-superadmin-plataforma.md). Exclusivo del
+            // rol SuperAdmin (id_rol=8) — ver PermissionRoleSeeder.
+            //
+            // planes.* y modulos.* (catalogo comercial, seccion "Catalogo
+            // de planes y modulos" del mismo documento) se suman aqui
+            // porque son plataforma.* igual que el resto: exclusivos de
+            // SuperAdmin, sin alcance por institucion.
+            'plataforma' => [
+                'plataforma.instituciones.ver' => 'Consultar instituciones (tenants) de la plataforma.',
+                'plataforma.instituciones.crear' => 'Registrar una nueva institucion en la plataforma.',
+                'plataforma.instituciones.editar' => 'Editar los datos de una institucion.',
+                'plataforma.instituciones.activar' => 'Reactivar una institucion suspendida o inactiva.',
+                'plataforma.instituciones.desactivar' => 'Suspender o inactivar una institucion.',
+                'plataforma.usuarios_globales.ver' => 'Consultar usuarios de todas las instituciones.',
+                'plataforma.usuarios_globales.gestionar' => 'Cambiar rol o estado de un usuario de cualquier institucion.',
+                'plataforma.roles.gestionar' => 'Editar la matriz de roles y permisos de la plataforma.',
+                'plataforma.auditoria.ver' => 'Consultar la bitacora de auditoria de la plataforma.',
+                'plataforma.metricas.ver' => 'Consultar metricas globales de uso y crecimiento.',
+                'plataforma.configuracion.editar' => 'Editar la configuracion global de la plataforma.',
+                'plataforma.planes.ver' => 'Consultar el catalogo de planes comerciales.',
+                'plataforma.planes.crear' => 'Crear o duplicar un plan comercial.',
+                'plataforma.planes.editar' => 'Editar un plan comercial y sus modulos incluidos.',
+                'plataforma.planes.activar' => 'Reactivar un plan comercial.',
+                'plataforma.planes.desactivar' => 'Desactivar un plan comercial (deja de poder contratarse).',
+                'plataforma.modulos.ver' => 'Consultar el catalogo de modulos funcionales.',
+                'plataforma.modulos.crear' => 'Crear un modulo funcional.',
+                'plataforma.modulos.editar' => 'Editar un modulo funcional.',
+                'plataforma.modulos.activar' => 'Reactivar un modulo funcional.',
+                'plataforma.modulos.desactivar' => 'Desactivar un modulo funcional.',
+            ],
         ];
     }
 }
