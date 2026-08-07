@@ -6,6 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <meta name="solicitud-admision-url" content="{{ route('solicitudes-admision.store') }}" />
   <title>{{ $colegioConfiguracion->nombre_colegio }} | Educando el Futuro</title>
+  @include('layouts.partials._favicon')
   <link rel="stylesheet" href="{{ asset('assets/webSite/css/styleCole.css') }}" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -62,10 +63,14 @@
     </div>
     <div class="hero-image-wrap">
       <div class="hero-image">
-        <div class="img-placeholder">
-          <i class="fas fa-school"></i>
-          <p>Foto del colegio</p>
-        </div>
+        @if ($colegioConfiguracion->imagen_hero_url)
+          <img src="{{ $colegioConfiguracion->imagen_hero_url }}" alt="{{ $colegioConfiguracion->nombre_colegio }}" style="width:100%;height:100%;object-fit:cover;">
+        @else
+          <div class="img-placeholder">
+            <i class="fas fa-school"></i>
+            <p>Foto del colegio</p>
+          </div>
+        @endif
       </div>
       <div class="floating-card card-1">
         <i class="fas fa-star"></i>
@@ -136,7 +141,7 @@
           <article class="noticia-card{{ $i === 0 ? ' featured' : '' }}">
             <div class="noticia-img">
               @if ($noticia->imagen)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($noticia->imagen) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($noticia->imagen) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
               @else
                 <div class="img-placeholder small"><i class="fas fa-newspaper"></i></div>
               @endif
@@ -168,7 +173,7 @@
         @foreach ($galeria as $i => $foto)
           <div class="galeria-item{{ $i === 0 ? ' big' : '' }}">
             @if ($foto->imagen)
-              <img src="{{ \Illuminate\Support\Facades\Storage::url($foto->imagen) }}" alt="{{ $foto->descripcion }}" style="width:100%;height:100%;object-fit:cover;">
+              <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($foto->imagen) }}" alt="{{ $foto->descripcion }}" style="width:100%;height:100%;object-fit:cover;">
             @else
               <div class="img-placeholder"><i class="fas fa-image"></i><p>{{ $foto->descripcion }}</p></div>
             @endif

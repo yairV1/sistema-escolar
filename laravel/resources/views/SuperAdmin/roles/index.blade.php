@@ -18,7 +18,15 @@
                     <tr>
                         <th style="min-width:260px;">Permiso</th>
                         @foreach ($roles as $rol)
-                            <th class="text-center">{{ $rol->nombre_rol }}</th>
+                            <th class="text-center">
+                                <span class="rol-nombre-texto" data-rol-nombre="{{ $rol->id_rol }}">{{ $rol->nombre_rol }}</span>
+                                <button type="button" class="btn btn-sm btn-link p-0 ms-1 rol-renombrar-btn"
+                                        data-rol-renombrar="{{ $rol->id_rol }}"
+                                        data-url="{{ route('superadmin.roles.renombrar', $rol) }}"
+                                        title="Renombrar rol">
+                                    <i class="fas fa-pen small"></i>
+                                </button>
+                            </th>
                         @endforeach
                     </tr>
                 </thead>

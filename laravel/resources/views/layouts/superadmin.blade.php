@@ -61,7 +61,13 @@
 
         <div class="sidebar-footer">
             <button type="button" class="td-header" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
-                <div class="td-avatar">{{ $iniciales }}</div>
+                <div class="td-avatar" data-iniciales="{{ $iniciales }}">
+                    @if ($usuario?->fotoPerfilUrl)
+                        <img src="{{ $usuario->fotoPerfilUrl }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+                    @else
+                        {{ $iniciales }}
+                    @endif
+                </div>
                 <div class="td-info">
                     <p class="td-name">{{ $nombreCompleto }}</p>
                     <p class="td-email">{{ $usuario?->correo }}</p>

@@ -86,4 +86,28 @@ class Institucion extends Model
     {
         return $this->fecha_vencimiento !== null && $this->fecha_vencimiento->isPast();
     }
+
+    /**
+     * Slugs de módulos disponibles para esta institución: los del plan
+     * asignado que además siguen activos en el catálogo global (si el
+     * SuperAdmin desactiva un módulo, desaparece de aquí para todas las
+     * instituciones cuyo plan lo incluía). Null = sin plan asignado, no se
+     * restringe nada (compatibilidad con instituciones sin catálogo) —
+     * distinto de una colección vacía, que sí bloquearía todo.
+     */
+    public function modulosActivosSlugs(): ?\Illuminate\Support\Collection
+    {
+        if (! $this->id_plan) {
+            return null;
+        }
+
+        return $this->planCatalogo?->modulos()->where('modulos.estado', 'activo')->pluck('slug') ?? collect();
+    }
+
+    public function tieneModuloActivo(string $slug): bool
+    {
+        $slugs = $this->modulosActivosSlugs();
+
+        return $slugs === null || $slugs->contains($slug);
+    }
 }

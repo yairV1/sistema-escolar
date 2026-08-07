@@ -15,7 +15,16 @@ function initModuloForm() {
         submitBtn && (submitBtn.disabled = true);
 
         try {
-            const payload = Object.fromEntries(new FormData(form).entries());
+            const formData = new FormData(form);
+            const payload = {};
+            for (const [key, value] of formData.entries()) {
+                if (key === 'planes[]') {
+                    (payload.planes ??= []).push(value);
+                } else {
+                    payload[key] = value;
+                }
+            }
+
             const { data } = await window.axios.post(form.dataset.url, payload);
 
             toast.success(data.message);

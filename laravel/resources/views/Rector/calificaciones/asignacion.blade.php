@@ -108,6 +108,62 @@
                 </table>
             </div>
         @endif
+
+        <h2 class="h5 fw-semibold font-serif mt-4 mb-3">Observaciones por estudiante</h2>
+
+        @if (! $filtroPeriodo)
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-comment-dots"></i></div>
+                <p class="mb-0">Seleccioná un periodo en el filtro de arriba para registrar la fortaleza, dificultad o recomendación de cada estudiante en esta materia.</p>
+            </div>
+        @elseif ($estudiantes->isEmpty())
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-user-graduate"></i></div>
+                <p class="mb-0">Este curso no tiene estudiantes matriculados activos todavía.</p>
+            </div>
+        @else
+            <form id="formObservaciones" data-url="{{ route('calificaciones.asignaciones.observaciones.guardar', $asignacion) }}">
+                <input type="hidden" name="id_periodo" value="{{ $filtroPeriodo }}">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Código</th>
+                                <th style="width:180px;">Tipo</th>
+                                <th style="width:320px;">Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($estudiantes as $estudiante)
+                                @php $observacionExistente = $observacionesExistentes->get($estudiante->id_estudiante); @endphp
+                                <tr>
+                                    <td>{{ trim($estudiante->usuario->nombres.' '.$estudiante->usuario->apellidos) }}</td>
+                                    <td><code>{{ $estudiante->codigo_estudiante }}</code></td>
+                                    <td>
+                                        <select class="form-select form-select-sm" data-id-estudiante="{{ $estudiante->id_estudiante }}" data-campo="tipo_observacion">
+                                            <option value="">Sin observación</option>
+                                            @foreach ($tiposObservacion as $tipo)
+                                                <option value="{{ $tipo }}" @selected($observacionExistente?->tipo_observacion === $tipo)>{{ ucfirst($tipo) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control form-control-sm" rows="1" data-id-estudiante="{{ $estudiante->id_estudiante }}" data-campo="observacion_materia"
+                                                  placeholder="Ej: Muestra excelente comprensión lectora...">{{ $observacionExistente?->observacion_materia }}</textarea>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary" id="btnGuardarObservaciones">
+                        <i class="fas fa-save me-1"></i> Guardar observaciones
+                    </button>
+                </div>
+            </form>
+        @endif
     </div>
 
     {{-- Modal: nueva actividad --}}
@@ -235,5 +291,5 @@
 @endsection
 
 @push('scripts')
-    @vite('resources/js/pages/calificaciones/asignacion.js')
+    @vite(['resources/js/pages/calificaciones/asignacion.js', 'resources/js/pages/calificaciones/observaciones.js'])
 @endpush

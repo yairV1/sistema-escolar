@@ -3,6 +3,7 @@
 namespace App\Modules\Auth\Models;
 
 use App\Modules\GestionAcademica\Models\AsignacionAcademica;
+use App\Modules\GestionAcademica\Models\Curso;
 use App\Modules\Instituciones\Models\Institucion;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Tabla central de autenticación, heredada del sistema legacy PHP.
@@ -38,6 +40,7 @@ class Usuario extends Authenticatable
         'id_rol',
         'id_institucion',
         'estado_usuario',
+        'foto_perfil',
     ];
 
     protected $hidden = [
@@ -112,10 +115,20 @@ class Usuario extends Authenticatable
         );
     }
 
+    /** Lee `roles.nombre_rol` (editable por SuperAdmin, ver RolPermisoController::renombrar) en vez del
+     *  mapa fijo — así un rol renombrado se refleja aquí sin tocar cada vista que muestra rolLabel. */
+    /** Mismo patrón que Institucion::logoUrl(). Null si no cargó foto — el avatar cae a las iniciales. */
+    protected function fotoPerfilUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->foto_perfil ? Storage::disk('public')->url($this->foto_perfil) : null,
+        );
+    }
+
     protected function rolLabel(): Attribute
     {
         return Attribute::make(
-            get: fn () => self::ROLE_LABELS[$this->rolSlug] ?? 'Panel',
+            get: fn () => $this->rol?->nombre_rol ?? self::ROLE_LABELS[$this->rolSlug] ?? 'Panel',
         );
     }
 
@@ -164,5 +177,10 @@ class Usuario extends Authenticatable
     public function puedeGestionarAsignacion(AsignacionAcademica $asignacion): bool
     {
         return $this->tienePanelAdmin() || $this->profesor?->id_profesor === $asignacion->id_profesor;
+    }
+
+    public function esDirectorDeGrupo(Curso $curso): bool
+    {
+        return $this->profesor?->id_profesor === $curso->id_director_grupo;
     }
 }

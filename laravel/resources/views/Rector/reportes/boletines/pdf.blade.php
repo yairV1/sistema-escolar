@@ -4,9 +4,11 @@
     <meta charset="utf-8">
     <title>Boletín — {{ trim($boletin->estudiante->usuario->nombres.' '.$boletin->estudiante->usuario->apellidos) }}</title>
     <style>
-        @page { margin: 90px 40px 60px 40px; }
+        @page { margin: 100px 40px 60px 40px; }
         body { font-family: 'Helvetica', Arial, sans-serif; font-size: 12px; color: #212529; }
-        header { position: fixed; top: -70px; left: 0; right: 0; height: 60px; border-bottom: 2px solid #212529; padding-bottom: 8px; }
+        header { position: fixed; top: -80px; left: 0; right: 0; height: 70px; border-bottom: 2px solid #212529; padding-bottom: 8px; }
+        header .logo-colegio { float: left; height: 50px; margin-right: 12px; }
+        header .datos-colegio { overflow: hidden; }
         footer { position: fixed; bottom: -45px; left: 0; right: 0; height: 30px; font-size: 9px; color: #6c757d; text-align: center; border-top: 1px solid #dee2e6; padding-top: 6px; }
         .colegio-nombre { font-size: 16px; font-weight: bold; margin: 0; }
         .colegio-datos { font-size: 9px; color: #6c757d; margin: 2px 0 0 0; }
@@ -28,15 +30,25 @@
         .badge-borrador { background-color: #6c757d; }
         .badge-publicado { background-color: #198754; }
         .badge-anulado { background-color: #dc3545; }
+        table.escala-legend { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 9px; color: #495057; }
+        table.escala-legend td { padding: 2px 6px 2px 0; }
+        table.firmas { width: 100%; border-collapse: collapse; margin-top: 40px; }
+        table.firmas td { width: 33.33%; text-align: center; font-size: 10px; padding-top: 4px; border-top: 1px solid #212529; }
+        table.firmas .nombre-firma { height: 24px; }
     </style>
 </head>
 <body>
     <header>
-        <p class="colegio-nombre">{{ $colegio->nombre_colegio ?? 'Institución Educativa' }}</p>
-        <p class="colegio-datos">
-            {{ $colegio->direccion ?? '' }}{{ $colegio->ciudad ? ' · '.$colegio->ciudad : '' }}
-            @if ($colegio->telefono) · Tel. {{ $colegio->telefono }} @endif
-        </p>
+        @if ($logoBase64 ?? null)
+            <img src="{{ $logoBase64 }}" class="logo-colegio" alt="Logo">
+        @endif
+        <div class="datos-colegio">
+            <p class="colegio-nombre">{{ $colegio->nombre_colegio ?? 'Institución Educativa' }}</p>
+            <p class="colegio-datos">
+                {{ $colegio->direccion ?? '' }}{{ $colegio->ciudad ? ' · '.$colegio->ciudad : '' }}
+                @if ($colegio->telefono) · Tel. {{ $colegio->telefono }} @endif
+            </p>
+        </div>
     </header>
 
     <footer>
@@ -67,22 +79,41 @@
         <thead>
             <tr>
                 <th>Materia</th>
-                <th>Profesor</th>
+                <th>Observación del docente</th>
                 <th class="nota">Nota definitiva</th>
+                <th class="nota">Escala</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($boletin->detalle as $detalle)
                 <tr>
                     <td>{{ $detalle->asignacion->materia->nombre_materia ?? '—' }}</td>
-                    <td>{{ trim(($detalle->asignacion->profesor->usuario->nombres ?? '').' '.($detalle->asignacion->profesor->usuario->apellidos ?? '')) ?: '—' }}</td>
+                    <td>
+                        @if ($detalle->tipo_observacion)
+                            <strong>{{ ucfirst($detalle->tipo_observacion) }}:</strong> {{ $detalle->observacion_materia }}
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td class="nota">{{ $detalle->nota_definitiva ?? '—' }}</td>
+                    @php $escalaDetalle = $detalle->nota_definitiva !== null ? ($escalas ?? collect())->first(fn ($e) => $detalle->nota_definitiva >= $e->valor_min && $detalle->nota_definitiva <= $e->valor_max) : null; @endphp
+                    <td class="nota">{{ $escalaDetalle->sigla ?? '—' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3">Sin materias registradas.</td></tr>
+                <tr><td colspan="4">Sin materias registradas.</td></tr>
             @endforelse
         </tbody>
     </table>
+
+    @if (($escalas ?? collect())->isNotEmpty())
+        <table class="escala-legend">
+            <tr>
+                @foreach ($escalas as $escala)
+                    <td><strong>{{ $escala->sigla }}</strong> = {{ $escala->etiqueta }} ({{ $escala->valor_min }}–{{ $escala->valor_max }})</td>
+                @endforeach
+            </tr>
+        </table>
+    @endif
 
     <table class="resumen">
         <tr>
@@ -103,5 +134,22 @@
             <p style="margin: 0;">{{ $boletin->observaciones_gral }}</p>
         </div>
     @endif
+
+    <table class="firmas">
+        <tr>
+            <td>
+                <div class="nombre-firma">{{ $colegio->nombre_rector ?? '' }}</div>
+                RECTOR
+            </td>
+            <td>
+                <div class="nombre-firma"></div>
+                SECRETARÍA ACADÉMICA
+            </td>
+            <td>
+                <div class="nombre-firma">{{ $curso?->director?->usuario ? trim($curso->director->usuario->nombres.' '.$curso->director->usuario->apellidos) : '' }}</div>
+                DIRECTOR DE GRUPO
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

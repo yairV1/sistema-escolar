@@ -5,7 +5,7 @@
 @section('content')
     <div class="container-fluid p-3 p-md-4">
         <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
-            <a href="{{ route('gestion-academica.index', ['tab' => 'cursos']) }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('gestion-academica.cursos.index') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>
@@ -89,7 +89,7 @@
                             <div class="empty-state">
                                 <div class="empty-icon"><i class="fas fa-diagram-project"></i></div>
                                 <p class="mb-2">Este curso todavía no tiene materias asignadas.</p>
-                                <a href="{{ route('gestion-academica.index', ['tab' => 'asignaciones', 'curso' => $curso->id_curso]) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ route('gestion-academica.asignaciones.index', ['curso' => $curso->id_curso]) }}" class="btn btn-sm btn-primary">
                                     Ir a Asignaciones
                                 </a>
                             </div>

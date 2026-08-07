@@ -2,6 +2,43 @@
     $c = fn ($clave) => $contenido[$clave] ?? '';
 @endphp
 
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="h6 fw-semibold mb-3"><i class="fas fa-image text-primary me-1"></i> Foto del Hero (Inicio)</h2>
+        <p class="text-secondary small mb-3">Foto grande que se muestra junto al título de la página de inicio pública.</p>
+
+        <form data-landing-form data-url="{{ route('editar-landing.hero-imagen.update') }}" enctype="multipart/form-data" novalidate>
+            <div class="row g-3 align-items-start">
+                <div class="col-auto">
+                    @if ($colegio->imagen_hero_url)
+                        <img src="{{ $colegio->imagen_hero_url }}" alt="Imagen del hero" class="rounded border" style="width:160px;height:100px;object-fit:cover;">
+                    @else
+                        <div class="d-flex align-items-center justify-content-center rounded border text-secondary" style="width:160px;height:100px;">
+                            <i class="fas fa-image fa-lg"></i>
+                        </div>
+                    @endif
+                </div>
+                <div class="col">
+                    <label class="form-label">Reemplazar imagen <span class="text-muted fw-normal">(JPG, PNG o WEBP, máx. 2 MB)</span></label>
+                    <input type="file" class="form-control" name="imagen" accept="image/png,image/jpeg,image/webp" data-feedback="err-hero-imagen">
+                    <div class="invalid-feedback" id="err-hero-imagen"></div>
+                    @if ($colegio->imagen_hero_url)
+                        <div class="form-check mt-2">
+                            <input type="checkbox" class="form-check-input" name="imagen_removida" value="1" id="heroImagenRemovida">
+                            <label class="form-check-label small" for="heroImagenRemovida">Quitar la imagen actual (mostrar el ícono de placeholder)</label>
+                        </div>
+                    @endif
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="fas fa-save me-1"></i> Guardar imagen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <form id="formContenidoLanding" data-url="{{ route('editar-landing.contenido.update') }}">
     <div class="card mb-3">
         <div class="card-body">

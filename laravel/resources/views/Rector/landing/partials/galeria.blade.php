@@ -15,7 +15,7 @@
             <div class="col-6 col-md-3">
                 <div class="card h-100">
                     @if ($foto->imagen)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::url($foto->imagen) }}" class="card-img-top" style="height:140px;object-fit:cover;" alt="">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($foto->imagen) }}" class="card-img-top" style="height:140px;object-fit:cover;" alt="">
                     @else
                         <div class="d-flex align-items-center justify-content-center bg-body-tertiary text-secondary" style="height:140px;">
                             <i class="fas fa-image fa-2x"></i>

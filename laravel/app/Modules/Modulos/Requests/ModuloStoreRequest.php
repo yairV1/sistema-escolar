@@ -19,6 +19,8 @@ class ModuloStoreRequest extends FormRequest
             'categoria' => ['required', 'string', 'in:academico,administrativo,comunicacion,finanzas'],
             'descripcion' => ['nullable', 'string', 'max:500'],
             'icono' => ['nullable', 'string', 'max:60'],
+            'planes' => ['nullable', 'array'],
+            'planes.*' => ['integer', 'exists:planes,id_plan'],
         ];
     }
 }

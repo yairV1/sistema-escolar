@@ -18,6 +18,41 @@
             </button>
         </div>
 
+        {{-- ============ PLAN Y MÓDULOS (solo lectura — se administra desde SuperAdmin) ============ --}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h6 fw-semibold mb-3"><i class="fas fa-layer-group text-primary me-1"></i> Plan y módulos</h2>
+
+                @if (! $institucion?->planCatalogo)
+                    <p class="text-secondary small mb-0">
+                        Tu colegio todavía no tiene un plan asignado en la plataforma. Contacta al equipo de soporte.
+                    </p>
+                @else
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <span class="badge text-bg-primary fs-6">{{ $institucion->planCatalogo->nombre }}</span>
+                        <span class="text-secondary small">{{ $institucion->planCatalogo->descripcion }}</span>
+                    </div>
+
+                    <p class="text-secondary small mb-2">Módulos incluidos en tu plan:</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        @forelse ($institucion->planCatalogo->modulos as $modulo)
+                            <span class="badge {{ $modulo->estado === 'activo' ? 'text-bg-secondary' : 'text-bg-light text-muted' }}">
+                                <i class="{{ $modulo->icono }} me-1"></i>{{ $modulo->nombre }}
+                                @if ($modulo->estado !== 'activo') (suspendido) @endif
+                            </span>
+                        @empty
+                            <span class="text-secondary small">Este plan no tiene módulos configurados todavía.</span>
+                        @endforelse
+                    </div>
+
+                    <p class="text-secondary small mt-3 mb-0">
+                        <i class="fas fa-circle-info me-1"></i>
+                        El plan y sus módulos los administra la plataforma. Si necesitas más funcionalidades, contacta a soporte.
+                    </p>
+                @endif
+            </div>
+        </div>
+
         <form id="formConfiguracion" data-url="{{ route('configuracion-colegio.update') }}" enctype="multipart/form-data" novalidate>
 
             {{-- ============ IDENTIDAD ============ --}}
@@ -55,6 +90,13 @@
                                     <div class="invalid-feedback d-block" id="err-logo"></div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Nombre del rector <span class="text-muted fw-normal">(aparece en la firma del boletín)</span></label>
+                            <input type="text" name="nombre_rector" class="form-control" maxlength="150"
+                                   value="{{ $configuracion->nombre_rector }}" data-feedback="err-nombre_rector">
+                            <div class="invalid-feedback" id="err-nombre_rector"></div>
                         </div>
 
                         <div class="col-12">

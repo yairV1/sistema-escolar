@@ -20,8 +20,6 @@ return new class extends Migration
             $table->enum('estado', ['pendiente', 'contactada', 'convertida', 'descartada'])->default('pendiente');
             $table->unsignedInteger('id_matricula')->nullable();
             $table->timestamps();
-
-            $table->foreign('id_matricula')->references('id_matricula')->on('matriculas')->nullOnDelete();
         });
     }
 

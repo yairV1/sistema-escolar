@@ -26,6 +26,15 @@
                     <div class="card-body">
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-message text-primary me-1"></i> Mensaje</h2>
                         <p class="mb-0" style="white-space: pre-line;">{{ $soporte->mensaje }}</p>
+
+                        @if ($soporte->imagen_ruta)
+                            <hr>
+                            <h2 class="h6 fw-semibold mb-3"><i class="fas fa-image text-primary me-1"></i> Captura adjunta</h2>
+                            <a href="{{ Illuminate\Support\Facades\Storage::disk('public')->url($soporte->imagen_ruta) }}" target="_blank" rel="noopener">
+                                <img src="{{ Illuminate\Support\Facades\Storage::disk('public')->url($soporte->imagen_ruta) }}"
+                                     alt="{{ $soporte->imagen_nombre_original }}" class="img-fluid rounded border" style="max-height: 400px;">
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

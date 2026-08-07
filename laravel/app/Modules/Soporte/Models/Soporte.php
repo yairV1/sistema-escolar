@@ -16,6 +16,8 @@ class Soporte extends Model
         'id_usuario',
         'asunto',
         'mensaje',
+        'imagen_ruta',
+        'imagen_nombre_original',
         'estado',
         'resuelto_por',
         'resuelto_at',

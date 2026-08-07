@@ -179,6 +179,11 @@ class ListadosController extends Controller
 
     public function desactivarAdministrativo(Usuario $usuario): JsonResponse
     {
+        // El {usuario} de la ruta llega sin más filtro que el binding por id: sin este chequeo,
+        // cualquier admin/rector podría desactivar por URL a un usuario fuera de "administrativos"
+        // (incluido un SuperAdmin, bloqueándole el login vía Usuario::estaActivo()).
+        abort_unless(in_array($usuario->id_rol, self::ROLES_ADMINISTRATIVOS, true), 403);
+
         $usuario->update(['estado_usuario' => 'inactivo']);
 
         return response()->json(['success' => true, 'message' => 'Usuario desactivado correctamente.']);
@@ -202,6 +207,8 @@ class ListadosController extends Controller
 
     public function activarAdministrativo(Usuario $usuario): JsonResponse
     {
+        abort_unless(in_array($usuario->id_rol, self::ROLES_ADMINISTRATIVOS, true), 403);
+
         $usuario->update(['estado_usuario' => 'activo']);
 
         return response()->json(['success' => true, 'message' => 'Usuario reactivado correctamente.']);

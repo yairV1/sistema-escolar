@@ -56,4 +56,29 @@ function initFormMatriz() {
     });
 }
 
+function initRenombrarRol() {
+    document.querySelectorAll('[data-rol-renombrar]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const idRol = btn.dataset.rolRenombrar;
+            const span = document.querySelector(`[data-rol-nombre="${idRol}"]`);
+            const actual = span.textContent.trim();
+
+            const nuevo = window.prompt('Nuevo nombre para este rol:', actual);
+            if (nuevo === null) return;
+
+            const limpio = nuevo.trim();
+            if (limpio === '' || limpio === actual) return;
+
+            try {
+                const { data } = await window.axios.post(btn.dataset.url, { nombre_rol: limpio });
+                span.textContent = data.nombre_rol;
+                toast.success(data.message);
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'No se pudo renombrar el rol.');
+            }
+        });
+    });
+}
+
 initFormMatriz();
+initRenombrarRol();

@@ -74,4 +74,27 @@ class RolPermisoController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Matriz de permisos actualizada.']);
     }
+
+    /**
+     * Renombra el rol (columna `nombre_rol`) — es lo único editable de un rol, el `id_rol`/slug
+     * que usan los middlewares `role:` y las policies no cambia. `Usuario::rolLabel` lee este
+     * mismo valor, así que el nuevo nombre se refleja en todo el sistema (sidebar, listados,
+     * dashboards) sin tocar nada más.
+     */
+    public function renombrar(Request $request, Rol $rol): JsonResponse
+    {
+        abort_unless($this->policy->gestionar($request->user()), 403);
+        abort_if($rol->id_rol === self::ID_ROL_SUPERADMIN, 403);
+
+        $datos = $request->validate([
+            'nombre_rol' => ['required', 'string', 'max:60'],
+        ]);
+
+        $antes = $rol->toArray();
+        $rol->update($datos);
+
+        $this->auditLogger->record('rol.renombrar', $rol, $antes, $rol->toArray());
+
+        return response()->json(['success' => true, 'message' => 'Rol renombrado correctamente.', 'nombre_rol' => $rol->nombre_rol]);
+    }
 }

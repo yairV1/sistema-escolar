@@ -19,7 +19,9 @@ class ColegioConfiguracion extends Model
 
     protected $fillable = [
         'nombre_colegio',
+        'nombre_rector',
         'logo',
+        'imagen_hero',
         'direccion',
         'ciudad',
         'departamento',
@@ -44,6 +46,13 @@ class ColegioConfiguracion extends Model
     {
         return Attribute::make(
             get: fn () => $this->logo ? Storage::disk('public')->url($this->logo) : null,
+        );
+    }
+
+    protected function imagenHeroUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->imagen_hero ? Storage::disk('public')->url($this->imagen_hero) : null,
         );
     }
 }

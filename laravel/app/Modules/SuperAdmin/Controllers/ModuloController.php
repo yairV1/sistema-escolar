@@ -7,6 +7,7 @@ use App\Modules\Auditoria\Services\AuditLogger;
 use App\Modules\Modulos\Models\Modulo;
 use App\Modules\Modulos\Requests\ModuloStoreRequest;
 use App\Modules\Modulos\Requests\ModuloUpdateRequest;
+use App\Modules\Planes\Models\Plan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -40,14 +41,18 @@ class ModuloController extends Controller
     {
         $this->authorize('create', Modulo::class);
 
-        return view('SuperAdmin.modulos.create', ['currentPage' => 'SuperAdminModulos']);
+        return view('SuperAdmin.modulos.create', [
+            'currentPage' => 'SuperAdminModulos',
+            'planes' => Plan::where('estado', 'activo')->orderBy('orden')->orderBy('nombre')->get(),
+        ]);
     }
 
     public function store(ModuloStoreRequest $request): JsonResponse
     {
         $this->authorize('create', Modulo::class);
 
-        $modulo = Modulo::create($request->validated());
+        $modulo = Modulo::create($request->safe()->except('planes'));
+        $modulo->planes()->sync($request->input('planes', []));
 
         $this->auditLogger->record('modulo.crear', $modulo, [], $modulo->toArray());
 
@@ -62,9 +67,13 @@ class ModuloController extends Controller
     {
         $this->authorize('update', $modulo);
 
+        $modulo->load('planes');
+
         return view('SuperAdmin.modulos.edit', [
             'currentPage' => 'SuperAdminModulos',
             'modulo' => $modulo,
+            'planes' => Plan::where('estado', 'activo')->orderBy('orden')->orderBy('nombre')->get(),
+            'planesSeleccionados' => $modulo->planes->pluck('id_plan')->all(),
         ]);
     }
 
@@ -73,7 +82,8 @@ class ModuloController extends Controller
         $this->authorize('update', $modulo);
 
         $antes = $modulo->toArray();
-        $modulo->update($request->validated());
+        $modulo->update($request->safe()->except('planes'));
+        $modulo->planes()->sync($request->input('planes', []));
 
         $this->auditLogger->record('modulo.editar', $modulo, $antes, $modulo->toArray());
 

@@ -15,6 +15,7 @@ class ConfiguracionColegioRequest extends FormRequest
     {
         return [
             'nombre_colegio' => ['required', 'string', 'max:150'],
+            'nombre_rector' => ['nullable', 'string', 'max:150'],
             'direccion' => ['required', 'string', 'max:200'],
             'ciudad' => ['required', 'string', 'max:100'],
             'departamento' => ['required', 'string', 'max:100'],
