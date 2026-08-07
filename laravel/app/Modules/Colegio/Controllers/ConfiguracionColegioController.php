@@ -19,12 +19,14 @@ class ConfiguracionColegioController extends Controller
     public function index(): View
     {
         $configuracion = ColegioConfiguracion::singleton();
+        $institucion = auth()->user()->institucion?->load('planCatalogo.modulos');
 
         return view('Rector.configuracion-colegio.index', [
             'currentPage' => 'ConfiguracionColegio',
             'configuracion' => $configuracion,
             'imagenes' => $configuracion->imagenes,
             'tipos' => ColegioImagen::TIPOS_LABELS,
+            'institucion' => $institucion,
         ]);
     }
 

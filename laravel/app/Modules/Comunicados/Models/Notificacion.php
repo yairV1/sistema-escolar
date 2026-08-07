@@ -26,6 +26,12 @@ class Notificacion extends Model
 
     public const CANALES = ['interno', 'correo', 'whatsapp', 'todos'];
 
+    protected $casts = [
+        'fecha_envio' => 'datetime',
+        'fecha_lectura' => 'datetime',
+        'leida' => 'boolean',
+    ];
+
     protected $fillable = [
         'titulo',
         'mensaje',

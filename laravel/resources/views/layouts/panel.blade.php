@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
-    <title>@yield('title', 'Panel') · {{ $colegioConfiguracion->nombre_colegio }}</title>
+    <title>@yield('title', 'Panel') · {{ $colegioConfiguracion->nombre_colegio ?? auth()->user()?->institucion?->nombre }}</title>
+    @include('layouts.partials._favicon')
 
     <script>
         (function () {
@@ -25,12 +26,17 @@
 </head>
 <body class="has-sidebar">
     @php
+        $usuario = auth()->user();
+        // El nombre y el logo priorizan colegio_configuracion (editable por
+        // Directivo/Admin desde Configuración del Colegio) sobre los de la
+        // institución del usuario, que solo puede editar SuperAdmin.
+        $institucionUsuario = $usuario?->institucion;
         $sidebarBuilder = new \App\Shared\SidebarBuilder(
             config('panel_menu'),
             $currentPage ?? '',
-            [auth()->user()?->rolSlug],
+            [$usuario?->rolSlug],
+            $institucionUsuario?->modulosActivosSlugs()?->all(),
         );
-        $usuario = auth()->user();
         $nombreCompleto = $usuario ? trim($usuario->nombres.' '.$usuario->apellidos) : 'Invitado';
         $iniciales = collect(explode(' ', $nombreCompleto))
             ->filter()
@@ -45,9 +51,15 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="bi bi-mortarboard"></i></div>
+            <div class="sidebar-logo">
+                @if ($colegioConfiguracion->logo_url ?? $institucionUsuario?->logoUrl)
+                    <img src="{{ $colegioConfiguracion->logo_url ?? $institucionUsuario->logoUrl }}" alt="{{ $colegioConfiguracion->nombre_colegio ?? $institucionUsuario->nombre }}">
+                @else
+                    <i class="bi bi-mortarboard"></i>
+                @endif
+            </div>
             <div class="sidebar-brand">
-                <span class="sb-name">{{ $colegioConfiguracion->nombre_colegio }}</span>
+                <span class="sb-name">{{ $colegioConfiguracion->nombre_colegio ?? $institucionUsuario->nombre }}</span>
                 <span class="sb-sub">Panel {{ $usuario?->rolLabel }}</span>
             </div>
             <button class="sidebar-collapse" id="sidebarCollapse" title="Contraer" aria-label="Contraer menú">
@@ -61,7 +73,13 @@
 
         <div class="sidebar-footer">
             <button type="button" class="td-header" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
-                <div class="td-avatar">{{ $iniciales }}</div>
+                <div class="td-avatar" data-iniciales="{{ $iniciales }}">
+                    @if ($usuario?->fotoPerfilUrl)
+                        <img src="{{ $usuario->fotoPerfilUrl }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+                    @else
+                        {{ $iniciales }}
+                    @endif
+                </div>
                 <div class="td-info">
                     <p class="td-name">{{ $nombreCompleto }}</p>
                     <p class="td-email">{{ $usuario?->correo }}</p>

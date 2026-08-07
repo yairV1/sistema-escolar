@@ -1,9 +1,11 @@
 {{--
     Grilla visual semanal de horarios (estilo "Class Schedule"). Espera
     $horarios: Collection<Horario> con asignacion.materia cargado.
-    $puedeAgregar (opcional, default true): si hay al menos una asignación
-    disponible, las celdas vacías quedan clicables para abrir #modalNuevoHorario
-    con el día y la hora ya precargados.
+    $puedeAgregar (opcional, default true): controla el modo editable completo
+    — celdas vacías clicables para abrir #modalNuevoHorario, y cada bloque
+    existente clicable (abre #modalEditarHorario) con botón de eliminar.
+    En false, la grilla queda 100% de solo lectura (usado por las vistas de
+    Estudiante/Acudiente).
     Reutilizada por la pestaña Horarios y por el detalle de curso.
 
     Color: cada materia se ancla a un slot fijo de la paleta categórica
@@ -136,14 +138,19 @@
                         @endphp
                         <div class="horario-bloque"
                              style="top: {{ $top }}px; height: {{ $height }}px; --bloque-color: {{ $color }};"
-                             data-bs-toggle="modal" data-bs-target="#modalEditarHorario{{ $horario->id_horario }}"
-                             role="button" tabindex="0" title="{{ $tituloCompleto }}">
-                            <button type="button" class="horario-bloque__del" data-desactivar
-                                    data-url="{{ route('gestion-academica.horarios.desactivar', $horario) }}"
-                                    data-nombre="este horario"
-                                    title="Quitar" onclick="event.stopPropagation()">
-                                <i class="fas fa-xmark"></i>
-                            </button>
+                             @if ($puedeAgregar)
+                                 data-bs-toggle="modal" data-bs-target="#modalEditarHorario{{ $horario->id_horario }}"
+                                 role="button" tabindex="0"
+                             @endif
+                             title="{{ $tituloCompleto }}">
+                            @if ($puedeAgregar)
+                                <button type="button" class="horario-bloque__del" data-desactivar
+                                        data-url="{{ route('gestion-academica.horarios.desactivar', $horario) }}"
+                                        data-nombre="este horario"
+                                        title="Quitar" onclick="event.stopPropagation()">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            @endif
                             <div class="horario-bloque__hora">{{ substr($horario->hora_inicio, 0, 5) }}–{{ substr($horario->hora_fin, 0, 5) }}</div>
                             <div class="horario-bloque__materia">
                                 <span class="horario-bloque__dot"></span>
@@ -185,8 +192,11 @@
                         $profesorMovil = trim($horario->asignacion->profesor->usuario->nombres.' '.$horario->asignacion->profesor->usuario->apellidos);
                     @endphp
                     <div class="horario-list__item" style="--bloque-color: {{ $colorMovil }};"
-                         data-bs-toggle="modal" data-bs-target="#modalEditarHorario{{ $horario->id_horario }}"
-                         role="button" tabindex="0">
+                         @if ($puedeAgregar)
+                             data-bs-toggle="modal" data-bs-target="#modalEditarHorario{{ $horario->id_horario }}"
+                             role="button" tabindex="0"
+                         @endif
+                    >
                         <div class="horario-list__hora">{{ substr($horario->hora_inicio, 0, 5) }}<br>{{ substr($horario->hora_fin, 0, 5) }}</div>
                         <div class="horario-list__info">
                             <div class="horario-list__materia">

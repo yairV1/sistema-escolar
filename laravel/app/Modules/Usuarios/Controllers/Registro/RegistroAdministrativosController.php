@@ -13,6 +13,10 @@ use Illuminate\View\View;
 
 class RegistroAdministrativosController extends Controller
 {
+    /** Mismos id_rol que AdministrativoStoreRequest acepta — evita que {usuario} (route binding directo por id)
+     *  exponga edit/show/update de un usuario fuera de este conjunto (ej. un SuperAdmin). */
+    private const ROLES_ADMINISTRATIVOS = [1, 2, 3, 4];
+
     public function create(): View
     {
         return view('Rector.usuarios.registro.administrativos', ['currentPage' => 'RegistroAdministrativos', 'admin' => null]);
@@ -53,11 +57,22 @@ class RegistroAdministrativosController extends Controller
 
     public function edit(Usuario $usuario): View
     {
+        abort_unless(in_array($usuario->id_rol, self::ROLES_ADMINISTRATIVOS, true), 403);
+
         return view('Rector.usuarios.registro.administrativos', ['currentPage' => 'RegistroAdministrativos', 'admin' => $usuario]);
+    }
+
+    public function show(Usuario $usuario): View
+    {
+        abort_unless(in_array($usuario->id_rol, self::ROLES_ADMINISTRATIVOS, true), 403);
+
+        return view('Rector.usuarios.registro.administrativos.show', ['currentPage' => 'RegistroAdministrativos', 'admin' => $usuario]);
     }
 
     public function update(AdministrativoUpdateRequest $request, Usuario $usuario): JsonResponse
     {
+        abort_unless(in_array($usuario->id_rol, self::ROLES_ADMINISTRATIVOS, true), 403);
+
         $d = $request->validated();
 
         try {

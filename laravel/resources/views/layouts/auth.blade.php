@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
     <title>@yield('title', 'Iniciar sesión') · {{ $colegioConfiguracion->nombre_colegio }}</title>
+    @include('layouts.partials._favicon')
 
     {{-- Fija el tema antes del primer paint para evitar el parpadeo --}}
     <script>

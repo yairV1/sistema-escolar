@@ -221,7 +221,9 @@ class PermissionRoleSeeder extends Seeder
             ],
 
             // 4.5 — Docente (perfil.* se excluye: seccion 3.13, no es permiso de rol)
-            'Profesor' => [
+            // Clave 'Docente', no 'Profesor': roles.nombre_rol real en esta base de
+            // datos es 'Docente' (verificado en la instancia real antes de sembrar).
+            'Docente' => [
                 'etiqueta' => 'Docente',
                 'permisos' => [
                     'gestion_academica.asignaciones.ver',
@@ -265,6 +267,38 @@ class PermissionRoleSeeder extends Seeder
                     'observaciones.ver',
                     'matriculas.ver',
                     'comunicados.ver_recibidos',
+                ],
+            ],
+
+            // SuperAdmin (Fase A del pivote multi-tenant, ver
+            // docs/arquitectura/10-superadmin-plataforma.md): unico rol con
+            // permisos plataforma.*, y los tiene todos — es el nivel de
+            // acceso mas alto de la plataforma, por encima de los 7 actores
+            // institucionales.
+            'SuperAdmin' => [
+                'etiqueta' => 'SuperAdmin',
+                'permisos' => [
+                    'plataforma.instituciones.ver',
+                    'plataforma.instituciones.crear',
+                    'plataforma.instituciones.editar',
+                    'plataforma.instituciones.activar',
+                    'plataforma.instituciones.desactivar',
+                    'plataforma.usuarios_globales.ver',
+                    'plataforma.usuarios_globales.gestionar',
+                    'plataforma.roles.gestionar',
+                    'plataforma.auditoria.ver',
+                    'plataforma.metricas.ver',
+                    'plataforma.configuracion.editar',
+                    'plataforma.planes.ver',
+                    'plataforma.planes.crear',
+                    'plataforma.planes.editar',
+                    'plataforma.planes.activar',
+                    'plataforma.planes.desactivar',
+                    'plataforma.modulos.ver',
+                    'plataforma.modulos.crear',
+                    'plataforma.modulos.editar',
+                    'plataforma.modulos.activar',
+                    'plataforma.modulos.desactivar',
                 ],
             ],
         ];

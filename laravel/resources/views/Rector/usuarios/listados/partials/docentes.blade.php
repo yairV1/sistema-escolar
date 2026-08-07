@@ -75,6 +75,9 @@
                             <span class="badge text-bg-{{ $estadoColores[$docente->estado_laboral] ?? 'secondary' }}">{{ ucfirst($docente->estado_laboral) }}</span>
                         </td>
                         <td class="text-end">
+                            <a href="{{ route('registro.docentes.show', $docente) }}" class="btn btn-sm btn-outline-secondary" title="Ver detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="{{ route('registro.docentes.edit', $docente) }}" class="btn btn-sm btn-outline-secondary" title="Editar">
                                 <i class="fas fa-pen"></i>
                             </a>

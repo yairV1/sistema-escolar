@@ -4,8 +4,10 @@ namespace App\Modules\Usuarios\Models;
 
 use App\Modules\Auth\Models\Usuario;
 use App\Modules\GestionAcademica\Models\AsignacionAcademica;
+use App\Modules\GestionAcademica\Models\Materia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Profesor extends Model
@@ -33,5 +35,11 @@ class Profesor extends Model
     public function asignaciones(): HasMany
     {
         return $this->hasMany(AsignacionAcademica::class, 'id_profesor', 'id_profesor');
+    }
+
+    /** Materias que el docente puede dictar, sin curso ni año lectivo (eso vive en asignaciones()). */
+    public function materias(): BelongsToMany
+    {
+        return $this->belongsToMany(Materia::class, 'profesor_materia', 'id_profesor', 'id_materia');
     }
 }

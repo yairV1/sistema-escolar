@@ -25,6 +25,8 @@ class DocenteStoreRequest extends FormRequest
             'profesion' => ['nullable', 'string', 'max:100'],
             'especialidad' => ['nullable', 'string', 'max:100'],
             'fecha_ingreso' => ['nullable', 'date'],
+            'materias' => ['nullable', 'array'],
+            'materias.*' => ['integer', 'exists:materias,id_materia'],
         ];
     }
 

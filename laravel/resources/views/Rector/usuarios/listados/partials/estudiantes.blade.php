@@ -85,6 +85,10 @@
                             @endif
                         </td>
                         <td class="text-end">
+                            <a href="{{ route('registro.estudiantes.show', $estudiante) }}"
+                               class="btn btn-sm btn-outline-secondary" title="Ver detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="{{ route('registro.estudiantes.edit', $estudiante) }}"
                                class="btn btn-sm btn-outline-secondary" title="Editar">
                                 <i class="fas fa-pen"></i>

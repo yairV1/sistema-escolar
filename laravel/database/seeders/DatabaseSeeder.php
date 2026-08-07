@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             PermissionRoleSeeder::class,
             ColegioConfiguracionSeeder::class,
             EventoCategoriaSeeder::class,
+            ModulosSeeder::class,
+            PlanesSeeder::class,
+            SuperAdminInicialSeeder::class,
         ]);
     }
 }

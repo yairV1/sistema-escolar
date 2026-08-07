@@ -11,7 +11,30 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-user text-primary me-1"></i> Datos personales</h2>
-                        <form id="formPerfil" data-url="{{ route('perfil.update') }}" novalidate>
+                        <form id="formPerfil" data-url="{{ route('perfil.update') }}" enctype="multipart/form-data" novalidate>
+                            @php
+                                $iniciales = collect(explode(' ', trim($usuario->nombres.' '.$usuario->apellidos)))
+                                    ->filter()
+                                    ->map(fn ($parte) => mb_strtoupper(mb_substr($parte, 0, 1)))
+                                    ->join('');
+                                $iniciales = mb_substr($iniciales, 0, 2) ?: '?';
+                            @endphp
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="avatar-dropzone{{ $usuario->fotoPerfilUrl ? ' has-preview' : '' }}" id="fotoDropzone" tabindex="0" role="button" aria-label="Subir foto de perfil">
+                                    <img src="{{ $usuario->fotoPerfilUrl }}" alt="Foto de perfil" id="fotoPreview" class="{{ $usuario->fotoPerfilUrl ? '' : 'd-none' }}">
+                                    <div class="dz-placeholder {{ $usuario->fotoPerfilUrl ? 'd-none' : '' }}" id="fotoPlaceholder">{{ $iniciales }}</div>
+                                    <button type="button" class="dz-remove {{ $usuario->fotoPerfilUrl ? '' : 'd-none' }}" id="fotoRemove" title="Quitar foto">
+                                        <i class="fas fa-xmark"></i>
+                                    </button>
+                                    <input type="file" name="foto_perfil" id="fotoInput" accept="image/*" class="d-none" data-feedback="err-p-foto">
+                                </div>
+                                <input type="hidden" name="foto_removida" id="fotoRemovida" value="0">
+                                <div>
+                                    <p class="small text-secondary mb-1">Foto de perfil</p>
+                                    <p class="small text-secondary mb-0">JPG o PNG, máx. 2 MB.</p>
+                                    <div class="invalid-feedback d-block" id="err-p-foto"></div>
+                                </div>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Nombres *</label>

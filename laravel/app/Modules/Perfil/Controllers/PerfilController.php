@@ -6,6 +6,7 @@ use App\Core\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -13,9 +14,13 @@ class PerfilController extends Controller
 {
     public function show(): View
     {
-        return view('Rector.perfil.index', [
+        $usuario = auth()->user();
+
+        $vista = $usuario->esSuperAdmin() ? 'SuperAdmin.perfil.index' : 'Rector.perfil.index';
+
+        return view($vista, [
             'currentPage' => 'Perfil',
-            'usuario' => auth()->user(),
+            'usuario' => $usuario,
         ]);
     }
 
@@ -28,11 +33,23 @@ class PerfilController extends Controller
             'apellidos' => ['required', 'string', 'max:100'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'correo' => ['required', 'email', 'max:150', Rule::unique('usuarios', 'correo')->ignore($usuario->id_usuario, 'id_usuario')],
+            'foto_perfil' => ['nullable', 'image', 'max:2048'],
         ]);
+        unset($data['foto_perfil']);
+
+        if ($request->hasFile('foto_perfil')) {
+            if ($usuario->foto_perfil) {
+                Storage::disk('public')->delete($usuario->foto_perfil);
+            }
+            $data['foto_perfil'] = $request->file('foto_perfil')->store('perfiles', 'public');
+        } elseif ($request->boolean('foto_removida') && $usuario->foto_perfil) {
+            Storage::disk('public')->delete($usuario->foto_perfil);
+            $data['foto_perfil'] = null;
+        }
 
         $usuario->update($data);
 
-        return response()->json(['success' => true, 'message' => 'Perfil actualizado correctamente.']);
+        return response()->json(['success' => true, 'message' => 'Perfil actualizado correctamente.', 'foto_perfil_url' => $usuario->fresh()->fotoPerfilUrl]);
     }
 
     public function updatePassword(Request $request): JsonResponse

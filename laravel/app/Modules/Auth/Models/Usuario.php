@@ -3,12 +3,16 @@
 namespace App\Modules\Auth\Models;
 
 use App\Modules\GestionAcademica\Models\AsignacionAcademica;
+use App\Modules\GestionAcademica\Models\Curso;
+use App\Modules\Instituciones\Models\Institucion;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Tabla central de autenticación, heredada del sistema legacy PHP.
@@ -34,17 +38,33 @@ class Usuario extends Authenticatable
         'telefono',
         'password',
         'id_rol',
+        'id_institucion',
         'estado_usuario',
+        'foto_perfil',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
+
+    protected $casts = [
+        'two_factor_secret' => 'encrypted',
+        'two_factor_recovery_codes' => 'encrypted:array',
+        'two_factor_confirmed_at' => 'datetime',
+        'sesion_valida_desde' => 'datetime',
+    ];
+
+    private ?Collection $permisosEfectivosCache = null;
 
     /**
      * Mapeo id_rol -> slug, heredado tal cual de app/helpers/Auth.php
-     * del sistema legacy (no viene de la tabla `roles`).
+     * del sistema legacy (no viene de la tabla `roles`). id_rol=8
+     * (superadmin) es la excepción: se suma en la Fase A de la plataforma
+     * multi-tenant (docs/arquitectura/10-superadmin-plataforma.md), no
+     * viene del legacy.
      */
     private const ROLE_SLUGS = [
         1 => 'admin',
@@ -54,9 +74,13 @@ class Usuario extends Authenticatable
         5 => 'docente',
         6 => 'estudiante',
         7 => 'acudiente',
+        8 => 'superadmin',
     ];
 
     public const ROLES_PANEL_ADMIN = ['admin', 'rector'];
+
+    /** SuperAdmin nunca es parte de ROLES_PANEL_ADMIN: es una capa de autorización separada (EnsureSuperAdmin), no el panel institucional. */
+    public const ROL_SUPERADMIN = 'superadmin';
 
     private const ROLE_LABELS = [
         'admin' => 'Administrador',
@@ -66,11 +90,17 @@ class Usuario extends Authenticatable
         'docente' => 'Profesor',
         'estudiante' => 'Estudiante',
         'acudiente' => 'Acudiente',
+        'superadmin' => 'SuperAdmin',
     ];
 
     public function rol(): BelongsTo
     {
         return $this->belongsTo(Rol::class, 'id_rol', 'id_rol');
+    }
+
+    public function institucion(): BelongsTo
+    {
+        return $this->belongsTo(Institucion::class, 'id_institucion', 'id_institucion');
     }
 
     public function profesor(): HasOne
@@ -85,10 +115,20 @@ class Usuario extends Authenticatable
         );
     }
 
+    /** Lee `roles.nombre_rol` (editable por SuperAdmin, ver RolPermisoController::renombrar) en vez del
+     *  mapa fijo — así un rol renombrado se refleja aquí sin tocar cada vista que muestra rolLabel. */
+    /** Mismo patrón que Institucion::logoUrl(). Null si no cargó foto — el avatar cae a las iniciales. */
+    protected function fotoPerfilUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->foto_perfil ? Storage::disk('public')->url($this->foto_perfil) : null,
+        );
+    }
+
     protected function rolLabel(): Attribute
     {
         return Attribute::make(
-            get: fn () => self::ROLE_LABELS[$this->rolSlug] ?? 'Panel',
+            get: fn () => $this->rol?->nombre_rol ?? self::ROLE_LABELS[$this->rolSlug] ?? 'Panel',
         );
     }
 
@@ -97,7 +137,12 @@ class Usuario extends Authenticatable
         return in_array($this->rolSlug, self::ROLES_PANEL_ADMIN, true);
     }
 
-    /** Los 7 slugs de rol válidos — usado para validar entradas dinámicas (ej. permisos por categoría). */
+    public function esSuperAdmin(): bool
+    {
+        return $this->rolSlug === self::ROL_SUPERADMIN;
+    }
+
+    /** Los 8 slugs de rol válidos — usado para validar entradas dinámicas (ej. permisos por categoría). */
     public static function allRoleSlugs(): array
     {
         return array_values(self::ROLE_SLUGS);
@@ -108,8 +153,34 @@ class Usuario extends Authenticatable
         return $this->estado_usuario === 'activo';
     }
 
+    /**
+     * Primera implementación real del catálogo permissions/permission_role
+     * (docs/arquitectura/03-rbac.md §7.2, EnsurePermission). Cacheada en la
+     * instancia porque una misma petición puede consultar varios permisos
+     * (middleware de ruta + Policy del recurso).
+     */
+    public function hasPermission(string $slug): bool
+    {
+        return $this->permisosEfectivos()->contains($slug);
+    }
+
+    private function permisosEfectivos(): Collection
+    {
+        return $this->permisosEfectivosCache ??= $this->rol?->permissions()->pluck('slug') ?? collect();
+    }
+
+    public function tieneDosFactoresActivos(): bool
+    {
+        return $this->two_factor_confirmed_at !== null;
+    }
+
     public function puedeGestionarAsignacion(AsignacionAcademica $asignacion): bool
     {
         return $this->tienePanelAdmin() || $this->profesor?->id_profesor === $asignacion->id_profesor;
+    }
+
+    public function esDirectorDeGrupo(Curso $curso): bool
+    {
+        return $this->profesor?->id_profesor === $curso->id_director_grupo;
     }
 }

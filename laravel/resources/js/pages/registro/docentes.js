@@ -38,6 +38,9 @@ if (form) {
 
         try {
             const payload = Object.fromEntries(new FormData(form).entries());
+            payload.materias = Array.from(form.querySelectorAll('input[name="materias[]"]:checked')).map((el) => Number(el.value));
+            delete payload['materias[]'];
+
             const { data } = await window.axios.post(window.__RUTA_GUARDAR__, payload);
 
             toast.success(`${data.message} Código: ${data.codigo}`);

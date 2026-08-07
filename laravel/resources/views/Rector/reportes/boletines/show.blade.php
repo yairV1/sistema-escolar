@@ -16,6 +16,9 @@
             </div>
             @php $estadoColores = ['borrador' => 'secondary', 'publicado' => 'success', 'anulado' => 'danger']; @endphp
             <span class="badge text-bg-{{ $estadoColores[$boletin->estado] ?? 'secondary' }} ms-2">{{ ucfirst($boletin->estado) }}</span>
+            <a href="{{ route('boletines.pdf', $boletin) }}" class="btn btn-sm btn-outline-primary ms-auto">
+                <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+            </a>
         </div>
 
         <div class="row g-3 mb-4">
@@ -40,19 +43,35 @@
                 <thead>
                     <tr>
                         <th>Materia</th>
-                        <th>Profesor</th>
+                        <th>Observación del docente</th>
                         <th>Nota definitiva</th>
+                        <th>Escala</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php $tipoColores = ['fortaleza' => 'success', 'dificultad' => 'danger', 'recomendacion' => 'info']; @endphp
                     @forelse ($boletin->detalle as $detalle)
                         <tr>
                             <td class="fw-semibold">{{ $detalle->asignacion->materia->nombre_materia }}</td>
-                            <td>{{ trim($detalle->asignacion->profesor->usuario->nombres.' '.$detalle->asignacion->profesor->usuario->apellidos) }}</td>
-                            <td>{{ $detalle->nota_definitiva ?? '—' }}</td>
+                            <td>
+                                @if ($detalle->tipo_observacion)
+                                    <span class="badge text-bg-{{ $tipoColores[$detalle->tipo_observacion] ?? 'secondary' }} mb-1">{{ ucfirst($detalle->tipo_observacion) }}</span>
+                                    <div class="small">{{ $detalle->observacion_materia }}</div>
+                                @else
+                                    <span class="text-secondary">—</span>
+                                @endif
+                            </td>
+                            <td>
+                                {{ $detalle->nota_definitiva ?? '—' }}
+                                @if ($detalle->origen === 'manual')
+                                    <span class="badge text-bg-warning-subtle text-warning-emphasis" title="Digitada manualmente por el director de grupo">manual</span>
+                                @endif
+                            </td>
+                            @php $escalaDetalle = $detalle->nota_definitiva !== null ? $escalas->first(fn ($e) => $detalle->nota_definitiva >= $e->valor_min && $detalle->nota_definitiva <= $e->valor_max) : null; @endphp
+                            <td>{{ $escalaDetalle->sigla ?? '—' }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="3" class="text-center text-secondary py-4">Sin materias registradas.</td></tr>
+                        <tr><td colspan="4" class="text-center text-secondary py-4">Sin materias registradas.</td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -2,6 +2,7 @@
 
 namespace App\Modules\GestionAcademica\Models;
 
+use App\Modules\Instituciones\Support\BelongsToInstitucion;
 use App\Modules\Matriculas\Models\Matricula;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Curso extends Model
 {
+    use BelongsToInstitucion;
+
     protected $table = 'cursos';
 
     protected $primaryKey = 'id_curso';
@@ -17,6 +20,7 @@ class Curso extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_institucion',
         'nombre_curso',
         'nivel_academico',
         'jornada',

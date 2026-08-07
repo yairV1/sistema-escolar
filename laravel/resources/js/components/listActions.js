@@ -90,7 +90,11 @@ async function enviarCrudForm(form) {
     submitBtn && (submitBtn.disabled = true);
 
     try {
-        const payload = Object.fromEntries(new FormData(form).entries());
+        // Si el form tiene un <input type="file">, se manda el FormData tal
+        // cual (multipart) en vez de aplanarlo a un objeto plano — un objeto
+        // JS con un File adentro no sobrevive a JSON.stringify.
+        const tieneArchivos = form.querySelector('input[type="file"]') !== null;
+        const payload = tieneArchivos ? new FormData(form) : Object.fromEntries(new FormData(form).entries());
         const { data } = await window.axios.post(form.dataset.url, payload);
 
         toast.success(data.message);

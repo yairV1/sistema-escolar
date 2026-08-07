@@ -2,6 +2,9 @@
 
 use App\Modules\Auth\Controllers\LoginController;
 use App\Modules\Auth\Controllers\PasswordResetController;
+use App\Modules\Auth\Controllers\TwoFactorChallengeController;
+use App\Modules\Acudiente\Controllers\AcudienteController;
+use App\Modules\Auditoria\Controllers\AuditoriaController;
 use App\Modules\Auth\Controllers\RolController;
 use App\Modules\Calendario\Controllers\CalendarioController;
 use App\Modules\Calendario\Controllers\CalendarioExportController;
@@ -11,11 +14,16 @@ use App\Modules\Calendario\Controllers\EventoComentarioController;
 use App\Modules\Calendario\Controllers\EventoController;
 use App\Modules\Calendario\Controllers\NotificacionPanelController;
 use App\Modules\Calificaciones\Controllers\CalificacionesController;
+use App\Modules\Calificaciones\Controllers\EscalaNotasController;
 use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
 use App\Modules\Dashboard\Controllers\DashboardController;
 use App\Modules\Docente\Controllers\DocenteController;
-use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
+use App\Modules\Estudiante\Controllers\EstudianteController;
+use App\Modules\GestionAcademica\Controllers\AsignacionesController;
+use App\Modules\GestionAcademica\Controllers\CursosController;
+use App\Modules\GestionAcademica\Controllers\HorariosController;
+use App\Modules\GestionAcademica\Controllers\MateriasController;
 use App\Modules\Landing\Controllers\EditarLandingController;
 use App\Modules\Landing\Controllers\SolicitudAdmisionController;
 use App\Modules\Landing\Controllers\WebsiteController;
@@ -24,7 +32,17 @@ use App\Modules\Observaciones\Controllers\ObservacionesController;
 use App\Modules\Perfil\Controllers\PerfilController;
 use App\Modules\Rector\Controllers\AsistenciaController;
 use App\Modules\Reportes\Controllers\BoletinesController;
+use App\Modules\Reportes\Controllers\DirectorGrupoController;
 use App\Modules\Reportes\Controllers\EstadisticasController;
+use App\Modules\Soporte\Controllers\SoporteController;
+use App\Modules\SuperAdmin\Controllers\ConfiguracionPlataformaController;
+use App\Modules\SuperAdmin\Controllers\InstitucionController;
+use App\Modules\SuperAdmin\Controllers\ModuloController;
+use App\Modules\SuperAdmin\Controllers\PlanController;
+use App\Modules\SuperAdmin\Controllers\RolPermisoController;
+use App\Modules\SuperAdmin\Controllers\SuperAdminDashboardController;
+use App\Modules\SuperAdmin\Controllers\TwoFactorController as SuperAdminTwoFactorController;
+use App\Modules\SuperAdmin\Controllers\UsuarioGlobalController;
 use App\Modules\Usuarios\Controllers\ListadosController;
 use App\Modules\Usuarios\Controllers\Registro\RegistroAdministrativosController;
 use App\Modules\Usuarios\Controllers\Registro\RegistroDocentesController;
@@ -44,6 +62,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [PasswordResetController::class, 'storeForgot'])->name('password.email');
     Route::get('/reset-password', [PasswordResetController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'storeReset'])->name('password.update');
+
+    // Segundo paso del login para cuentas con 2FA confirmado — el usuario
+    // aún no está autenticado (Auth::user() es null) hasta que el código se
+    // verifica, ver TwoFactorChallengeController.
+    Route::prefix('2fa')->name('2fa.')->group(function () {
+        Route::get('/', [TwoFactorChallengeController::class, 'show'])->name('challenge.show');
+        Route::post('/', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:2fa')->name('challenge.store');
+    });
 });
 
 Route::post('/logout', [LoginController::class, 'destroy'])
@@ -58,6 +84,50 @@ Route::get('/mi-panel', [DocenteController::class, 'dashboard'])
     ->middleware(['auth', 'role:docente'])
     ->name('docente.dashboard');
 
+Route::middleware(['auth', 'role:docente'])->prefix('docente')->name('docente.')->group(function () {
+    Route::get('/estudiantes', [DocenteController::class, 'estudiantes'])->name('estudiantes');
+    Route::get('/asistencia', [DocenteController::class, 'asistencia'])->name('asistencia');
+    Route::get('/calificaciones', [DocenteController::class, 'calificaciones'])->name('calificaciones');
+    Route::get('/horario', [DocenteController::class, 'horario'])->name('horario')->middleware('modulo:horarios');
+    Route::get('/comunicados', [DocenteController::class, 'comunicados'])->name('comunicados')->middleware('modulo:comunicados');
+    Route::post('/comunicados/{notificacion}/leido', [DocenteController::class, 'marcarComunicadoLeido'])->name('comunicados.leido')->middleware('modulo:comunicados');
+});
+
+Route::middleware(['auth', 'role:estudiante'])->prefix('estudiante')->name('estudiante.')->group(function () {
+    Route::get('/inicio', [EstudianteController::class, 'inicio'])->name('inicio');
+    Route::get('/horario', [EstudianteController::class, 'horario'])->name('horario')->middleware('modulo:horarios');
+    Route::get('/materias', [EstudianteController::class, 'materias'])->name('materias');
+    Route::get('/notas', [EstudianteController::class, 'notas'])->name('notas')->middleware('modulo:boletines');
+    Route::get('/asistencia', [EstudianteController::class, 'asistencia'])->name('asistencia');
+    Route::get('/comunicados', [EstudianteController::class, 'comunicados'])->name('comunicados')->middleware('modulo:comunicados');
+    Route::get('/perfil', [EstudianteController::class, 'perfil'])->name('perfil');
+});
+
+Route::middleware(['auth', 'role:acudiente'])->prefix('acudiente')->name('acudiente.')->group(function () {
+    Route::get('/inicio', [AcudienteController::class, 'inicio'])->name('inicio');
+    Route::get('/estudiantes', [AcudienteController::class, 'estudiantes'])->name('estudiantes');
+    Route::get('/horario', [AcudienteController::class, 'horario'])->name('horario')->middleware('modulo:horarios');
+    Route::get('/notas', [AcudienteController::class, 'notas'])->name('notas')->middleware('modulo:boletines');
+    Route::get('/asistencia', [AcudienteController::class, 'asistencia'])->name('asistencia');
+    Route::get('/comunicados', [AcudienteController::class, 'comunicados'])->name('comunicados')->middleware('modulo:comunicados');
+    Route::get('/perfil', [AcudienteController::class, 'perfil'])->name('perfil');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/soporte', [SoporteController::class, 'create'])->name('soporte.create');
+    Route::post('/soporte', [SoporteController::class, 'store'])->name('soporte.store');
+});
+
+// role:admin,superadmin (no solo role:superadmin): la bandeja de soporte no
+// tiene un permiso plataforma.* propio porque es infraestructura compartida
+// con el admin técnico institucional, no una capacidad exclusiva de
+// SuperAdmin — ver docs/arquitectura/10-superadmin-plataforma.md.
+Route::middleware(['auth', 'role:admin,superadmin'])->prefix('soportes')->name('soportes.')->group(function () {
+    Route::get('/', [SoporteController::class, 'index'])->name('index');
+    Route::get('/{soporte}', [SoporteController::class, 'show'])->name('show');
+    Route::post('/{soporte}/resolver', [SoporteController::class, 'resolver'])->name('resolver');
+});
+
 Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(function () {
     Route::get('/', [ListadosController::class, 'index'])->name('listados');
     Route::post('/estudiantes/{estudiante}/desactivar', [ListadosController::class, 'desactivarEstudiante'])->name('listados.estudiantes.desactivar');
@@ -68,49 +138,72 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(func
     Route::post('/administrativos/{usuario}/activar', [ListadosController::class, 'activarAdministrativo'])->name('listados.administrativos.activar');
 });
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('matriculas')->group(function () {
+Route::middleware(['auth', 'role:admin,rector', 'modulo:matriculas'])->prefix('matriculas')->group(function () {
     Route::get('/', [MatriculasController::class, 'index'])->name('matriculas');
     Route::post('/{matricula}/estado', [MatriculasController::class, 'cambiarEstado'])->name('matriculas.estado');
     Route::post('/solicitudes/{solicitud}/estado', [MatriculasController::class, 'cambiarEstadoSolicitud'])->name('matriculas.solicitudes.estado');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('gestion-academica')->name('gestion-academica.')->group(function () {
-    Route::get('/', [GestionAcademicaController::class, 'index'])->name('index');
+    Route::prefix('materias')->name('materias.')->group(function () {
+        Route::get('/', [MateriasController::class, 'index'])->name('index');
+        Route::post('/', [MateriasController::class, 'store'])->name('store');
 
-    Route::post('/materias', [GestionAcademicaController::class, 'storeMateria'])->name('materias.store');
-    Route::post('/materias/{materia}', [GestionAcademicaController::class, 'updateMateria'])->name('materias.update');
-    Route::post('/materias/{materia}/desactivar', [GestionAcademicaController::class, 'desactivarMateria'])->name('materias.desactivar');
-    Route::post('/materias/{materia}/activar', [GestionAcademicaController::class, 'activarMateria'])->name('materias.activar');
+        // Debe registrarse antes de '/{materia}' para que "areas" no sea
+        // capturado como un id de materia.
+        Route::prefix('areas')->name('areas.')->group(function () {
+            Route::post('/', [MateriasController::class, 'storeArea'])->name('store');
+            Route::post('/{area}', [MateriasController::class, 'updateArea'])->name('update');
+            Route::post('/{area}/desactivar', [MateriasController::class, 'desactivarArea'])->name('desactivar');
+            Route::post('/{area}/activar', [MateriasController::class, 'activarArea'])->name('activar');
+        });
 
-    Route::get('/cursos/{curso}', [GestionAcademicaController::class, 'show'])->name('cursos.show');
-    Route::post('/cursos', [GestionAcademicaController::class, 'storeCurso'])->name('cursos.store');
-    Route::post('/cursos/{curso}', [GestionAcademicaController::class, 'updateCurso'])->name('cursos.update');
-    Route::post('/cursos/{curso}/desactivar', [GestionAcademicaController::class, 'desactivarCurso'])->name('cursos.desactivar');
-    Route::post('/cursos/{curso}/activar', [GestionAcademicaController::class, 'activarCurso'])->name('cursos.activar');
+        Route::post('/{materia}', [MateriasController::class, 'update'])->name('update');
+        Route::post('/{materia}/desactivar', [MateriasController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{materia}/activar', [MateriasController::class, 'activar'])->name('activar');
+    });
 
-    Route::post('/asignaciones', [GestionAcademicaController::class, 'storeAsignacion'])->name('asignaciones.store');
-    Route::post('/asignaciones/{asignacion}/desactivar', [GestionAcademicaController::class, 'desactivarAsignacion'])->name('asignaciones.desactivar');
-    Route::post('/asignaciones/{asignacion}/activar', [GestionAcademicaController::class, 'activarAsignacion'])->name('asignaciones.activar');
+    Route::prefix('cursos')->name('cursos.')->group(function () {
+        Route::get('/', [CursosController::class, 'index'])->name('index');
+        Route::get('/{curso}', [CursosController::class, 'show'])->name('show');
+        Route::post('/', [CursosController::class, 'store'])->name('store');
+        Route::post('/{curso}', [CursosController::class, 'update'])->name('update');
+        Route::post('/{curso}/desactivar', [CursosController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{curso}/activar', [CursosController::class, 'activar'])->name('activar');
+    });
 
-    Route::post('/horarios', [GestionAcademicaController::class, 'storeHorario'])->name('horarios.store');
-    Route::post('/horarios/{horario}', [GestionAcademicaController::class, 'updateHorario'])->name('horarios.update');
-    Route::post('/horarios/{horario}/desactivar', [GestionAcademicaController::class, 'desactivarHorario'])->name('horarios.desactivar');
-    Route::post('/horarios/{horario}/activar', [GestionAcademicaController::class, 'activarHorario'])->name('horarios.activar');
+    Route::prefix('asignaciones')->name('asignaciones.')->group(function () {
+        Route::get('/', [AsignacionesController::class, 'index'])->name('index');
+        Route::post('/', [AsignacionesController::class, 'store'])->name('store');
+        Route::post('/{asignacion}/desactivar', [AsignacionesController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{asignacion}/activar', [AsignacionesController::class, 'activar'])->name('activar');
+    });
+
+    Route::middleware('modulo:horarios')->prefix('horarios')->name('horarios.')->group(function () {
+        Route::get('/', [HorariosController::class, 'index'])->name('index');
+        Route::post('/', [HorariosController::class, 'store'])->name('store');
+        Route::post('/{horario}', [HorariosController::class, 'update'])->name('update');
+        Route::post('/{horario}/desactivar', [HorariosController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{horario}/activar', [HorariosController::class, 'activar'])->name('activar');
+    });
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('registro')->name('registro.')->group(function () {
     Route::get('/estudiantes', [RegistroEstudiantesController::class, 'create'])->name('estudiantes.create');
     Route::post('/estudiantes', [RegistroEstudiantesController::class, 'store'])->name('estudiantes.store');
+    Route::get('/estudiantes/{estudiante}', [RegistroEstudiantesController::class, 'show'])->name('estudiantes.show');
     Route::get('/estudiantes/{estudiante}/editar', [RegistroEstudiantesController::class, 'edit'])->name('estudiantes.edit');
     Route::post('/estudiantes/{estudiante}', [RegistroEstudiantesController::class, 'update'])->name('estudiantes.update');
 
     Route::get('/docentes', [RegistroDocentesController::class, 'create'])->name('docentes.create');
     Route::post('/docentes', [RegistroDocentesController::class, 'store'])->name('docentes.store');
+    Route::get('/docentes/{profesor}', [RegistroDocentesController::class, 'show'])->name('docentes.show');
     Route::get('/docentes/{profesor}/editar', [RegistroDocentesController::class, 'edit'])->name('docentes.edit');
     Route::post('/docentes/{profesor}', [RegistroDocentesController::class, 'update'])->name('docentes.update');
 
     Route::get('/administrativos', [RegistroAdministrativosController::class, 'create'])->name('administrativos.create');
     Route::post('/administrativos', [RegistroAdministrativosController::class, 'store'])->name('administrativos.store');
+    Route::get('/administrativos/{usuario}', [RegistroAdministrativosController::class, 'show'])->name('administrativos.show');
     Route::get('/administrativos/{usuario}/editar', [RegistroAdministrativosController::class, 'edit'])->name('administrativos.edit');
     Route::post('/administrativos/{usuario}', [RegistroAdministrativosController::class, 'update'])->name('administrativos.update');
 });
@@ -127,6 +220,8 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('calificaciones')->name
     Route::post('/tipos-actividad/{tipoActividad}', [CalificacionesController::class, 'updateTipoActividad'])->name('tipos-actividad.update');
     Route::post('/tipos-actividad/{tipoActividad}/desactivar', [CalificacionesController::class, 'desactivarTipoActividad'])->name('tipos-actividad.desactivar');
     Route::post('/tipos-actividad/{tipoActividad}/activar', [CalificacionesController::class, 'activarTipoActividad'])->name('tipos-actividad.activar');
+
+    Route::post('/escala-notas', [EscalaNotasController::class, 'guardar'])->name('escala-notas.guardar');
 });
 
 // Rutas de calificaciones acotadas a una asignación puntual: además de admin/rector,
@@ -140,6 +235,8 @@ Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('calificaciones
 
     Route::get('/actividades/{actividad}/notas', [CalificacionesController::class, 'notas'])->name('actividades.notas');
     Route::post('/actividades/{actividad}/notas', [CalificacionesController::class, 'guardarNotas'])->name('actividades.notas.guardar');
+
+    Route::post('/asignaciones/{asignacion}/observaciones', [CalificacionesController::class, 'guardarObservaciones'])->name('asignaciones.observaciones.guardar');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('observaciones')->name('observaciones.')->group(function () {
@@ -150,13 +247,24 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('observaciones')->name(
     Route::post('/{observacion}/activar', [ObservacionesController::class, 'activar'])->name('activar');
 });
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('boletines')->name('boletines.')->group(function () {
+Route::middleware(['auth', 'role:admin,rector', 'modulo:boletines'])->prefix('boletines')->name('boletines.')->group(function () {
     Route::get('/', [BoletinesController::class, 'index'])->name('index');
     Route::post('/generar', [BoletinesController::class, 'generar'])->name('generar');
+    Route::get('/pdf-masivo', [BoletinesController::class, 'pdfMasivo'])->name('pdf-masivo');
     Route::get('/{boletin}', [BoletinesController::class, 'show'])->name('show');
+    Route::get('/{boletin}/pdf', [BoletinesController::class, 'pdf'])->name('pdf');
     Route::post('/{boletin}/publicar', [BoletinesController::class, 'publicar'])->name('publicar');
     Route::post('/{boletin}/anular', [BoletinesController::class, 'anular'])->name('anular');
     Route::post('/{boletin}/borrador', [BoletinesController::class, 'volverBorrador'])->name('borrador');
+});
+
+// El director de grupo (Curso::id_director_grupo) digita la nota definitiva directamente;
+// admin/rector también pueden entrar para dar soporte. Autorización fina en el controlador
+// (Usuario::esDirectorDeGrupo) porque depende del curso puntual, no solo del rol.
+Route::middleware(['auth', 'role:admin,rector,docente', 'modulo:boletines'])->prefix('director-grupo')->name('director-grupo.')->group(function () {
+    Route::get('/', [DirectorGrupoController::class, 'index'])->name('index');
+    Route::get('/{curso}/{periodo}', [DirectorGrupoController::class, 'notas'])->name('notas');
+    Route::post('/{curso}/{periodo}', [DirectorGrupoController::class, 'guardar'])->name('guardar');
 });
 
 Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('asistencia')->name('asistencia.')->group(function () {
@@ -169,7 +277,7 @@ Route::get('/estadisticas', [EstadisticasController::class, 'index'])
     ->middleware(['auth', 'role:admin,rector'])
     ->name('estadisticas');
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('comunicados')->name('comunicados.')->group(function () {
+Route::middleware(['auth', 'role:admin,rector', 'modulo:comunicados'])->prefix('comunicados')->name('comunicados.')->group(function () {
     Route::get('/', [ComunicadosController::class, 'index'])->name('index');
     Route::post('/', [ComunicadosController::class, 'store'])->name('store');
 });
@@ -240,6 +348,7 @@ Route::middleware('auth')->prefix('calendario')->name('calendario.')->group(func
 Route::middleware(['auth', 'role:admin,rector'])->prefix('editar-landing')->name('editar-landing.')->group(function () {
     Route::get('/', [EditarLandingController::class, 'index'])->name('index');
     Route::post('/contenido', [EditarLandingController::class, 'updateContenido'])->name('contenido.update');
+    Route::post('/hero-imagen', [EditarLandingController::class, 'updateHeroImagen'])->name('hero-imagen.update');
 
     Route::post('/noticias', [EditarLandingController::class, 'storeNoticia'])->name('noticias.store');
     Route::post('/noticias/{noticia}', [EditarLandingController::class, 'updateNoticia'])->name('noticias.update');
@@ -266,4 +375,82 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('roles')->name('roles.'
     Route::post('/{rol}', [RolController::class, 'update'])->name('update');
     Route::post('/{rol}/desactivar', [RolController::class, 'desactivar'])->name('desactivar');
     Route::post('/{rol}/activar', [RolController::class, 'activar'])->name('activar');
+});
+
+// =====================================================================
+// SUPERADMIN — plataforma multi-tenant (docs/arquitectura/10-superadmin-plataforma.md)
+// Middleware propio (`superadmin`), nunca `role:...`: capa de autorización
+// separada del panel institucional a propósito. `permission:...` es la
+// primera implementación real de PermissionMiddleware (03-rbac.md §7.2),
+// una entrada por permiso del catálogo `plataforma.*`.
+// =====================================================================
+Route::middleware(['auth', 'superadmin', 'throttle:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/', [SuperAdminDashboardController::class, 'index'])->middleware('permission:plataforma.metricas.ver')->name('dashboard');
+
+    Route::prefix('instituciones')->name('instituciones.')->group(function () {
+        Route::get('/', [InstitucionController::class, 'index'])->middleware('permission:plataforma.instituciones.ver')->name('index');
+        Route::get('/crear', [InstitucionController::class, 'create'])->middleware('permission:plataforma.instituciones.crear')->name('create');
+        Route::post('/', [InstitucionController::class, 'store'])->middleware('permission:plataforma.instituciones.crear')->name('store');
+        Route::get('/{institucion}', [InstitucionController::class, 'show'])->middleware('permission:plataforma.instituciones.ver')->name('show');
+        Route::get('/{institucion}/editar', [InstitucionController::class, 'edit'])->middleware('permission:plataforma.instituciones.editar')->name('edit');
+        Route::post('/{institucion}', [InstitucionController::class, 'update'])->middleware('permission:plataforma.instituciones.editar')->name('update');
+        Route::post('/{institucion}/activar', [InstitucionController::class, 'activar'])->middleware('permission:plataforma.instituciones.activar')->name('activar');
+        Route::post('/{institucion}/desactivar', [InstitucionController::class, 'desactivar'])->middleware('permission:plataforma.instituciones.desactivar')->name('desactivar');
+    });
+
+    // Catálogo comercial: planes y módulos (docs/arquitectura/10-superadmin-plataforma.md,
+    // sección "Catálogo de planes y módulos"). No es facturación real —
+    // no hay pasarela de pago en el proyecto — es metadata estructurada
+    // que reemplaza el string libre `instituciones.plan`.
+    Route::prefix('planes')->name('planes.')->group(function () {
+        Route::get('/', [PlanController::class, 'index'])->middleware('permission:plataforma.planes.ver')->name('index');
+        Route::get('/crear', [PlanController::class, 'create'])->middleware('permission:plataforma.planes.crear')->name('create');
+        Route::post('/', [PlanController::class, 'store'])->middleware('permission:plataforma.planes.crear')->name('store');
+        Route::get('/{plan}/editar', [PlanController::class, 'edit'])->middleware('permission:plataforma.planes.editar')->name('edit');
+        Route::post('/{plan}', [PlanController::class, 'update'])->middleware('permission:plataforma.planes.editar')->name('update');
+        Route::post('/{plan}/duplicar', [PlanController::class, 'duplicar'])->middleware('permission:plataforma.planes.crear')->name('duplicar');
+        Route::post('/{plan}/activar', [PlanController::class, 'activar'])->middleware('permission:plataforma.planes.activar')->name('activar');
+        Route::post('/{plan}/desactivar', [PlanController::class, 'desactivar'])->middleware('permission:plataforma.planes.desactivar')->name('desactivar');
+    });
+
+    Route::prefix('modulos')->name('modulos.')->group(function () {
+        Route::get('/', [ModuloController::class, 'index'])->middleware('permission:plataforma.modulos.ver')->name('index');
+        Route::get('/crear', [ModuloController::class, 'create'])->middleware('permission:plataforma.modulos.crear')->name('create');
+        Route::post('/', [ModuloController::class, 'store'])->middleware('permission:plataforma.modulos.crear')->name('store');
+        Route::get('/{modulo}/editar', [ModuloController::class, 'edit'])->middleware('permission:plataforma.modulos.editar')->name('edit');
+        Route::post('/{modulo}', [ModuloController::class, 'update'])->middleware('permission:plataforma.modulos.editar')->name('update');
+        Route::post('/{modulo}/activar', [ModuloController::class, 'activar'])->middleware('permission:plataforma.modulos.activar')->name('activar');
+        Route::post('/{modulo}/desactivar', [ModuloController::class, 'desactivar'])->middleware('permission:plataforma.modulos.desactivar')->name('desactivar');
+    });
+
+    Route::middleware('permission:plataforma.usuarios_globales.ver')->prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [UsuarioGlobalController::class, 'index'])->name('index');
+        Route::post('/{usuario}/rol', [UsuarioGlobalController::class, 'cambiarRol'])->name('rol');
+        Route::post('/{usuario}/estado', [UsuarioGlobalController::class, 'cambiarEstado'])->name('estado');
+    });
+
+    Route::middleware('permission:plataforma.roles.gestionar')->prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [RolPermisoController::class, 'index'])->name('index');
+        Route::post('/', [RolPermisoController::class, 'update'])->name('update');
+        Route::post('/{rol}/renombrar', [RolPermisoController::class, 'renombrar'])->name('renombrar');
+    });
+
+    Route::middleware('permission:plataforma.auditoria.ver')->prefix('auditoria')->name('auditoria.')->group(function () {
+        Route::get('/', [AuditoriaController::class, 'index'])->name('index');
+    });
+
+    Route::middleware('permission:plataforma.configuracion.editar')->prefix('configuracion')->name('configuracion.')->group(function () {
+        Route::get('/', [ConfiguracionPlataformaController::class, 'index'])->name('index');
+        Route::post('/', [ConfiguracionPlataformaController::class, 'update'])->name('update');
+    });
+
+    // Autoservicio de 2FA de la propia cuenta SuperAdmin — sin permiso
+    // adicional, todo actor autenticado gestiona su propio segundo factor.
+    Route::prefix('2fa')->name('2fa.')->group(function () {
+        Route::get('/', [SuperAdminTwoFactorController::class, 'index'])->name('index');
+        Route::post('/habilitar', [SuperAdminTwoFactorController::class, 'enable'])->name('enable');
+        Route::post('/confirmar', [SuperAdminTwoFactorController::class, 'confirm'])->name('confirm');
+        Route::post('/deshabilitar', [SuperAdminTwoFactorController::class, 'disable'])->name('disable');
+        Route::post('/regenerar-codigos', [SuperAdminTwoFactorController::class, 'regenerarCodigosRecuperacion'])->name('regenerar-codigos');
+    });
 });

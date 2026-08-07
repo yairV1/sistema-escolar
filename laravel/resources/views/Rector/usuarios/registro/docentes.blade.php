@@ -6,6 +6,7 @@
     $u = $profesor?->usuario;
     $nombresPartes = $u ? explode(' ', $u->nombres, 2) : [];
     $apellidosPartes = $u ? explode(' ', $u->apellidos, 2) : [];
+    $materiasSeleccionadas = $profesor?->materias->pluck('id_materia')->all() ?? [];
 @endphp
 
 @section('content')
@@ -91,9 +92,29 @@
                             <input type="date" class="form-control" name="fecha_ingreso" id="fecha_ingreso" value="{{ $profesor?->fecha_ingreso ?? now()->toDateString() }}">
                         </div>
                     </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-12">
+                            <label class="form-label">Materias que dicta</label>
+                            @if ($materias->isEmpty())
+                                <p class="text-secondary small mb-0">No hay materias activas registradas todavía. Puedes crearlas en <strong>Gestión Académica</strong> y asignarlas después desde el detalle del docente.</p>
+                            @else
+                                <div class="row row-cols-2 row-cols-md-3 g-2 border rounded p-2" style="max-height: 220px; overflow-y: auto;">
+                                    @foreach ($materias as $materia)
+                                        <div class="col">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="materias[]" value="{{ $materia->id_materia }}"
+                                                       id="materia_{{ $materia->id_materia }}" @checked(in_array($materia->id_materia, $materiasSeleccionadas))>
+                                                <label class="form-check-label small" for="materia_{{ $materia->id_materia }}">{{ $materia->nombre_materia }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     <div class="alert alert-secondary mt-3 mb-0 small">
                         <i class="fas fa-circle-info me-1"></i>
-                        La asignación de materias y cursos se hace desde <strong>Gestión Académica</strong> una vez el docente esté registrado.
+                        El curso y el año lectivo de cada materia se asignan desde <strong>Gestión Académica</strong> una vez el docente esté registrado.
                     </div>
                 </div>
             </div>

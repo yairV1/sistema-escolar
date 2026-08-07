@@ -1,0 +1,305 @@
+// =============================================================
+// PORTAL FAMILIA — componentes propios de las vistas de Estudiante
+// y Acudiente. Construido sobre los mismos tokens y componentes de
+// layouts/_dashboard.scss y layouts/_panel.scss (kpi-card, card,
+// empty-state, .td-dropup/.campanita-panel como referencia visual
+// para dropdowns) — no duplica esas reglas, solo agrega lo nuevo.
+// =============================================================
+
+// ---------- Badge de rol (acento sutil, sin tocar el sidebar) ----------
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .7rem;
+    border-radius: var(--bs-border-radius-pill);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.role-badge i { font-size: .68rem; }
+
+.role-badge--estudiante {
+    background: var(--cs-verde-suave);
+    color: var(--cs-verde-oscuro);
+}
+
+.role-badge--acudiente {
+    background: var(--cs-dorado-suave);
+    color: #7a5c17;
+}
+
+[data-bs-theme="dark"] .role-badge--acudiente {
+    color: var(--cs-dorado);
+}
+
+// ---------- Tendencia dentro de una kpi-card ----------
+.kpi-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    font-size: .72rem;
+    font-weight: 700;
+    margin-top: .2rem;
+}
+
+.kpi-trend--up { color: $verde-principal; }
+.kpi-trend--down { color: #e53e3e; }
+.kpi-trend--flat { color: var(--bs-secondary-color); }
+
+// ---------- Selector de estudiante (acudiente) ----------
+.child-selector { position: relative; }
+
+.child-selector__toggle {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .5rem .85rem .5rem .5rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--sb-border);
+    border-radius: var(--bs-border-radius-pill);
+    cursor: pointer;
+    transition: var(--cs-transition);
+    max-width: 100%;
+}
+
+.child-selector__toggle:hover { background: var(--sb-bg-alt); }
+
+.child-selector__avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $verde-principal, $verde-medio);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.child-selector__info { text-align: left; overflow: hidden; }
+.child-selector__name { font-size: .84rem; font-weight: 700; color: var(--sb-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.child-selector__meta { font-size: .72rem; color: var(--sb-text-muted); white-space: nowrap; }
+
+.child-selector .dropdown-menu {
+    min-width: 280px;
+    padding: .4rem;
+    border-color: var(--sb-border);
+    box-shadow: var(--cs-shadow-md);
+}
+
+.child-option {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .55rem .6rem;
+    border-radius: var(--bs-border-radius);
+    color: var(--sb-text);
+    text-decoration: none;
+}
+
+.child-option:hover { background: var(--sb-bg-alt); }
+
+.child-option.active {
+    background: var(--cs-verde-suave);
+    color: var(--cs-verde-oscuro);
+    font-weight: 600;
+}
+
+.child-option__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $verde-principal, $verde-medio);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.child-option__name { font-size: .84rem; font-weight: 600; }
+.child-option__meta { font-size: .72rem; color: var(--sb-text-muted); }
+
+.child-option__alert {
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e53e3e;
+    flex-shrink: 0;
+}
+
+// ---------- Card de hijo (dashboard e "Estudiantes a cargo") ----------
+.child-card {
+    border-radius: var(--bs-border-radius-lg);
+    height: 100%;
+    transition: var(--cs-transition);
+}
+
+.child-card--alert { border-color: rgba(229, 62, 62, .35); }
+
+.child-card__head { display: flex; align-items: center; gap: .85rem; }
+
+.child-card__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $verde-principal, $verde-medio);
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.child-card__stats {
+    display: flex;
+    gap: 1.25rem;
+    margin: 1rem 0;
+}
+
+.child-card__stat-value { font-family: var(--cs-font-serif); font-size: 1.25rem; font-weight: 700; line-height: 1.1; }
+.child-card__stat-label { font-size: .7rem; color: var(--bs-secondary-color); }
+
+.child-card__alerts { display: flex; flex-direction: column; gap: .4rem; margin-top: .75rem; }
+
+.child-alert {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .65rem;
+    border-radius: var(--bs-border-radius-sm);
+    background: #fff5f5;
+    color: #c53030;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+[data-bs-theme="dark"] .child-alert { background: #3a1f1e; color: #f29a98; }
+
+.child-alert i { flex-shrink: 0; }
+
+// ---------- Materias (cards) ----------
+.subject-card { border-radius: var(--bs-border-radius-lg); height: 100%; }
+
+.subject-card__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--bs-border-radius);
+    background: var(--cs-verde-claro);
+    color: var(--bs-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-bottom: .75rem;
+}
+
+.subject-card__teacher { display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: var(--bs-secondary-color); }
+
+// ---------- Bandeja de comunicados ----------
+.announcement-list { display: flex; flex-direction: column; gap: .5rem; }
+
+.announcement-item {
+    display: flex;
+    gap: .85rem;
+    padding: .9rem 1rem;
+    border-radius: var(--bs-border-radius-lg);
+    border: 1px solid var(--sb-border);
+    background: var(--bs-body-bg);
+    text-decoration: none;
+    color: inherit;
+    transition: var(--cs-transition);
+}
+
+.announcement-item:hover { background: var(--sb-bg-alt); }
+
+.announcement-item--unread { border-color: rgba(45, 122, 79, .3); background: var(--cs-verde-claro); }
+
+.announcement-item__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: .85rem;
+}
+
+.announcement-item__title { font-weight: 700; font-size: .88rem; color: var(--sb-text); }
+.announcement-item__body { font-size: .8rem; color: var(--bs-secondary-color); margin-top: .15rem; }
+.announcement-item__meta { font-size: .7rem; color: var(--sb-text-faint); margin-top: .35rem; }
+
+.announcement-item__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    flex-shrink: 0;
+    margin-top: .3rem;
+}
+
+// ---------- Estado de asistencia (pill) ----------
+.attendance-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: var(--bs-border-radius-pill);
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.attendance-pill--presente { background: var(--cs-verde-suave); color: var(--cs-verde-oscuro); }
+.attendance-pill--ausente { background: #fff5f5; color: #c53030; }
+.attendance-pill--tarde { background: #fff7ed; color: #c05621; }
+.attendance-pill--excusa { background: #eff6ff; color: #2c5282; }
+
+[data-bs-theme="dark"] .attendance-pill--ausente { background: #3a1f1e; color: #f29a98; }
+[data-bs-theme="dark"] .attendance-pill--tarde { background: #3a2a17; color: #e6a15e; }
+[data-bs-theme="dark"] .attendance-pill--excusa { background: #17263a; color: #8ab4e6; }
+
+// ---------- Skeleton loader ----------
+.skeleton-line, .skeleton-block {
+    position: relative;
+    overflow: hidden;
+    background: var(--sb-bg-alt);
+    border-radius: var(--bs-border-radius-sm);
+}
+
+.skeleton-line { height: .85rem; margin-bottom: .5rem; width: 100%; }
+.skeleton-line:last-child { margin-bottom: 0; width: 70%; }
+.skeleton-block { height: 100%; min-height: 90px; border-radius: var(--bs-border-radius-lg); }
+
+.skeleton-line::after, .skeleton-block::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent);
+    animation: skeleton-shimmer 1.4s infinite;
+}
+
+[data-bs-theme="dark"] .skeleton-line::after,
+[data-bs-theme="dark"] .skeleton-block::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent);
+}
+
+@keyframes skeleton-shimmer {
+    100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-line::after, .skeleton-block::after { animation: none; }
+}
