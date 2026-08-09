@@ -70,8 +70,28 @@
         </nav>
 
         <div class="sidebar-footer">
+            <div class="sidebar-footer-actions">
+                <div class="icon-toolbar">
+                    @include('layouts.partials._campanita-notificaciones')
+
+                    <button type="button"
+                            class="icon-toolbar-btn"
+                            data-theme-toggle
+                            aria-label="Cambiar tema">
+                        <i class="bi bi-moon-stars theme-icon-light"></i>
+                        <i class="bi bi-sun theme-icon-dark"></i>
+                    </button>
+                </div>
+            </div>
+
             <button type="button" class="td-header" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
-                <div class="td-avatar">{{ $iniciales }}</div>
+                <div class="td-avatar">
+                    @if ($usuario?->fotoPerfilUrl)
+                        <img src="{{ $usuario->fotoPerfilUrl }}" alt="{{ $nombreCompleto }}">
+                    @else
+                        {{ $iniciales }}
+                    @endif
+                </div>
                 <div class="td-info">
                     <p class="td-name">{{ $nombreCompleto }}</p>
                     <p class="td-email">{{ $usuario?->correo }}</p>
@@ -95,19 +115,6 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <main class="panel-content">
-        <div class="panel-topbar-actions position-fixed d-flex gap-2" style="top:16px;right:16px;z-index:1020;">
-            @include('layouts.partials._campanita-notificaciones')
-
-            <button type="button"
-                    class="btn btn-outline-secondary rounded-circle"
-                    style="width:40px;height:40px;"
-                    data-theme-toggle
-                    aria-label="Cambiar tema">
-                <i class="bi bi-moon-stars theme-icon-light"></i>
-                <i class="bi bi-sun theme-icon-dark"></i>
-            </button>
-        </div>
-
         @yield('content')
     </main>
 </body>

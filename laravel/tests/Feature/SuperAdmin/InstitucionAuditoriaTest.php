@@ -4,17 +4,19 @@ namespace Tests\Feature\SuperAdmin;
 
 use App\Modules\Auditoria\Models\AuditLog;
 use App\Modules\Instituciones\Models\Institucion;
+use App\Modules\Planes\Models\Plan;
 
 class InstitucionAuditoriaTest extends SuperAdminTestCase
 {
     public function test_crear_institucion_escribe_un_registro_de_auditoria(): void
     {
         $superadmin = $this->crearSuperAdmin();
+        $plan = Plan::create(['nombre' => 'Básico', 'slug' => 'basico']);
 
         $response = $this->actingAs($superadmin)->postJson('/superadmin/instituciones', [
             'nombre' => 'Colegio Nuevo',
             'slug' => 'colegio-nuevo',
-            'plan' => 'basico',
+            'id_plan' => $plan->id_plan,
         ]);
 
         $response->assertOk()->assertJson(['success' => true]);

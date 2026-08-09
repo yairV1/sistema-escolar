@@ -28,11 +28,11 @@
             </select>
         </div>
         <div class="col-6 col-md-2">
-            <select class="form-select" name="plan" data-autosubmit>
+            <select class="form-select" name="id_plan" data-autosubmit>
                 <option value="">Todos los planes</option>
-                <option value="basico" @selected(($filtros['plan'] ?? '') === 'basico')>Básico</option>
-                <option value="estandar" @selected(($filtros['plan'] ?? '') === 'estandar')>Estándar</option>
-                <option value="premium" @selected(($filtros['plan'] ?? '') === 'premium')>Premium</option>
+                @foreach ($planes as $planCatalogo)
+                    <option value="{{ $planCatalogo->id_plan }}" @selected((string) ($filtros['id_plan'] ?? '') === (string) $planCatalogo->id_plan)>{{ $planCatalogo->nombre }}</option>
+                @endforeach
             </select>
         </div>
         <div class="col-6 col-md-2 d-grid">
@@ -67,7 +67,7 @@
                                 </a>
                                 <div class="small text-secondary">{{ $institucion->slug }}</div>
                             </td>
-                            <td><span class="badge text-bg-secondary">{{ ucfirst($institucion->plan) }}</span></td>
+                            <td><span class="badge text-bg-secondary">{{ $institucion->planCatalogo->nombre ?? ucfirst($institucion->plan) }}</span></td>
                             <td>{{ $institucion->usuarios_count }}</td>
                             <td>{{ $institucion->fecha_vencimiento?->format('d/m/Y') ?? '—' }}</td>
                             <td>

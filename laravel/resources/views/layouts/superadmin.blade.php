@@ -7,12 +7,11 @@
     <meta name="app-url" content="{{ url('/') }}">
     <title>@yield('title', 'Panel') · SuperAdmin</title>
 
+    {{-- El SuperAdmin no tiene toggle de tema: su identidad "Torre" vive siempre
+         en modo oscuro (vidrio esmerilado). Se sigue fijando data-bs-theme para
+         que los componentes propios de Bootstrap detecten la variante oscura. --}}
     <script>
-        (function () {
-            var stored = localStorage.getItem('cs-theme');
-            var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-bs-theme', theme);
-        })();
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
     </script>
 
     {{-- Tipografía propia del panel SuperAdmin (Archivo + IBM Plex), autoalojada vía
@@ -60,8 +59,21 @@
         </nav>
 
         <div class="sidebar-footer">
+            <div class="sidebar-footer-actions">
+                <div class="icon-toolbar">
+                    @include('layouts.partials._campanita-notificaciones')
+                </div>
+            </div>
+
             <button type="button" class="td-header" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
-                <div class="td-avatar">{{ $iniciales }}</div>
+                <div class="td-avatar">
+                    @if ($usuario?->fotoPerfilUrl)
+                        <img src="{{ $usuario->fotoPerfilUrl }}" alt="{{ $nombreCompleto }}">
+                    @else
+                        {{ $iniciales }}
+                    @endif
+                    <span class="td-status-dot" aria-hidden="true"></span>
+                </div>
                 <div class="td-info">
                     <p class="td-name">{{ $nombreCompleto }}</p>
                     <p class="td-email">{{ $usuario?->correo }}</p>
@@ -85,19 +97,6 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <main class="panel-content">
-        <div class="panel-topbar-actions position-fixed d-flex gap-2" style="top:16px;right:16px;z-index:1020;">
-            @include('layouts.partials._campanita-notificaciones')
-
-            <button type="button"
-                    class="btn btn-outline-secondary rounded-circle"
-                    style="width:40px;height:40px;"
-                    data-theme-toggle
-                    aria-label="Cambiar tema">
-                <i class="bi bi-moon-stars theme-icon-light"></i>
-                <i class="bi bi-sun theme-icon-dark"></i>
-            </button>
-        </div>
-
         @yield('content')
     </main>
 </body>

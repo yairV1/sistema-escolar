@@ -11,17 +11,23 @@
         <h1 class="h4 fw-semibold font-serif mb-0">Nueva institución</h1>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form data-institucion-form data-url="{{ route('superadmin.instituciones.store') }}" novalidate>
+    <form data-institucion-form data-url="{{ route('superadmin.instituciones.store') }}" novalidate>
+        <div class="card">
+            <div class="card-body">
                 @include('SuperAdmin.instituciones.partials._campos')
-
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">Crear institución</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                @include('SuperAdmin.instituciones.partials._campos-rector')
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Crear institución</button>
+        </div>
+    </form>
 </div>
 @endsection
 

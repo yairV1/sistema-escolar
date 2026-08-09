@@ -15,6 +15,10 @@ class InstitucionUpdateRequest extends FormRequest
     public function rules(): array
     {
         $institucion = $this->route('institucion');
+        // Institución creada antes de que el rector fuera obligatorio (o sin
+        // rector por cualquier otro motivo): el formulario permite crearlo
+        // desde aquí, así que puede no haber id_usuario que excluir todavía.
+        $rector = $institucion->usuarios()->where('id_rol', 2)->first();
 
         return [
             'nombre' => ['required', 'string', 'max:150'],
@@ -25,10 +29,17 @@ class InstitucionUpdateRequest extends FormRequest
             'direccion' => ['nullable', 'string', 'max:200'],
             'ciudad' => ['nullable', 'string', 'max:100'],
             'pais' => ['nullable', 'string', 'max:100'],
-            'plan' => ['required', 'string', 'in:basico,estandar,premium'],
+            'id_plan' => ['required', 'integer', Rule::exists('planes', 'id_plan')->where('estado', 'activo')],
             'limite_usuarios' => ['nullable', 'integer', 'min:1'],
             'fecha_inicio' => ['nullable', 'date'],
             'fecha_vencimiento' => ['nullable', 'date', 'after:fecha_inicio'],
+
+            'rector_nombres' => ['required', 'string', 'max:150'],
+            'rector_apellidos' => ['required', 'string', 'max:150'],
+            'rector_tipo_documento' => ['required', 'in:CC,CE,PAS'],
+            'rector_numero_documento' => ['required', 'string', 'max:50', Rule::unique('usuarios', 'numero_documento')->ignore($rector?->id_usuario, 'id_usuario')],
+            'rector_correo' => ['required', 'email', 'max:150', Rule::unique('usuarios', 'correo')->ignore($rector?->id_usuario, 'id_usuario')],
+            'rector_telefono' => ['nullable', 'regex:/^[0-9+\s-]{7,20}$/'],
         ];
     }
 }

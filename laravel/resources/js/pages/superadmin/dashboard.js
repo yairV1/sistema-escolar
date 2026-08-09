@@ -11,12 +11,14 @@ import {
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip);
 
-function colorInstitucional() {
+function colorInstitucional(canvas) {
     const styles = getComputedStyle(document.body);
+    const colorVar = canvas.dataset.colorVar || '--sb-primary';
+    const fillVar = canvas.dataset.fillVar || '--sb-primary-light';
 
     return {
-        linea: styles.getPropertyValue('--sb-primary').trim() || '#2d7a4f',
-        relleno: styles.getPropertyValue('--sb-primary-light').trim() || '#e8f5ee',
+        linea: styles.getPropertyValue(colorVar).trim() || '#2d7a4f',
+        relleno: styles.getPropertyValue(fillVar).trim() || '#e8f5ee',
     };
 }
 
@@ -26,7 +28,7 @@ function renderLineChart(canvasId) {
 
     const labels = JSON.parse(canvas.dataset.labels || '[]');
     const valores = JSON.parse(canvas.dataset.valores || '[]');
-    const { linea, relleno } = colorInstitucional();
+    const { linea, relleno } = colorInstitucional(canvas);
 
     new Chart(canvas, {
         type: 'line',

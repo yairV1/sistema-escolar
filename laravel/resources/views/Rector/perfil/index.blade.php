@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : 'layouts.panel')
 
 @section('title', 'Mi perfil')
 
@@ -12,6 +12,28 @@
                     <div class="card-body">
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-user text-primary me-1"></i> Datos personales</h2>
                         <form id="formPerfil" data-url="{{ route('perfil.update') }}" novalidate>
+                            @php
+                                $inicialesPerfil = collect(explode(' ', trim($usuario->nombres.' '.$usuario->apellidos)))
+                                    ->filter()
+                                    ->map(fn ($parte) => mb_strtoupper(mb_substr($parte, 0, 1)))
+                                    ->join('');
+                                $inicialesPerfil = mb_substr($inicialesPerfil, 0, 2) ?: '?';
+                            @endphp
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="avatar-dropzone" id="avatarDropzone" tabindex="0" role="button" aria-label="Cambiar foto de perfil">
+                                    <img src="{{ $usuario->fotoPerfilUrl }}" alt="Foto de perfil" id="avatarPreview" class="{{ $usuario->fotoPerfilUrl ? '' : 'd-none' }}">
+                                    <span class="avatar-initials {{ $usuario->fotoPerfilUrl ? 'd-none' : '' }}" id="avatarInitials">{{ $inicialesPerfil }}</span>
+                                    <div class="dz-overlay"><i class="fas fa-camera"></i></div>
+                                    <input type="file" name="foto_perfil" id="avatarInput" accept="image/*" class="d-none" data-feedback="err-foto_perfil">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="avatarRemoveBtn" style="{{ $usuario->fotoPerfilUrl ? '' : 'display:none' }}">
+                                        <i class="fas fa-trash me-1"></i> Quitar foto
+                                    </button>
+                                    <input type="hidden" name="foto_perfil_removido" id="avatarRemovido" value="0">
+                                    <div class="invalid-feedback d-block" id="err-foto_perfil"></div>
+                                </div>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Nombres *</label>

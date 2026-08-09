@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : 'layouts.panel')
 
 @section('title', 'Soporte — '.$soporte->asunto)
 

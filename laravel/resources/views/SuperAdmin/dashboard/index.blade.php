@@ -18,25 +18,23 @@
     @php
         $kpiCards = [
             ['icon' => 'fa-school', 'color' => 'primary', 'label' => 'Instituciones activas', 'value' => $resumen['instituciones_activas']],
-            ['icon' => 'fa-ban', 'color' => 'danger', 'label' => 'Instituciones suspendidas', 'value' => $resumen['instituciones_suspendidas']],
             ['icon' => 'fa-users', 'color' => 'info', 'label' => 'Usuarios totales', 'value' => $resumen['usuarios_totales']],
-            ['icon' => 'fa-bullhorn', 'color' => 'secondary', 'label' => 'Comunicados enviados', 'value' => $resumen['comunicados_enviados']],
-            ['icon' => 'fa-calendar-days', 'color' => 'success', 'label' => 'Eventos creados', 'value' => $resumen['eventos_creados']],
             ['icon' => 'fa-headset', 'color' => 'warning', 'label' => 'Soporte sin atender', 'value' => $resumen['soporte_nuevos']],
-            ['icon' => 'fa-layer-group', 'color' => 'primary', 'label' => 'Planes activos', 'value' => $resumen['planes_activos']],
-            ['icon' => 'fa-puzzle-piece', 'color' => 'info', 'label' => 'Módulos activos', 'value' => $resumen['modulos_activos']],
+            ['icon' => 'fa-triangle-exclamation', 'color' => 'danger', 'label' => 'Próximas a vencer', 'value' => count($institucionesProximasAVencer)],
         ];
     @endphp
 
     <div class="row g-3 mb-4">
         @foreach ($kpiCards as $card)
-            <div class="col-6 col-lg-4 col-xl-2">
-                <div class="kpi-card bg-body-tertiary border h-100">
-                    <div class="kpi-icon bg-{{ $card['color'] }}-subtle text-{{ $card['color'] }} mb-2">
-                        <i class="fas {{ $card['icon'] }}"></i>
+            <div class="col-6 col-lg-3">
+                <div class="kpi-card bg-body-tertiary h-100 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="kpi-label mt-1">{{ $card['label'] }}</div>
+                        <div class="kpi-icon bg-{{ $card['color'] }}-subtle text-{{ $card['color'] }}">
+                            <i class="fas {{ $card['icon'] }}"></i>
+                        </div>
                     </div>
-                    <div class="kpi-value">{{ $card['value'] }}</div>
-                    <div class="kpi-label">{{ $card['label'] }}</div>
+                    <div class="kpi-value mt-2">{{ $card['value'] }}</div>
                 </div>
             </div>
         @endforeach
@@ -90,7 +88,8 @@
                     <h2 class="h6 fw-semibold mb-3"><i class="fas fa-bullhorn text-primary me-1"></i> Comunicados por mes</h2>
                     <canvas id="chartComunicados" height="200"
                             data-labels="{{ $comunicadosPorMes->keys()->toJson() }}"
-                            data-valores="{{ $comunicadosPorMes->values()->toJson() }}"></canvas>
+                            data-valores="{{ $comunicadosPorMes->values()->toJson() }}"
+                            data-color-var="--sb-secondary" data-fill-var="--sb-secondary-light"></canvas>
                 </div>
             </div>
         </div>
@@ -109,7 +108,10 @@
                         <ul class="list-group list-group-flush">
                             @foreach ($resumen['usuarios_por_rol'] as $fila)
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span>{{ $fila['rol'] }}</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="list-dot" style="background: var(--cat-{{ ($loop->index % 9) + 1 }})"></span>
+                                        {{ $fila['rol'] }}
+                                    </span>
                                     <span class="badge text-bg-secondary">{{ $fila['total'] }}</span>
                                 </li>
                             @endforeach
@@ -133,7 +135,10 @@
                         <ul class="list-group list-group-flush">
                             @foreach ($planesDistribucion as $fila)
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span>{{ $fila['plan'] }}</span>
+                                    <span class="d-flex align-items-center">
+                                        <span class="list-dot" style="background: var(--cat-{{ ($loop->index % 9) + 1 }})"></span>
+                                        {{ $fila['plan'] }}
+                                    </span>
                                     <span class="badge text-bg-secondary">{{ $fila['total'] }}</span>
                                 </li>
                             @endforeach

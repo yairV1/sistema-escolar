@@ -48,12 +48,13 @@
 
     <div class="col-md-4">
         <label class="form-label">Plan *</label>
-        <select class="form-select" name="plan" data-feedback="err-plan" required>
-            @foreach (['basico' => 'Básico', 'estandar' => 'Estándar', 'premium' => 'Premium'] as $valor => $etiqueta)
-                <option value="{{ $valor }}" @selected(old('plan', $institucion->plan ?? 'basico') === $valor)>{{ $etiqueta }}</option>
+        <select class="form-select" name="id_plan" data-feedback="err-id_plan" required>
+            <option value="" disabled @selected(old('id_plan', $institucion->id_plan ?? null) === null)>Selecciona un plan</option>
+            @foreach ($planes as $planCatalogo)
+                <option value="{{ $planCatalogo->id_plan }}" @selected((int) old('id_plan', $institucion->id_plan ?? 0) === $planCatalogo->id_plan)>{{ $planCatalogo->nombre }}</option>
             @endforeach
         </select>
-        <div class="invalid-feedback" id="err-plan"></div>
+        <div class="invalid-feedback" id="err-id_plan"></div>
     </div>
     <div class="col-md-4">
         <label class="form-label">Límite de usuarios</label>

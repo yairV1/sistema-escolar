@@ -98,7 +98,7 @@
                     <dd class="col-sm-9">{{ $institucion->direccion ?: '—' }}, {{ $institucion->ciudad ?: '—' }}, {{ $institucion->pais ?: '—' }}</dd>
 
                     <dt class="col-sm-3">Plan</dt>
-                    <dd class="col-sm-9"><span class="badge text-bg-secondary">{{ ucfirst($institucion->plan) }}</span></dd>
+                    <dd class="col-sm-9"><span class="badge text-bg-secondary">{{ $institucion->planCatalogo->nombre ?? ucfirst($institucion->plan) }}</span></dd>
 
                     <dt class="col-sm-3">Vigencia</dt>
                     <dd class="col-sm-9">

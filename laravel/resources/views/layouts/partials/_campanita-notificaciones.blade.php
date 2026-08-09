@@ -3,8 +3,7 @@
      data-leer-todas-url="{{ route('notificaciones.leer-todas') }}"
      data-calendario-url="{{ route('calendario.index') }}">
     <button type="button"
-            class="btn btn-outline-secondary rounded-circle"
-            style="width:40px;height:40px;"
+            class="icon-toolbar-btn"
             id="campanitaToggle"
             aria-haspopup="true"
             aria-expanded="false"

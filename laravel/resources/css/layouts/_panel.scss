@@ -363,7 +363,8 @@ body.has-sidebar.sidebar-collapsed {
 .td-header:hover { background: var(--sb-bg-alt); }
 .td-header:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: 2px; }
 
-.td-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, $verde-principal, $verde-medio); color: white; font-size: .78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.td-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, $verde-principal, $verde-medio); color: white; font-size: .78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+.td-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .td-info { flex: 1; overflow: hidden; }
 .td-name { font-size: .85rem; font-weight: 700; margin-bottom: 2px; color: var(--sb-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .td-email { font-size: .7rem; color: var(--sb-text-muted); margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -398,7 +399,7 @@ body.has-sidebar.sidebar-collapsed {
 }
 
 .td-divider { height: 1px; background: var(--sb-border); margin: 4px 0; }
-.td-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 12px; border-radius: var(--sb-radius-sm); font-size: .82rem; color: var(--sb-text-muted); background: none; border: none; cursor: pointer; text-align: left; transition: var(--sb-transition); }
+.td-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 12px; border-radius: var(--sb-radius-sm); font-size: .82rem; color: var(--sb-text-muted); background: none; border: none; cursor: pointer; text-align: left; text-decoration: none; transition: var(--sb-transition); }
 .td-item i { color: var(--sb-primary); width: 14px; }
 .td-item:hover { background: var(--sb-bg-alt); color: var(--sb-text); }
 .td-item:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: -2px; }
@@ -451,8 +452,6 @@ body.has-sidebar.sidebar-collapsed {
     }
     .sidebar-overlay.visible { display: block; opacity: 1; }
 
-    .panel-content { padding-top: 64px; }
-
     // En móvil no hay estado "collapsed" con tooltip: el sidebar
     // siempre se muestra expandido cuando está abierto.
     .sidebar.mobile-open.collapsed { width: var(--sb-width); }
@@ -466,6 +465,77 @@ body.has-sidebar.sidebar-collapsed {
 
 @media (min-width: 1025px) {
     .sidebar-overlay { display: none; }
+}
+
+// ---------- Acciones rápidas del sidebar (campanita + toggle de tema) ----------
+// Viven en el footer del sidebar, junto a la cuenta, en vez de flotar
+// sobre el contenido de la página — mejor integración visual (mismos
+// tokens de color que el resto del sidebar) y el estado colapsado ya
+// lo resuelve el mismo footer que centra/oculta el resto de sus hijos.
+.sidebar-footer-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.icon-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--sb-bg-alt);
+    border: 1px solid var(--sb-border);
+}
+
+.icon-toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sb-text-muted);
+    cursor: pointer;
+    transition: background var(--sb-transition), color var(--sb-transition);
+}
+.icon-toolbar-btn:hover { background: var(--sb-bg); color: var(--sb-text); }
+.icon-toolbar-btn:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: 2px; }
+
+// El sidebar es angosto y estas acciones viven cerca del borde inferior:
+// el panel de notificaciones se abre hacia arriba (no hacia abajo como
+// haría en un topbar) para no salirse de la pantalla. El ancho por
+// defecto del componente (320px, pensado para un topbar con espacio de
+// sobra) es más ancho que el propio sidebar (--sb-width: 268px) — anclado
+// por la izquierda se salía ~170px hacia el contenido. Centrado sobre el
+// botón de la campanita (que a su vez vive centrado en el footer) y con
+// un ancho propio más angosto, cabe dentro del sidebar expandido.
+// (Centrado con "left: calc(50% - mitad del ancho)" en vez de
+// "left:50%; transform:translateX(-50%)" a propósito: .campanita-panel.open
+// ya usa `transform` para su animación de entrada — con la misma
+// especificidad, esa regla gana por orden de aparición más adelante en el
+// archivo y pisaría un transform puesto aquí.)
+.sidebar-footer-actions .campanita-panel {
+    top: auto;
+    left: calc(50% - 120px);
+    right: auto;
+    bottom: calc(100% + 8px);
+    width: 240px;
+}
+
+// Con el sidebar colapsado (76px) no hay forma de que el panel quepa
+// centrado bajo el botón — se abre como flyout a la derecha del sidebar,
+// mismo patrón que .sidebar.collapsed .td-dropup.
+.sidebar.collapsed .sidebar-footer-actions .campanita-panel {
+    left: calc(100% + 10px);
+    bottom: 0;
+}
+
+.sidebar.collapsed .sidebar-footer-actions .icon-toolbar {
+    flex-direction: column;
+    border-radius: var(--sb-radius-sm);
 }
 
 // ---------- Toggle de tema ----------

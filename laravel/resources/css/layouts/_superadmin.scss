@@ -59,6 +59,13 @@
     src: url('../../fonts/superadmin/plexmono-500.woff2') format('woff2');
 }
 
+// ---- Torre — identidad siempre oscura, tipo "vidrio esmerilado" ----
+// Antes tenía modo claro + oscuro con toggle propio; el SuperAdmin ahora
+// vive permanentemente en su estado oscuro nativo (carbón violáceo, acento
+// violeta, superficies de chrome translúcidas) — no queda toggle que
+// condicione estos tokens a [data-bs-theme="dark"], así que se fusionan
+// como el único estado. Ver theme.js (initTheme) para el guard que impide
+// que esta página toque localStorage['cs-theme'] del panel institucional.
 body[data-panel="superadmin"] {
     // ---- Tipografía: Archivo (títulos) + IBM Plex Sans (interfaz) + IBM Plex Mono (cifras/IDs) ----
     --sa-font-display: 'Archivo', #{$font-sans};
@@ -67,27 +74,76 @@ body[data-panel="superadmin"] {
 
     font-family: var(--sa-font-body);
 
-    // ---- Acento bronce (distinto del dorado institucional a propósito) ----
-    --sb-primary: #b8722a;
-    --sb-primary-dark: #8f5920;
-    --sb-primary-light: #f3e3d1;
+    // ---- Acento violeta (paso oscuro de --cat-7 de la paleta categórica
+    // validada en _variables.scss — no un color inventado a mano — y a
+    // propósito distinto del dorado institucional, para que el nivel de
+    // acceso "plataforma" se perciba de un vistazo). ----
+    --sb-primary: #9085e9;
+    --sb-primary-dark: #4a3aa7;
+    --sb-primary-light: #241f3d;
 
-    --sb-badge-info-bg: #f3e3d1;
-    --sb-badge-info-text: #8f5920;
+    // ---- Acento secundario azul (--cat-1 dark) para diferenciar series/
+    // widgets que conviven con el acento principal (p.ej. el segundo
+    // gráfico del dashboard). ----
+    --sb-secondary: #3987e5;
+    --sb-secondary-dark: #184f95;
+    --sb-secondary-light: #17263a;
 
-    // ---- Superficie clara: fría, no blanco puro ----
-    --bs-body-bg: #f4f5f8;
-    --bs-tertiary-bg: #ffffff;
-    --bs-secondary-bg: #eef0f4;
-    --bs-border-color: #dfe2ea;
-    --bs-card-bg: #ffffff;
-    --bs-card-border-color: #dfe2ea;
+    --sb-badge-info-bg: #241f3d;
+    --sb-badge-info-text: #c3bdf5;
 
-    --bs-primary: #b8722a;
-    --bs-primary-rgb: 184, 114, 42;
-    --bs-primary-bg-subtle: #f3e3d1;
-    --bs-primary-border-subtle: #e3c49a;
-    --bs-primary-text-emphasis: #8f5920;
+    // ---- Sombras propias: la sombra compartida de _panel.scss lleva un
+    // tinte verde institucional pensado para superficie clara; sobre vidrio
+    // oscuro se ve turbia. ----
+    --sb-shadow-md: 0 20px 60px rgba(5, 4, 14, .55);
+    --sb-shadow-tooltip: 0 10px 28px rgba(5, 4, 14, .5);
+
+    // ---- Sombra "elevación" de tarjetas — más suave que --sb-shadow-md
+    // (pensada para popovers), para el look de tarjetas flotantes tipo
+    // panel SaaS que sí conviven con el contenido en todo momento. ----
+    --sa-card-shadow: 0 14px 32px rgba(6, 5, 16, .38), 0 2px 8px rgba(6, 5, 16, .3);
+
+    // ---- Tratamiento "glass" para el chrome flotante (sidebar, popovers) ----
+    --sa-glass-bg: rgba(23, 19, 37, .72);
+    --sa-glass-border: rgba(255, 255, 255, .08);
+    --sa-glass-blur: 20px;
+
+    // Los pares -rgb también se redeclaran: los utilitarios de Bootstrap
+    // (.bg-body-tertiary, .bg-body, etc.) componen el color con
+    // rgba(var(--bs-*-rgb), var(--bs-bg-opacity)) — si solo se pisa la
+    // versión hex, esos utilitarios siguen leyendo el gris oscuro por
+    // defecto de Bootstrap y el acento violeta no llega a esas superficies.
+    --bs-body-bg: #0d0b16;
+    --bs-body-bg-rgb: 13, 11, 22;
+    --bs-body-color: #edeff4;
+    --bs-body-color-rgb: 237, 239, 244;
+    --bs-tertiary-bg: #17131f;
+    --bs-tertiary-bg-rgb: 23, 19, 31;
+    --bs-secondary-bg: #1e1a33;
+    --bs-secondary-bg-rgb: 30, 26, 51;
+    --bs-emphasis-color: #ffffff;
+    --bs-emphasis-color-rgb: 255, 255, 255;
+    --bs-border-color: #2a2440;
+    --bs-border-color-translucent: #2a2440;
+    --bs-card-bg: #17131f;
+    --bs-card-border-color: #2a2440;
+    --bs-tertiary-color: #b0a8c9;
+    --bs-secondary-color: #b0a8c9;
+
+    // La base global (base.scss) fija el color de texto del <body> al verde
+    // institucional (--cs-verde-oscuro) para el resto de paneles — el
+    // SuperAdmin necesita el suyo propio (casi blanco) por encima de esa
+    // regla; el selector con atributo ya es más específico que `body` solo.
+    color: var(--bs-body-color);
+
+    --bs-primary: #9085e9;
+    --bs-primary-rgb: 144, 133, 233;
+    --bs-primary-bg-subtle: #241f3d;
+    --bs-primary-border-subtle: #3d3568;
+    --bs-primary-text-emphasis: #c3bdf5;
+
+    --cs-dorado: #9085e9;
+    --cs-dorado-suave: #241f3d;
 
     .font-serif,
     h1, h2, h3, h4, h5, h6,
@@ -102,47 +158,92 @@ body[data-panel="superadmin"] {
     }
 
     .dash-welcome {
-        background: linear-gradient(140deg, #14181f 0%, #262019 55%, #4a3416 100%);
+        background: linear-gradient(140deg, #14101f 0%, #241f45 55%, #4a3aa7 100%);
+        border-radius: 1.25rem;
+    }
+
+    // ---- Tarjetas: esquinas más redondeadas + elevación suave — lenguaje
+    // visual tipo panel SaaS, aplicado una sola vez aquí para que todas las
+    // vistas del SuperAdmin (dashboard, instituciones, auditoría) lo hereden
+    // sin tocar cada plantilla. ----
+    .card {
+        border-radius: 1.1rem;
+        border-color: var(--bs-card-border-color);
+        box-shadow: var(--sa-card-shadow);
     }
 
     .kpi-card {
         border: 1px solid var(--bs-card-border-color);
+        border-radius: 1.1rem;
+        box-shadow: var(--sa-card-shadow);
+        transition: transform .15s ease, box-shadow .15s ease;
     }
-}
 
-// ---- Modo oscuro: la identidad "nativa" de Torre — carbón azulado, no negro puro ----
-[data-bs-theme="dark"] body[data-panel="superadmin"] {
-    --sb-primary: #d9a15c;
-    --sb-primary-light: #3a2d1c;
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 40px rgba(6, 5, 16, .45), 0 2px 8px rgba(6, 5, 16, .32);
+    }
 
-    --sb-badge-info-bg: #3a2d1c;
-    --sb-badge-info-text: #e8b876;
+    // El icono del ícono pasa de cuadrado redondeado a círculo — coincide
+    // con el tratamiento de las tarjetas de estadística de referencia.
+    .kpi-icon {
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        font-size: 1.05rem;
+    }
 
-    --bs-body-bg: #0a0d12;
-    --bs-body-color: #edeff4;
-    --bs-tertiary-bg: #141924;
-    --bs-secondary-bg: #1a2130;
-    --bs-emphasis-color: #ffffff;
-    --bs-border-color: #232b3a;
-    --bs-border-color-translucent: #232b3a;
-    --bs-card-bg: #141924;
-    --bs-card-border-color: #232b3a;
-    --bs-tertiary-color: #a8b1c2;
-    --bs-secondary-color: #a8b1c2;
+    // ---- Componentes de Bootstrap que fijan su propio acento en tiempo de
+    // compilación (Sass $primary = verde institucional), no en tiempo de
+    // ejecución — pisar solo --bs-primary no les llega porque cada uno
+    // redeclara su variable local (--bs-btn-bg, --bs-link-color, etc.) en
+    // su propio selector. Se pisan aquí, uno a uno, para que "aplicar a
+    // todas las vistas" alcance también botones, enlaces, paginación y
+    // pestañas — no solo tarjetas y gráficos. ----
+    // Acotado a .panel-content: el sidebar (.slink, .td-item, etc.) trae
+    // su propio color de texto vía _panel.scss y no debe heredar esto.
+    .panel-content a {
+        color: var(--sb-primary);
+    }
+    .panel-content a:hover, .panel-content a:focus {
+        color: #a89df0;
+    }
 
-    --bs-primary: #d9a15c;
-    --bs-primary-rgb: 217, 161, 92;
-    --bs-primary-bg-subtle: #3a2d1c;
-    --bs-primary-border-subtle: #5c4526;
-    --bs-primary-text-emphasis: #e8b876;
+    .btn-primary {
+        --bs-btn-color: #ffffff;
+        --bs-btn-bg: var(--sb-primary-dark);
+        --bs-btn-border-color: var(--sb-primary-dark);
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #5b4bbd;
+        --bs-btn-hover-border-color: #5b4bbd;
+        --bs-btn-active-color: #ffffff;
+        --bs-btn-active-bg: #3d3190;
+        --bs-btn-active-border-color: #3d3190;
+        --bs-btn-disabled-color: #ffffff;
+        --bs-btn-disabled-bg: var(--sb-primary-dark);
+        --bs-btn-disabled-border-color: var(--sb-primary-dark);
+    }
 
-    --cs-dorado: #d9a15c;
-    --cs-dorado-suave: #3a2d1c;
+    .pagination {
+        --bs-pagination-active-bg: var(--sb-primary-dark);
+        --bs-pagination-active-border-color: var(--sb-primary-dark);
+        --bs-pagination-color: var(--sb-primary);
+        --bs-pagination-hover-color: var(--sb-primary);
+    }
+
+    .nav-pills {
+        --bs-nav-pills-link-active-bg: var(--sb-primary-dark);
+    }
+
+    .dropdown-item.active, .dropdown-item:active {
+        background-color: var(--sb-primary-dark);
+    }
 
     .form-select, .form-control {
         background-color: var(--bs-tertiary-bg);
         border-color: var(--bs-border-color);
         color: var(--bs-body-color);
+        border-radius: .65rem;
     }
 
     .table {
@@ -150,9 +251,93 @@ body[data-panel="superadmin"] {
         --bs-table-color: var(--bs-body-color);
     }
 
+    // Fila de encabezado de grupo en la matriz de roles y permisos
+    // (<tr class="table-secondary">): Bootstrap la compila con fondo gris
+    // claro + texto negro fijos (pensados para tema claro) — sobre el fondo
+    // oscuro del panel desentona y rompe la lectura de la tabla.
+    .table-secondary {
+        --bs-table-bg: var(--sb-primary-light);
+        --bs-table-color: var(--sb-primary);
+        --bs-table-border-color: var(--bs-border-color);
+    }
+
+    // El checkbox sin marcar usa var(--bs-border-color), que aquí es un
+    // violeta muy oscuro (#2a2440) — casi invisible contra el fondo casi
+    // negro del panel. Necesita su propio borde más claro para leerse como
+    // un control interactivo, y el estado marcado debe seguir el acento
+    // violeta en vez del verde institucional compilado en Bootstrap.
+    .form-check-input {
+        border-color: #6b6398;
+    }
+    .form-check-input:checked {
+        background-color: var(--sb-primary-dark);
+        border-color: var(--sb-primary-dark);
+    }
+    .form-check-input:focus {
+        border-color: var(--sb-primary);
+        box-shadow: 0 0 0 .25rem rgba(144, 133, 233, .25);
+    }
+
     .empty-state .empty-icon {
         background: var(--sb-primary-light);
         color: var(--sb-primary);
+    }
+
+    // ---- Punto de color categórico para filas de lista (usuarios por rol,
+    // mezcla de planes) — mismo orden fijo que --cat-1.. de _variables.scss,
+    // asignado por índice de fila, nunca por significado. ----
+    .list-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    // ---- Chrome de vidrio: sidebar + popovers flotantes ----
+    // El contenido (tablas, tarjetas) se queda con fondo sólido — son datos,
+    // necesitan legibilidad. El efecto vidrio va solo en la navegación y los
+    // popovers que flotan sobre el contenido.
+    .sidebar {
+        background: var(--sa-glass-bg);
+        backdrop-filter: blur(var(--sa-glass-blur));
+        -webkit-backdrop-filter: blur(var(--sa-glass-blur));
+        border-right-color: var(--sa-glass-border);
+    }
+
+    // Más opacos que el sidebar: se abren encima de otros enlaces de
+    // navegación (p.ej. "Configuración global" queda justo detrás del
+    // menú de perfil) y con el .72 de --sa-glass-bg ese texto se
+    // transparentaba lo suficiente para leerse encimado y confundir.
+    .td-dropup, .campanita-panel {
+        background: rgba(23, 19, 37, .96);
+        backdrop-filter: blur(var(--sa-glass-blur));
+        -webkit-backdrop-filter: blur(var(--sa-glass-blur));
+        border-color: var(--sa-glass-border);
+    }
+
+    // El avatar usaba el degradado verde institucional hardcodeado del
+    // panel compartido (_panel.scss) — no calzaba con el acento bronce.
+    .td-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: .82rem;
+        background: linear-gradient(135deg, var(--sb-primary), var(--sb-primary-dark));
+        position: relative;
+    }
+
+    // El borde calza con el fondo de .td-header (--sb-primary-light), no con
+    // el del sidebar: es contra ese fondo que el punto necesita "recortarse".
+    .td-status-dot {
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #3bb273;
+        border: 2px solid var(--sb-primary-light);
     }
 }
 
@@ -168,6 +353,28 @@ body[data-panel="superadmin"] .plan-precio {
     font-size: 1.9rem;
     font-weight: 700;
 }
+
+// ---------- Auditoría ----------
+body[data-panel="superadmin"] .audit-accion {
+    font-family: var(--sa-font-mono);
+    font-weight: 500;
+    font-size: .72rem;
+}
+
+body[data-panel="superadmin"] .audit-toggle i {
+    transition: transform .15s ease;
+}
+body[data-panel="superadmin"] .audit-toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+body[data-panel="superadmin"] .audit-detalle {
+    background: var(--bs-secondary-bg);
+    padding: .75rem 1.25rem;
+    border-top: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+body[data-panel="superadmin"] .audit-detalle .table { background: transparent; }
 
 // ---------- Catálogo de módulos ----------
 body[data-panel="superadmin"] .modulo-icono {

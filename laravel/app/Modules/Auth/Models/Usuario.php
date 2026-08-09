@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Tabla central de autenticación, heredada del sistema legacy PHP.
@@ -38,6 +39,7 @@ class Usuario extends Authenticatable
         'id_rol',
         'id_institucion',
         'estado_usuario',
+        'foto_perfil',
     ];
 
     protected $hidden = [
@@ -98,6 +100,14 @@ class Usuario extends Authenticatable
     public function institucion(): BelongsTo
     {
         return $this->belongsTo(Institucion::class, 'id_institucion', 'id_institucion');
+    }
+
+    /** Mismo patrón que Institucion::logoUrl(). Null si el usuario no cargó foto — el sidebar cae a las iniciales. */
+    protected function fotoPerfilUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->foto_perfil ? Storage::disk('public')->url($this->foto_perfil) : null,
+        );
     }
 
     public function profesor(): HasOne
