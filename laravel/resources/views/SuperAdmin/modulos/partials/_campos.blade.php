@@ -32,4 +32,20 @@
         <textarea class="form-control" name="descripcion" rows="3" data-feedback="err-descripcion">{{ old('descripcion', $modulo->descripcion ?? '') }}</textarea>
         <div class="invalid-feedback" id="err-descripcion"></div>
     </div>
+
+    <div class="col-12">
+        <label class="form-label">Planes que lo incluyen</label>
+        <div class="row g-2">
+            @foreach ($planes as $plan)
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="planes[]" value="{{ $plan->id_plan }}"
+                               id="plan-{{ $plan->id_plan }}"
+                               @checked(in_array($plan->id_plan, old('planes', $planesSeleccionados ?? [])))>
+                        <label class="form-check-label small" for="plan-{{ $plan->id_plan }}">{{ $plan->nombre }}</label>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
 </div>

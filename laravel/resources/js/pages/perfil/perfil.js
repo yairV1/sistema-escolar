@@ -82,6 +82,7 @@ function wireForm(formId, buttonId, buildPayload, { resetOnSuccess = false } = {
             const { data } = await window.axios.post(form.dataset.url, buildPayload(form));
             toast.success(data.message);
             if (resetOnSuccess) form.reset();
+            onSuccess?.(data);
         } catch (error) {
             const response = error.response;
             if (response?.status === 422 && response.data.errors) {

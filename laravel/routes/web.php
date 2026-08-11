@@ -14,12 +14,16 @@ use App\Modules\Calendario\Controllers\EventoComentarioController;
 use App\Modules\Calendario\Controllers\EventoController;
 use App\Modules\Calendario\Controllers\NotificacionPanelController;
 use App\Modules\Calificaciones\Controllers\CalificacionesController;
+use App\Modules\Calificaciones\Controllers\EscalaNotasController;
 use App\Modules\Colegio\Controllers\ConfiguracionColegioController;
 use App\Modules\Comunicados\Controllers\ComunicadosController;
 use App\Modules\Dashboard\Controllers\DashboardController;
 use App\Modules\Docente\Controllers\DocenteController;
 use App\Modules\Estudiante\Controllers\EstudianteController;
-use App\Modules\GestionAcademica\Controllers\GestionAcademicaController;
+use App\Modules\GestionAcademica\Controllers\AsignacionesController;
+use App\Modules\GestionAcademica\Controllers\CursosController;
+use App\Modules\GestionAcademica\Controllers\HorariosController;
+use App\Modules\GestionAcademica\Controllers\MateriasController;
 use App\Modules\Landing\Controllers\EditarLandingController;
 use App\Modules\Landing\Controllers\SolicitudAdmisionController;
 use App\Modules\Landing\Controllers\WebsiteController;
@@ -28,6 +32,7 @@ use App\Modules\Observaciones\Controllers\ObservacionesController;
 use App\Modules\Perfil\Controllers\PerfilController;
 use App\Modules\Rector\Controllers\AsistenciaController;
 use App\Modules\Reportes\Controllers\BoletinesController;
+use App\Modules\Reportes\Controllers\DirectorGrupoController;
 use App\Modules\Reportes\Controllers\EstadisticasController;
 use App\Modules\Soporte\Controllers\SoporteController;
 use App\Modules\SuperAdmin\Controllers\ConfiguracionPlataformaController;
@@ -79,23 +84,32 @@ Route::get('/mi-panel', [DocenteController::class, 'dashboard'])
     ->middleware(['auth', 'role:docente'])
     ->name('docente.dashboard');
 
+Route::middleware(['auth', 'role:docente'])->prefix('docente')->name('docente.')->group(function () {
+    Route::get('/estudiantes', [DocenteController::class, 'estudiantes'])->name('estudiantes');
+    Route::get('/asistencia', [DocenteController::class, 'asistencia'])->name('asistencia');
+    Route::get('/calificaciones', [DocenteController::class, 'calificaciones'])->name('calificaciones');
+    Route::get('/horario', [DocenteController::class, 'horario'])->name('horario')->middleware('modulo:horarios');
+    Route::get('/comunicados', [DocenteController::class, 'comunicados'])->name('comunicados')->middleware('modulo:comunicados');
+    Route::post('/comunicados/{notificacion}/leido', [DocenteController::class, 'marcarComunicadoLeido'])->name('comunicados.leido')->middleware('modulo:comunicados');
+});
+
 Route::middleware(['auth', 'role:estudiante'])->prefix('estudiante')->name('estudiante.')->group(function () {
     Route::get('/inicio', [EstudianteController::class, 'inicio'])->name('inicio');
-    Route::get('/horario', [EstudianteController::class, 'horario'])->name('horario');
+    Route::get('/horario', [EstudianteController::class, 'horario'])->name('horario')->middleware('modulo:horarios');
     Route::get('/materias', [EstudianteController::class, 'materias'])->name('materias');
-    Route::get('/notas', [EstudianteController::class, 'notas'])->name('notas');
+    Route::get('/notas', [EstudianteController::class, 'notas'])->name('notas')->middleware('modulo:boletines');
     Route::get('/asistencia', [EstudianteController::class, 'asistencia'])->name('asistencia');
-    Route::get('/comunicados', [EstudianteController::class, 'comunicados'])->name('comunicados');
+    Route::get('/comunicados', [EstudianteController::class, 'comunicados'])->name('comunicados')->middleware('modulo:comunicados');
     Route::get('/perfil', [EstudianteController::class, 'perfil'])->name('perfil');
 });
 
 Route::middleware(['auth', 'role:acudiente'])->prefix('acudiente')->name('acudiente.')->group(function () {
     Route::get('/inicio', [AcudienteController::class, 'inicio'])->name('inicio');
     Route::get('/estudiantes', [AcudienteController::class, 'estudiantes'])->name('estudiantes');
-    Route::get('/horario', [AcudienteController::class, 'horario'])->name('horario');
-    Route::get('/notas', [AcudienteController::class, 'notas'])->name('notas');
+    Route::get('/horario', [AcudienteController::class, 'horario'])->name('horario')->middleware('modulo:horarios');
+    Route::get('/notas', [AcudienteController::class, 'notas'])->name('notas')->middleware('modulo:boletines');
     Route::get('/asistencia', [AcudienteController::class, 'asistencia'])->name('asistencia');
-    Route::get('/comunicados', [AcudienteController::class, 'comunicados'])->name('comunicados');
+    Route::get('/comunicados', [AcudienteController::class, 'comunicados'])->name('comunicados')->middleware('modulo:comunicados');
     Route::get('/perfil', [AcudienteController::class, 'perfil'])->name('perfil');
 });
 
@@ -124,34 +138,54 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(func
     Route::post('/administrativos/{usuario}/activar', [ListadosController::class, 'activarAdministrativo'])->name('listados.administrativos.activar');
 });
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('matriculas')->group(function () {
+Route::middleware(['auth', 'role:admin,rector', 'modulo:matriculas'])->prefix('matriculas')->group(function () {
     Route::get('/', [MatriculasController::class, 'index'])->name('matriculas');
     Route::post('/{matricula}/estado', [MatriculasController::class, 'cambiarEstado'])->name('matriculas.estado');
     Route::post('/solicitudes/{solicitud}/estado', [MatriculasController::class, 'cambiarEstadoSolicitud'])->name('matriculas.solicitudes.estado');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('gestion-academica')->name('gestion-academica.')->group(function () {
-    Route::get('/', [GestionAcademicaController::class, 'index'])->name('index');
+    Route::prefix('materias')->name('materias.')->group(function () {
+        Route::get('/', [MateriasController::class, 'index'])->name('index');
+        Route::post('/', [MateriasController::class, 'store'])->name('store');
 
-    Route::post('/materias', [GestionAcademicaController::class, 'storeMateria'])->name('materias.store');
-    Route::post('/materias/{materia}', [GestionAcademicaController::class, 'updateMateria'])->name('materias.update');
-    Route::post('/materias/{materia}/desactivar', [GestionAcademicaController::class, 'desactivarMateria'])->name('materias.desactivar');
-    Route::post('/materias/{materia}/activar', [GestionAcademicaController::class, 'activarMateria'])->name('materias.activar');
+        // Debe registrarse antes de '/{materia}' para que "areas" no sea
+        // capturado como un id de materia.
+        Route::prefix('areas')->name('areas.')->group(function () {
+            Route::post('/', [MateriasController::class, 'storeArea'])->name('store');
+            Route::post('/{area}', [MateriasController::class, 'updateArea'])->name('update');
+            Route::post('/{area}/desactivar', [MateriasController::class, 'desactivarArea'])->name('desactivar');
+            Route::post('/{area}/activar', [MateriasController::class, 'activarArea'])->name('activar');
+        });
 
-    Route::get('/cursos/{curso}', [GestionAcademicaController::class, 'show'])->name('cursos.show');
-    Route::post('/cursos', [GestionAcademicaController::class, 'storeCurso'])->name('cursos.store');
-    Route::post('/cursos/{curso}', [GestionAcademicaController::class, 'updateCurso'])->name('cursos.update');
-    Route::post('/cursos/{curso}/desactivar', [GestionAcademicaController::class, 'desactivarCurso'])->name('cursos.desactivar');
-    Route::post('/cursos/{curso}/activar', [GestionAcademicaController::class, 'activarCurso'])->name('cursos.activar');
+        Route::post('/{materia}', [MateriasController::class, 'update'])->name('update');
+        Route::post('/{materia}/desactivar', [MateriasController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{materia}/activar', [MateriasController::class, 'activar'])->name('activar');
+    });
 
-    Route::post('/asignaciones', [GestionAcademicaController::class, 'storeAsignacion'])->name('asignaciones.store');
-    Route::post('/asignaciones/{asignacion}/desactivar', [GestionAcademicaController::class, 'desactivarAsignacion'])->name('asignaciones.desactivar');
-    Route::post('/asignaciones/{asignacion}/activar', [GestionAcademicaController::class, 'activarAsignacion'])->name('asignaciones.activar');
+    Route::prefix('cursos')->name('cursos.')->group(function () {
+        Route::get('/', [CursosController::class, 'index'])->name('index');
+        Route::get('/{curso}', [CursosController::class, 'show'])->name('show');
+        Route::post('/', [CursosController::class, 'store'])->name('store');
+        Route::post('/{curso}', [CursosController::class, 'update'])->name('update');
+        Route::post('/{curso}/desactivar', [CursosController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{curso}/activar', [CursosController::class, 'activar'])->name('activar');
+    });
 
-    Route::post('/horarios', [GestionAcademicaController::class, 'storeHorario'])->name('horarios.store');
-    Route::post('/horarios/{horario}', [GestionAcademicaController::class, 'updateHorario'])->name('horarios.update');
-    Route::post('/horarios/{horario}/desactivar', [GestionAcademicaController::class, 'desactivarHorario'])->name('horarios.desactivar');
-    Route::post('/horarios/{horario}/activar', [GestionAcademicaController::class, 'activarHorario'])->name('horarios.activar');
+    Route::prefix('asignaciones')->name('asignaciones.')->group(function () {
+        Route::get('/', [AsignacionesController::class, 'index'])->name('index');
+        Route::post('/', [AsignacionesController::class, 'store'])->name('store');
+        Route::post('/{asignacion}/desactivar', [AsignacionesController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{asignacion}/activar', [AsignacionesController::class, 'activar'])->name('activar');
+    });
+
+    Route::middleware('modulo:horarios')->prefix('horarios')->name('horarios.')->group(function () {
+        Route::get('/', [HorariosController::class, 'index'])->name('index');
+        Route::post('/', [HorariosController::class, 'store'])->name('store');
+        Route::post('/{horario}', [HorariosController::class, 'update'])->name('update');
+        Route::post('/{horario}/desactivar', [HorariosController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{horario}/activar', [HorariosController::class, 'activar'])->name('activar');
+    });
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('registro')->name('registro.')->group(function () {
@@ -186,6 +220,8 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('calificaciones')->name
     Route::post('/tipos-actividad/{tipoActividad}', [CalificacionesController::class, 'updateTipoActividad'])->name('tipos-actividad.update');
     Route::post('/tipos-actividad/{tipoActividad}/desactivar', [CalificacionesController::class, 'desactivarTipoActividad'])->name('tipos-actividad.desactivar');
     Route::post('/tipos-actividad/{tipoActividad}/activar', [CalificacionesController::class, 'activarTipoActividad'])->name('tipos-actividad.activar');
+
+    Route::post('/escala-notas', [EscalaNotasController::class, 'guardar'])->name('escala-notas.guardar');
 });
 
 // Rutas de calificaciones acotadas a una asignación puntual: además de admin/rector,
@@ -199,6 +235,8 @@ Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('calificaciones
 
     Route::get('/actividades/{actividad}/notas', [CalificacionesController::class, 'notas'])->name('actividades.notas');
     Route::post('/actividades/{actividad}/notas', [CalificacionesController::class, 'guardarNotas'])->name('actividades.notas.guardar');
+
+    Route::post('/asignaciones/{asignacion}/observaciones', [CalificacionesController::class, 'guardarObservaciones'])->name('asignaciones.observaciones.guardar');
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('observaciones')->name('observaciones.')->group(function () {
@@ -209,7 +247,7 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('observaciones')->name(
     Route::post('/{observacion}/activar', [ObservacionesController::class, 'activar'])->name('activar');
 });
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('boletines')->name('boletines.')->group(function () {
+Route::middleware(['auth', 'role:admin,rector', 'modulo:boletines'])->prefix('boletines')->name('boletines.')->group(function () {
     Route::get('/', [BoletinesController::class, 'index'])->name('index');
     Route::post('/generar', [BoletinesController::class, 'generar'])->name('generar');
     Route::get('/pdf-masivo', [BoletinesController::class, 'pdfMasivo'])->name('pdf-masivo');
@@ -218,6 +256,15 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('boletines')->name('bol
     Route::post('/{boletin}/publicar', [BoletinesController::class, 'publicar'])->name('publicar');
     Route::post('/{boletin}/anular', [BoletinesController::class, 'anular'])->name('anular');
     Route::post('/{boletin}/borrador', [BoletinesController::class, 'volverBorrador'])->name('borrador');
+});
+
+// El director de grupo (Curso::id_director_grupo) digita la nota definitiva directamente;
+// admin/rector también pueden entrar para dar soporte. Autorización fina en el controlador
+// (Usuario::esDirectorDeGrupo) porque depende del curso puntual, no solo del rol.
+Route::middleware(['auth', 'role:admin,rector,docente', 'modulo:boletines'])->prefix('director-grupo')->name('director-grupo.')->group(function () {
+    Route::get('/', [DirectorGrupoController::class, 'index'])->name('index');
+    Route::get('/{curso}/{periodo}', [DirectorGrupoController::class, 'notas'])->name('notas');
+    Route::post('/{curso}/{periodo}', [DirectorGrupoController::class, 'guardar'])->name('guardar');
 });
 
 Route::middleware(['auth', 'role:admin,rector,docente'])->prefix('asistencia')->name('asistencia.')->group(function () {
@@ -230,7 +277,7 @@ Route::get('/estadisticas', [EstadisticasController::class, 'index'])
     ->middleware(['auth', 'role:admin,rector'])
     ->name('estadisticas');
 
-Route::middleware(['auth', 'role:admin,rector'])->prefix('comunicados')->name('comunicados.')->group(function () {
+Route::middleware(['auth', 'role:admin,rector', 'modulo:comunicados'])->prefix('comunicados')->name('comunicados.')->group(function () {
     Route::get('/', [ComunicadosController::class, 'index'])->name('index');
     Route::post('/', [ComunicadosController::class, 'store'])->name('store');
 });
@@ -301,6 +348,7 @@ Route::middleware('auth')->prefix('calendario')->name('calendario.')->group(func
 Route::middleware(['auth', 'role:admin,rector'])->prefix('editar-landing')->name('editar-landing.')->group(function () {
     Route::get('/', [EditarLandingController::class, 'index'])->name('index');
     Route::post('/contenido', [EditarLandingController::class, 'updateContenido'])->name('contenido.update');
+    Route::post('/hero-imagen', [EditarLandingController::class, 'updateHeroImagen'])->name('hero-imagen.update');
 
     Route::post('/noticias', [EditarLandingController::class, 'storeNoticia'])->name('noticias.store');
     Route::post('/noticias/{noticia}', [EditarLandingController::class, 'updateNoticia'])->name('noticias.update');

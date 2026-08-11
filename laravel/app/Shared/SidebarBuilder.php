@@ -13,6 +13,8 @@ class SidebarBuilder
         private array $menu,
         private string $currentPage,
         private array $userRoles = [],
+        /** Slugs de módulos activos para la institución del usuario; null = sin restricción (ej. panel SuperAdmin). */
+        private ?array $modulosActivos = null,
     ) {}
 
     public function render(): string
@@ -179,12 +181,12 @@ class SidebarBuilder
 
     private function userCanSeeSection(array $section): bool
     {
-        return $this->rolesAllowed($section['roles'] ?? null);
+        return $this->rolesAllowed($section['roles'] ?? null) && $this->moduloAllowed($section['modulo'] ?? null);
     }
 
     private function userCanSeeItem(array $item): bool
     {
-        return $this->rolesAllowed($item['roles'] ?? null);
+        return $this->rolesAllowed($item['roles'] ?? null) && $this->moduloAllowed($item['modulo'] ?? null);
     }
 
     private function rolesAllowed(?array $requiredRoles): bool
@@ -197,6 +199,16 @@ class SidebarBuilder
         }
 
         return count(array_intersect($requiredRoles, $this->userRoles)) > 0;
+    }
+
+    /** Si el item no depende de un módulo (modulo === null) siempre es visible. */
+    private function moduloAllowed(?string $modulo): bool
+    {
+        if ($modulo === null || $this->modulosActivos === null) {
+            return true;
+        }
+
+        return in_array($modulo, $this->modulosActivos, true);
     }
 
     private function esc(?string $value): string

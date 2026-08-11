@@ -14,7 +14,7 @@
                 <h1 class="h3 fw-semibold mb-1 font-serif">Bienvenido, {{ auth()->user()->nombres }} 👋</h1>
                 <p class="mb-0 text-white-50">
                     {{ auth()->user()->rolLabel }} ·
-                    {{ $institucionUsuario->nombre ?? $colegioConfiguracion->nombre_colegio }} ·
+                    {{ $colegioConfiguracion->nombre_colegio ?? $institucionUsuario->nombre }} ·
                     {{ $institucionUsuario->ciudad ?? $colegioConfiguracion->ciudad }}
                 </p>
             </div>

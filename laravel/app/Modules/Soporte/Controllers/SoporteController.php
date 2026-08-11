@@ -20,10 +20,14 @@ class SoporteController extends Controller
 
     public function store(SoporteStoreRequest $request): JsonResponse
     {
+        $imagen = $request->file('imagen');
+
         Soporte::create([
             'id_usuario' => auth()->id(),
             'asunto' => $request->string('asunto'),
             'mensaje' => $request->string('mensaje'),
+            'imagen_ruta' => $imagen?->store('soportes', 'public'),
+            'imagen_nombre_original' => $imagen?->getClientOriginalName(),
             'estado' => 'nuevo',
         ]);
 
@@ -43,7 +47,9 @@ class SoporteController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('Soporte.index', [
+        $vista = $request->user()->esSuperAdmin() ? 'SuperAdmin.soporte.index' : 'Soporte.index';
+
+        return view($vista, [
             'currentPage' => 'SoportesIndex',
             'soportes' => $soportes,
             'estadoSeleccionado' => $estado,
@@ -55,13 +61,15 @@ class SoporteController extends Controller
         ]);
     }
 
-    public function show(Soporte $soporte): View
+    public function show(Request $request, Soporte $soporte): View
     {
         if ($soporte->estado === 'nuevo') {
             $soporte->update(['estado' => 'leido']);
         }
 
-        return view('Soporte.show', [
+        $vista = $request->user()->esSuperAdmin() ? 'SuperAdmin.soporte.show' : 'Soporte.show';
+
+        return view($vista, [
             'currentPage' => 'SoportesIndex',
             'soporte' => $soporte->load('remitente', 'resueltoPor'),
         ]);

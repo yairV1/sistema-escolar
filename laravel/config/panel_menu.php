@@ -79,6 +79,7 @@ return [
                     'title' => 'Matrículas',
                     'icon'  => 'fas fa-file-signature',
                     'page'  => 'matriculas',
+                    'modulo' => 'matriculas',
                     'children' => [
                         ['title' => 'Consultar', 'route' => 'matriculas', 'page' => 'Matriculas'],
                     ],
@@ -99,8 +100,13 @@ return [
                 [
                     'title' => 'Gestión Académica',
                     'icon'  => 'fas fa-graduation-cap',
-                    'route' => 'gestion-academica.index',
-                    'page'  => 'GestionAcademica',
+                    'page'  => 'gestion-academica',
+                    'children' => [
+                        ['title' => 'Materias',     'route' => 'gestion-academica.materias.index',     'page' => 'GestionAcademicaMaterias'],
+                        ['title' => 'Cursos',       'route' => 'gestion-academica.cursos.index',       'page' => 'GestionAcademicaCursos'],
+                        ['title' => 'Asignaciones', 'route' => 'gestion-academica.asignaciones.index', 'page' => 'GestionAcademicaAsignaciones'],
+                        ['title' => 'Horarios',     'route' => 'gestion-academica.horarios.index',     'page' => 'GestionAcademicaHorarios', 'modulo' => 'horarios'],
+                    ],
                 ],
                 [
                     'title' => 'Evaluaciones',
@@ -109,7 +115,7 @@ return [
                     'children' => [
                         ['title' => 'Calificaciones', 'route' => 'calificaciones.index', 'page' => 'Calificaciones'],
                         ['title' => 'Observaciones',  'route' => 'observaciones.index',  'page' => 'Observaciones'],
-                        ['title' => 'Boletines',      'route' => 'boletines.index',      'page' => 'Boletines'],
+                        ['title' => 'Boletines',      'route' => 'boletines.index',      'page' => 'Boletines', 'modulo' => 'boletines'],
                     ],
                 ],
                 [
@@ -129,6 +135,7 @@ return [
                     'title' => 'Comunicados',
                     'icon'  => 'fas fa-bullhorn',
                     'page'  => 'comunicacion',
+                    'modulo' => 'comunicados',
                     'children' => [
                         ['title' => 'Comunicados',         'route' => 'comunicados.index', 'page' => 'Comunicados'],
                         // ['title' => 'Notificaciones', 'route' => 'notificaciones.index', 'page' => 'Notificaciones'],
@@ -166,12 +173,26 @@ return [
             'section' => 'Mi colegio',
             'roles' => ['estudiante'],
             'items' => [
-                ['title' => 'Horario',     'icon' => 'fas fa-calendar-week',   'route' => 'estudiante.horario',     'page' => 'EstudianteHorario'],
+                ['title' => 'Horario',     'icon' => 'fas fa-calendar-week',   'route' => 'estudiante.horario',     'page' => 'EstudianteHorario', 'modulo' => 'horarios'],
                 ['title' => 'Materias',    'icon' => 'fas fa-book',            'route' => 'estudiante.materias',    'page' => 'EstudianteMaterias'],
-                ['title' => 'Notas',       'icon' => 'fas fa-star',            'route' => 'estudiante.notas',       'page' => 'EstudianteNotas'],
+                ['title' => 'Notas',       'icon' => 'fas fa-star',            'route' => 'estudiante.notas',       'page' => 'EstudianteNotas', 'modulo' => 'boletines'],
                 ['title' => 'Asistencia',  'icon' => 'fas fa-clipboard-check', 'route' => 'estudiante.asistencia',  'page' => 'EstudianteAsistencia'],
-                ['title' => 'Comunicados', 'icon' => 'fas fa-bullhorn',        'route' => 'estudiante.comunicados', 'page' => 'EstudianteComunicados'],
+                ['title' => 'Comunicados', 'icon' => 'fas fa-bullhorn',        'route' => 'estudiante.comunicados', 'page' => 'EstudianteComunicados', 'modulo' => 'comunicados'],
                 ['title' => 'Mi perfil',   'icon' => 'fas fa-id-card',         'route' => 'estudiante.perfil',      'page' => 'EstudiantePerfil'],
+            ],
+        ],
+
+        [
+            'section' => 'Mi panel',
+            'roles' => ['docente'],
+            'items' => [
+                ['title' => 'Mis estudiantes', 'icon' => 'fas fa-user-graduate',   'route' => 'docente.estudiantes',    'page' => 'DocenteEstudiantes'],
+                ['title' => 'Asistencia',      'icon' => 'fas fa-clipboard-check', 'route' => 'docente.asistencia',     'page' => 'DocenteAsistencia'],
+                ['title' => 'Calificaciones',  'icon' => 'fas fa-marker',          'route' => 'docente.calificaciones', 'page' => 'DocenteCalificaciones'],
+                ['title' => 'Director de grupo', 'icon' => 'fas fa-user-tie',      'route' => 'director-grupo.index',   'page' => 'DocenteDirectorGrupo', 'modulo' => 'boletines'],
+                ['title' => 'Horario',         'icon' => 'fas fa-calendar-week',   'route' => 'docente.horario',        'page' => 'DocenteHorario', 'modulo' => 'horarios'],
+                ['title' => 'Comunicados',     'icon' => 'fas fa-bullhorn',        'route' => 'docente.comunicados',    'page' => 'DocenteComunicados', 'modulo' => 'comunicados'],
+                ['title' => 'Mi perfil',       'icon' => 'fas fa-id-card',         'route' => 'perfil.show',            'page' => 'Perfil'],
             ],
         ],
 
@@ -180,10 +201,10 @@ return [
             'roles' => ['acudiente'],
             'items' => [
                 ['title' => 'Estudiantes a cargo', 'icon' => 'fas fa-user-graduate',   'route' => 'acudiente.estudiantes', 'page' => 'AcudienteEstudiantes'],
-                ['title' => 'Horario',             'icon' => 'fas fa-calendar-week',   'route' => 'acudiente.horario',     'page' => 'AcudienteHorario'],
-                ['title' => 'Notas',               'icon' => 'fas fa-star',            'route' => 'acudiente.notas',       'page' => 'AcudienteNotas'],
+                ['title' => 'Horario',             'icon' => 'fas fa-calendar-week',   'route' => 'acudiente.horario',     'page' => 'AcudienteHorario', 'modulo' => 'horarios'],
+                ['title' => 'Notas',               'icon' => 'fas fa-star',            'route' => 'acudiente.notas',       'page' => 'AcudienteNotas', 'modulo' => 'boletines'],
                 ['title' => 'Asistencia',          'icon' => 'fas fa-clipboard-check', 'route' => 'acudiente.asistencia',  'page' => 'AcudienteAsistencia'],
-                ['title' => 'Comunicados',         'icon' => 'fas fa-bullhorn',        'route' => 'acudiente.comunicados', 'page' => 'AcudienteComunicados'],
+                ['title' => 'Comunicados',         'icon' => 'fas fa-bullhorn',        'route' => 'acudiente.comunicados', 'page' => 'AcudienteComunicados', 'modulo' => 'comunicados'],
                 ['title' => 'Mi perfil',           'icon' => 'fas fa-id-card',         'route' => 'acudiente.perfil',      'page' => 'AcudientePerfil'],
             ],
         ],

@@ -68,7 +68,7 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
 
     /**
      * Clave versionada (no TTL ciego): `horarios_version` se incrementa en
-     * GestionAcademicaController cada vez que se muta un horario, así que
+     * HorariosController cada vez que se muta un horario, así que
      * un cambio administrativo invalida el caché al instante sin esperar
      * a que expire, y sin necesidad de Cache::tags (el driver `database`
      * no las soporta).

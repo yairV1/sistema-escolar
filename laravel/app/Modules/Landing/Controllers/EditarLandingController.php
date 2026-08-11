@@ -3,6 +3,7 @@
 namespace App\Modules\Landing\Controllers;
 
 use App\Core\Http\Controllers\Controller;
+use App\Modules\Colegio\Models\ColegioConfiguracion;
 use App\Modules\Landing\Models\LandingContenido;
 use App\Modules\Landing\Models\LandingGaleria;
 use App\Modules\Landing\Models\LandingNoticia;
@@ -24,6 +25,7 @@ class EditarLandingController extends Controller
             'currentPage' => 'EditarLanding',
             'tab' => $tab,
             'contenido' => $tab === 'contenido' ? LandingContenido::pluck('valor', 'clave') : null,
+            'colegio' => $tab === 'contenido' ? ColegioConfiguracion::singleton() : null,
             'noticias' => $tab === 'noticias' ? LandingNoticia::orderBy('orden')->get() : null,
             'galeria' => $tab === 'galeria' ? LandingGaleria::orderBy('orden')->get() : null,
         ]);
@@ -44,6 +46,28 @@ class EditarLandingController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Contenido actualizado correctamente.']);
+    }
+
+    public function updateHeroImagen(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'imagen' => ['nullable', 'image', 'max:2048'],
+            'imagen_removida' => ['nullable', 'boolean'],
+        ]);
+
+        $configuracion = ColegioConfiguracion::singleton();
+
+        if ($request->hasFile('imagen')) {
+            if ($configuracion->imagen_hero) {
+                Storage::disk('public')->delete($configuracion->imagen_hero);
+            }
+            $configuracion->update(['imagen_hero' => $request->file('imagen')->store('colegio', 'public')]);
+        } elseif ($request->boolean('imagen_removida') && $configuracion->imagen_hero) {
+            Storage::disk('public')->delete($configuracion->imagen_hero);
+            $configuracion->update(['imagen_hero' => null]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Imagen del hero actualizada correctamente.']);
     }
 
     public function storeNoticia(LandingNoticiaRequest $request): JsonResponse

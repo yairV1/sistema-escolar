@@ -21,16 +21,26 @@
                     <i class="fas fa-list-check me-1"></i> Tipos de actividad
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ $tab === 'escala-notas' ? 'active' : '' }}" href="{{ route('calificaciones.index', ['tab' => 'escala-notas']) }}">
+                    <i class="fas fa-ranking-star me-1"></i> Escala de notas
+                </a>
+            </li>
         </ul>
 
         @if ($tab === 'periodos')
             @include('Rector.calificaciones.partials.periodos')
-        @else
+        @elseif ($tab === 'tipos-actividad')
             @include('Rector.calificaciones.partials.tipos-actividad')
+        @else
+            @include('Rector.calificaciones.partials.escala-notas')
         @endif
     </div>
 @endsection
 
 @push('scripts')
     @vite('resources/js/pages/calificaciones/calificaciones.js')
+    @if ($tab === 'escala-notas')
+        @vite('resources/js/pages/calificaciones/escala-notas.js')
+    @endif
 @endpush

@@ -20,9 +20,9 @@ class PlanesSeeder extends Seeder
 {
     /** Mapea el valor legado `instituciones.plan` (texto) al slug del catálogo nuevo. */
     private const MAPA_PLAN_LEGADO = [
-        'basico' => 'starter',
-        'estandar' => 'pro',
-        'premium' => 'enterprise',
+        'basico' => 'Básico',
+        'estandar' => 'Estandar',
+        'premium' => 'Premium',
     ];
 
     public function run(): void
@@ -58,37 +58,57 @@ class PlanesSeeder extends Seeder
     {
         return [
             [
-                'nombre' => 'Starter',
-                'slug' => 'starter',
+                'nombre' => 'Básico',
+                'slug' => 'Básico',
                 'descripcion' => 'Colegios de un solo campus, hasta 300 estudiantes.',
-                'precio_mensual' => 890000,
-                'precio_anual' => 9100000,
+                'precio_mensual' => 400000,
+                'precio_anual' => 1200000,
                 'limite_usuarios' => 300,
-                'beneficios' => ['Matrículas y boletines', 'Horarios y asistencia', 'Hasta 3 usuarios administrativos'],
+                'beneficios' => [
+                    'Registro de estudiantes y docentes',
+                    'Boletines',
+                    'Horario',
+                    'Asistencia',
+                    'Notas',
+                    'Director de curso',
+                    'Rol directivo y docente',
+                ],
                 'estado' => 'activo',
                 'modulos' => ['matriculas', 'boletines', 'horarios'],
             ],
             [
-                'nombre' => 'Pro',
-                'slug' => 'pro',
+                'nombre' => 'Estandar',
+                'slug' => 'Estandar',
                 'descripcion' => 'Colegios en crecimiento, multi-sede, hasta 1.500 estudiantes.',
-                'precio_mensual' => 2400000,
-                'precio_anual' => 24500000,
+                'precio_mensual' => 800000,
+                'precio_anual' => 2000000,
                 'limite_usuarios' => 1500,
-                'beneficios' => ['Todo lo de Starter', 'Portal de padres y pagos en línea', 'Hasta 10 usuarios administrativos'],
+                'beneficios' => [
+                    'Todo lo del plan Básico',
+                    'Rol de estudiante y acudiente',
+                    'Comunicados',
+                    'Observaciones del estudiante',
+                    'Hasta 10 usuarios administrativos',
+                ],
                 'estado' => 'activo',
-                'modulos' => ['matriculas', 'boletines', 'horarios', 'comunicados', 'pagos-en-linea', 'portal-de-padres', 'biblioteca'],
+                'modulos' => ['matriculas', 'boletines', 'horarios', 'comunicados', 'portal-de-padres'],
             ],
             [
-                'nombre' => 'Enterprise',
-                'slug' => 'enterprise',
+                'nombre' => 'Premium',
+                'slug' => 'Premium',
                 'descripcion' => 'Redes de colegios y estudiantado ilimitado.',
-                'precio_mensual' => 5800000,
-                'precio_anual' => 59200000,
+                'precio_mensual' => 1500000,
+                'precio_anual' => 2500000,
                 'limite_usuarios' => null,
-                'beneficios' => ['Todo lo de Pro', 'Sedes y estudiantes ilimitados', 'Soporte dedicado'],
+                'beneficios' => [
+                    'Todo lo del plan Estandar',
+                    'Sitio web institucional administrable',
+                    'Estadísticas avanzadas',
+                    'Sedes y estudiantes ilimitados',
+                    'Soporte dedicado',
+                ],
                 'estado' => 'activo',
-                'modulos' => ['matriculas', 'boletines', 'horarios', 'comunicados', 'pagos-en-linea', 'portal-de-padres', 'biblioteca', 'transporte-escolar', 'encuestas', 'recursos-humanos'],
+                'modulos' => ['matriculas', 'boletines', 'horarios', 'comunicados', 'portal-de-padres'],
             ],
         ];
     }

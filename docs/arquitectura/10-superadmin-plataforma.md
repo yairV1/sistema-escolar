@@ -153,9 +153,13 @@ existir pasarela de pago en el proyecto, ver tabla de alcance §2):
   precios son metadata mostrada en el panel, igual que `fecha_vencimiento`
   ya lo era antes de esta extensión — no disparan ningún cobro.
 - **`modulos`**: catálogo de funcionalidades ofrecidas (`nombre`, `categoria`,
-  `icono`, `estado`). Puramente informativo/comercial: no controla
-  activación real de funcionalidad en los módulos de negocio existentes
-  (eso seguiría perteneciendo a la Fase B).
+  `icono`, `estado`). Para los módulos con una funcionalidad real construida
+  en el panel institucional (`matriculas`, `boletines`, `horarios`,
+  `comunicados`), `estado` sí se hace cumplir — ver §9.1. Los otros 6 del
+  catálogo (`pagos-en-linea`, `biblioteca`, `portal-de-padres`,
+  `transporte-escolar`, `encuestas`, `recursos-humanos`) siguen siendo
+  puramente informativos: no existe controlador/vista que implemente esa
+  funcionalidad todavía, así que no hay nada que bloquear.
 - **`plan_modulo`**: pivote que define qué módulos incluye cada plan.
 - **`instituciones.id_plan`**: FK nullable hacia `planes`, agregada de forma
   no destructiva — la columna `plan` (texto) se conserva intacta para no
@@ -173,6 +177,78 @@ existir pasarela de pago en el proyecto, ver tabla de alcance §2):
 - El dashboard (`PlataformaMetricasService`) suma dos KPIs (planes/módulos
   activos) y un widget "Mezcla de planes" (instituciones agrupadas por
   `id_plan`).
+
+### 9.1. Enforcement de módulos en el panel institucional (2026-08-01)
+
+Primer punto real de contacto entre el catálogo comercial y los módulos de
+negocio existentes — no es la Fase B completa (eso sigue siendo aislamiento
+de *datos* por institución), pero sí resuelve "si SuperAdmin desactiva un
+módulo, deja de verse/usarse en el panel del colegio":
+
+- **`Institucion::tieneModuloActivo(string $slug)`** /
+  **`modulosActivosSlugs()`**: resuelven, vía `id_plan` → `plan_modulo` →
+  `modulos.estado`, qué módulos están disponibles para esa institución. Sin
+  `id_plan` asignado, ambos devuelven "sin restricción" (`null`/`true`) para
+  no romper instituciones que no pasaron por el catálogo — mismo criterio de
+  no-destructividad que el resto de esta fase.
+- **Middleware `modulo:<slug>`** (`App\Core\Http\Middleware\EnsureModuloActivo`,
+  alias en `bootstrap/app.php`): aplicado a los grupos de rutas de
+  `matriculas`, `gestion-academica.horarios.*`, `boletines.*` y
+  `comunicados.*` (las del panel admin/rector). Aborta 403 si el módulo no
+  está activo para la institución del usuario — bloquea el acceso directo
+  por URL, no solo el link del menú.
+- **`SidebarBuilder`** acepta un cuarto parámetro `?array $modulosActivos`;
+  los items/secciones de `config/panel_menu.php` pueden declarar
+  `'modulo' => 'slug'` y desaparecen del sidebar si no está en esa lista.
+  `layouts/panel.blade.php` se lo pasa desde
+  `$institucionUsuario->modulosActivosSlugs()`. El panel SuperAdmin no pasa
+  este parámetro (queda `null`): su propio menú nunca depende del catálogo
+  que administra.
+- Alcance deliberado: solo se etiquetaron los 4 módulos con funcionalidad
+  real (§9). Las vistas de estudiante/acudiente para comunicados (rutas
+  separadas, de solo lectura) no están gateadas todavía.
+- **Visibilidad en el panel institucional**: `Rector/configuracion-colegio/index.blade.php`
+  agrega una tarjeta de solo lectura "Plan y módulos" (plan asignado +
+  módulos incluidos), para que Directivo/Administrador vean qué tienen sin
+  depender de que SuperAdmin se los informe por fuera del sistema.
+
+### 9.2. Nombre de rol editable (2026-08-01)
+
+`RolPermisoController::renombrar` permite a SuperAdmin cambiar `roles.nombre_rol`
+(un permiso `plataforma.roles.gestionar` más, sin ruta nueva de autorización).
+Deliberadamente **solo** el nombre visible es editable — `id_rol` y el slug
+fijo en `Usuario::ROLE_SLUGS` (usados por `role:` en rutas, policies y
+`SidebarBuilder`) no cambian, así que renombrar un rol nunca afecta permisos
+ni navegación, solo cómo se lee. `Usuario::rolLabel` se cambió para leer
+`$this->rol->nombre_rol` en vez del mapa fijo `ROLE_LABELS` (que queda como
+fallback) — el nombre nuevo se refleja de inmediato en sidebar, listados y
+dashboards sin tocar cada vista. El rol SuperAdmin (`id_rol` 8) sigue
+bloqueado para esta acción, igual que para la matriz de permisos.
+
+## 10. Corrección de seguridad: IDOR en gestión de administrativos (2026-08-01)
+
+Auditoría disparada por un reporte del usuario ("el panel del rector puede
+bloquear a un SuperAdministrador") encontró dos endpoints del panel
+institucional (`role:admin,rector`, preexistentes a esta fase) que reciben
+un `Usuario` por *route model binding* directo sin verificar que el usuario
+objetivo sea realmente uno de los 4 roles administrativos del propio colegio:
+
+- `ListadosController::desactivarAdministrativo` / `activarAdministrativo` —
+  el listado sí filtraba por `ROLES_ADMINISTRATIVOS`, pero la acción de
+  activar/desactivar no repetía ese filtro. Cualquier Administrador/Directivo
+  podía desactivar por URL directa a **cualquier** usuario del sistema,
+  incluido un SuperAdmin — `Usuario::estaActivo()` bloquea el login, así que
+  esto permitía dejar a un SuperAdmin sin acceso.
+- `RegistroAdministrativosController::edit/show/update` — mismo problema,
+  más grave: permitía ver y **editar** nombre/documento/correo/teléfono/rol
+  de cualquier usuario por id, no solo desactivarlo.
+
+Fix: ambos controladores ahora exigen `abort_unless(in_array($usuario->id_rol,
+self::ROLES_ADMINISTRATIVOS, true), 403)` antes de leer o mutar al usuario
+objetivo — mismo criterio que ya usaba el listado, ahora también en la
+acción. Verificado en vivo: intentar desactivar/editar un SuperAdmin desde
+una sesión Directivo ahora devuelve 403; el flujo legítimo (activar/editar un
+administrativo real) sigue funcionando sin cambios.
 
 ## 8. Checklist de cierre de la Fase A
 

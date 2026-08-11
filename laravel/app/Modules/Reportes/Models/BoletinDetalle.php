@@ -18,8 +18,15 @@ class BoletinDetalle extends Model
         'id_boletin',
         'id_asignacion',
         'nota_definitiva',
+        'origen',
+        'tipo_observacion',
         'observacion_materia',
     ];
+
+    public const TIPOS_OBSERVACION = ['fortaleza', 'dificultad', 'recomendacion'];
+
+    public const ORIGEN_CALCULADO = 'calculado';
+    public const ORIGEN_MANUAL = 'manual';
 
     public function boletin(): BelongsTo
     {

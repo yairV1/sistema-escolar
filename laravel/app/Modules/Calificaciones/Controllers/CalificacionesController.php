@@ -4,6 +4,7 @@ namespace App\Modules\Calificaciones\Controllers;
 
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Calificaciones\Models\Actividad;
+use App\Modules\Calificaciones\Models\EscalaNota;
 use App\Modules\Calificaciones\Models\Nota;
 use App\Modules\Calificaciones\Models\Periodo;
 use App\Modules\Calificaciones\Models\TipoActividad;
@@ -11,6 +12,8 @@ use App\Modules\Calificaciones\Requests\ActividadRequest;
 use App\Modules\Calificaciones\Requests\PeriodoRequest;
 use App\Modules\Calificaciones\Requests\TipoActividadRequest;
 use App\Modules\GestionAcademica\Models\AsignacionAcademica;
+use App\Modules\Reportes\Models\Boletin;
+use App\Modules\Reportes\Models\BoletinDetalle;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,7 +24,7 @@ class CalificacionesController extends Controller
     public function index(Request $request): View
     {
         $tab = $request->query('tab', 'periodos');
-        $tab = in_array($tab, ['periodos', 'tipos-actividad'], true) ? $tab : 'periodos';
+        $tab = in_array($tab, ['periodos', 'tipos-actividad', 'escala-notas'], true) ? $tab : 'periodos';
 
         return view('Rector.calificaciones.index', [
             'currentPage' => 'Calificaciones',
@@ -31,6 +34,7 @@ class CalificacionesController extends Controller
             'resumenPeriodos' => $tab === 'periodos' ? $this->resumenPeriodos() : null,
             'tiposActividad' => $tab === 'tipos-actividad' ? $this->buscarTiposActividad($request) : null,
             'resumenTiposActividad' => $tab === 'tipos-actividad' ? $this->resumenTiposActividad() : null,
+            'escalas' => $tab === 'escala-notas' ? EscalaNota::orderBy('orden')->get() : null,
         ]);
     }
 
@@ -96,8 +100,33 @@ class CalificacionesController extends Controller
 
         $query = $asignacion->actividades()->with(['periodo', 'tipo']);
 
-        if ($idPeriodo = $request->query('periodo')) {
+        // Sin filtro explícito en la URL (primera visita, o "Limpiar filtro"): arranca en el
+        // periodo activo en vez de "todos los periodos" — así las observaciones (solo visibles
+        // con un periodo elegido, ver vista) aparecen de una sin que el docente tenga que elegir
+        // nada. Si el docente elige "Todos los periodos" a propósito, sí se respeta (llega
+        // ?periodo= vacío, distinto de no traer el parámetro).
+        $idPeriodo = $request->has('periodo')
+            ? $request->query('periodo')
+            : Periodo::where('estado', 'activo')->value('id_periodo')
+                ?? Periodo::orderByDesc('anio_lectivo')->orderByDesc('fecha_inicio')->value('id_periodo');
+
+        if ($idPeriodo) {
             $query->where('id_periodo', $idPeriodo);
+        }
+
+        $estudiantes = $asignacion->curso->matriculas()
+            ->where('estado_matricula', 'activa')
+            ->with('estudiante.usuario')
+            ->get()
+            ->pluck('estudiante');
+
+        $observacionesExistentes = collect();
+        if ($idPeriodo) {
+            $observacionesExistentes = BoletinDetalle::where('id_asignacion', $asignacion->id_asignacion)
+                ->whereHas('boletin', fn ($q) => $q->where('id_periodo', $idPeriodo)->whereIn('id_estudiante', $estudiantes->pluck('id_estudiante')))
+                ->with('boletin')
+                ->get()
+                ->keyBy(fn ($detalle) => $detalle->boletin->id_estudiante);
         }
 
         return view('Rector.calificaciones.asignacion', [
@@ -107,7 +136,44 @@ class CalificacionesController extends Controller
             'periodos' => Periodo::orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
             'tiposActividad' => TipoActividad::where('estado', 'activo')->orderBy('nombre_tipo')->get(),
             'filtroPeriodo' => $idPeriodo,
+            'estudiantes' => $estudiantes,
+            'observacionesExistentes' => $observacionesExistentes,
+            'tiposObservacion' => BoletinDetalle::TIPOS_OBSERVACION,
         ]);
+    }
+
+    public function guardarObservaciones(Request $request, AsignacionAcademica $asignacion): JsonResponse
+    {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
+        $data = $request->validate([
+            'id_periodo' => ['required', 'integer', 'exists:periodos_academicos,id_periodo'],
+            'observaciones' => ['required', 'array'],
+            'observaciones.*.id_estudiante' => ['required', 'integer', 'exists:estudiantes,id_estudiante'],
+            'observaciones.*.tipo_observacion' => ['nullable', 'in:'.implode(',', BoletinDetalle::TIPOS_OBSERVACION)],
+            'observaciones.*.observacion_materia' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        foreach ($data['observaciones'] as $fila) {
+            $tipo = $fila['tipo_observacion'] ?? null;
+            $texto = $fila['observacion_materia'] ?? null;
+
+            if ($tipo === null && ($texto === null || $texto === '')) {
+                continue;
+            }
+
+            $boletin = Boletin::firstOrCreate(
+                ['id_estudiante' => $fila['id_estudiante'], 'id_periodo' => $data['id_periodo']],
+                ['estado' => 'borrador']
+            );
+
+            BoletinDetalle::updateOrCreate(
+                ['id_boletin' => $boletin->id_boletin, 'id_asignacion' => $asignacion->id_asignacion],
+                ['tipo_observacion' => $tipo, 'observacion_materia' => $texto]
+            );
+        }
+
+        return response()->json(['success' => true, 'message' => 'Observaciones guardadas correctamente.']);
     }
 
     public function notas(Request $request, Actividad $actividad): View

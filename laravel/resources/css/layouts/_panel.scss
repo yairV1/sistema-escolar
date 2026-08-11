@@ -600,6 +600,66 @@ body.has-sidebar.sidebar-collapsed {
 .campanita-item-meta { display: block; font-size: .72rem; color: var(--sb-text-faint); margin-top: 2px; }
 .campanita-item:not(.leida) .campanita-item-titulo::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--sb-primary); margin-right: 6px; }
 
+// ---------- Foto de perfil (dropzone circular, ver Mi perfil) — mismo
+// comportamiento que .logo-dropzone (configuracion-colegio) pero redondo
+// y más pequeño, para diferenciar avatar personal de logo institucional.
+.avatar-dropzone {
+    width: 96px;
+    height: 96px;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--bs-tertiary-bg);
+    transition: var(--cs-transition);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-dropzone:hover,
+.avatar-dropzone:focus-visible,
+.avatar-dropzone.drag-over {
+    border-color: $verde-medio;
+    background: var(--cs-verde-claro);
+}
+
+.avatar-dropzone:focus-visible { outline: 2px solid $verde-principal; outline-offset: 2px; }
+
+.avatar-dropzone img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-dropzone .dz-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--bs-secondary-color);
+    pointer-events: none;
+}
+
+.avatar-dropzone .dz-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, .55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .sidebar, .slink, .slink-toggle, .slink-child, .accordion-arrow, .nav-children,
     .child-dot, .td-dropup, .td-kebab, .sidebar-collapse i {

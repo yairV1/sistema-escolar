@@ -21,7 +21,7 @@
     </button>
 </div>
 
-<form method="GET" action="{{ route('gestion-academica.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
+<form method="GET" action="{{ route('gestion-academica.materias.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
     <input type="hidden" name="tab" value="materias">
     <div class="col-12 col-md-5">
         <div class="input-group">
@@ -38,7 +38,7 @@
         </select>
     </div>
     <div class="col-md-2 d-grid">
-        <a href="{{ route('gestion-academica.index', ['tab' => 'materias']) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+        <a href="{{ route('gestion-academica.materias.index', ['tab' => 'materias']) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
     </div>
 </form>
 
@@ -60,6 +60,7 @@
             <thead>
                 <tr>
                     <th>Materia</th>
+                    <th>Área</th>
                     <th>Intensidad horaria</th>
                     <th>Estado</th>
                     <th class="text-end">Acciones</th>
@@ -72,6 +73,13 @@
                             <div class="fw-semibold">{{ $materia->nombre_materia }}</div>
                             @if ($materia->descripcion)
                                 <div class="small text-secondary">{{ \Illuminate\Support\Str::limit($materia->descripcion, 80) }}</div>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($materia->area)
+                                <span class="badge text-bg-info-subtle text-info-emphasis">{{ $materia->area->nombre_area }}</span>
+                            @else
+                                <span class="text-secondary">—</span>
                             @endif
                         </td>
                         <td>{{ $materia->intensidad_horaria }} h/semana</td>
@@ -126,6 +134,16 @@
                         <div class="invalid-feedback" id="err-nm-nombre"></div>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Área</label>
+                        <select class="form-select" name="id_area" data-feedback="err-nm-area">
+                            <option value="">Sin área</option>
+                            @foreach ($todasLasAreas as $area)
+                                <option value="{{ $area->id_area }}">{{ $area->nombre_area }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback" id="err-nm-area"></div>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Descripción</label>
                         <textarea class="form-control" name="descripcion" rows="2" data-feedback="err-nm-descripcion"></textarea>
                         <div class="invalid-feedback" id="err-nm-descripcion"></div>
@@ -161,6 +179,16 @@
                             <input type="text" class="form-control" name="nombre_materia" value="{{ $materia->nombre_materia }}"
                                    data-feedback="err-em-nombre-{{ $materia->id_materia }}" required>
                             <div class="invalid-feedback" id="err-em-nombre-{{ $materia->id_materia }}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Área</label>
+                            <select class="form-select" name="id_area" data-feedback="err-em-area-{{ $materia->id_materia }}">
+                                <option value="">Sin área</option>
+                                @foreach ($todasLasAreas as $area)
+                                    <option value="{{ $area->id_area }}" @selected($materia->id_area == $area->id_area)>{{ $area->nombre_area }}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="err-em-area-{{ $materia->id_materia }}"></div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Descripción</label>

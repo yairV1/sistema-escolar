@@ -14,9 +14,13 @@ class PerfilController extends Controller
 {
     public function show(): View
     {
-        return view('Rector.perfil.index', [
+        $usuario = auth()->user();
+
+        $vista = $usuario->esSuperAdmin() ? 'SuperAdmin.perfil.index' : 'Rector.perfil.index';
+
+        return view($vista, [
             'currentPage' => 'Perfil',
-            'usuario' => auth()->user(),
+            'usuario' => $usuario,
         ]);
     }
 
@@ -46,7 +50,7 @@ class PerfilController extends Controller
 
         $usuario->update($data);
 
-        return response()->json(['success' => true, 'message' => 'Perfil actualizado correctamente.']);
+        return response()->json(['success' => true, 'message' => 'Perfil actualizado correctamente.', 'foto_perfil_url' => $usuario->fresh()->fotoPerfilUrl]);
     }
 
     public function updatePassword(Request $request): JsonResponse
