@@ -18,7 +18,30 @@
                     <tr>
                         <th style="min-width:260px;">Permiso</th>
                         @foreach ($roles as $rol)
-                            <th class="text-center">{{ $rol->nombre_rol }}</th>
+                            <th class="text-center">
+                                <div class="d-flex flex-column align-items-center gap-1">
+                                    <span>{{ $rol->nombre_rol }}</span>
+                                    @if ($rol->estado === 'activo')
+                                        <button type="button" class="badge text-bg-success border-0"
+                                                data-desactivar
+                                                data-url="{{ route('superadmin.roles.desactivar', $rol) }}"
+                                                data-nombre="{{ $rol->nombre_rol }}"
+                                                data-confirm-title="¿Desactivar el rol {{ $rol->nombre_rol }}?"
+                                                data-confirm-text="Los usuarios con este rol perderán su sesión activa y no podrán volver a iniciar sesión hasta que lo reactives."
+                                                title="Desactivar rol">
+                                            Activo
+                                        </button>
+                                    @else
+                                        <button type="button" class="badge text-bg-secondary border-0"
+                                                data-activar
+                                                data-url="{{ route('superadmin.roles.activar', $rol) }}"
+                                                data-nombre="{{ $rol->nombre_rol }}"
+                                                title="Reactivar rol">
+                                            Inactivo
+                                        </button>
+                                    @endif
+                                </div>
+                            </th>
                         @endforeach
                     </tr>
                 </thead>

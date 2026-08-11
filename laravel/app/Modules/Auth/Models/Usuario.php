@@ -145,9 +145,16 @@ class Usuario extends Authenticatable
         return array_values(self::ROLE_SLUGS);
     }
 
+    /**
+     * También bloquea cuentas cuyo rol fue desactivado desde SuperAdmin
+     * (Rol::estado) — antes solo se consultaba estado_usuario, así que un
+     * rol "inactivo" no impedía iniciar sesión a nadie. Único punto de
+     * verdad: login (LoginController), EnsureSuperAdmin y recuperación de
+     * contraseña (PasswordResetController) ya pasan todos por aquí.
+     */
     public function estaActivo(): bool
     {
-        return $this->estado_usuario === 'activo';
+        return $this->estado_usuario === 'activo' && $this->rol?->estado !== 'inactivo';
     }
 
     /**

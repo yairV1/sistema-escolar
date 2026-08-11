@@ -384,6 +384,8 @@ Route::middleware(['auth', 'superadmin', 'throttle:superadmin'])->prefix('supera
     Route::middleware('permission:plataforma.roles.gestionar')->prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RolPermisoController::class, 'index'])->name('index');
         Route::post('/', [RolPermisoController::class, 'update'])->name('update');
+        Route::post('/{rol}/desactivar', [RolPermisoController::class, 'desactivar'])->name('desactivar');
+        Route::post('/{rol}/activar', [RolPermisoController::class, 'activar'])->name('activar');
     });
 
     Route::middleware('permission:plataforma.auditoria.ver')->prefix('auditoria')->name('auditoria.')->group(function () {

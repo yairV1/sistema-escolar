@@ -1,5 +1,6 @@
 import { toast } from '../../components/alerts/toast';
 import { confirmAction } from '../../components/alerts/sweetAlert';
+import { initEstadoToggle } from '../../components/listActions';
 
 /**
  * No se usa FormData nativo: un checkbox sin marcar simplemente no aparece
@@ -57,3 +58,4 @@ function initFormMatriz() {
 }
 
 initFormMatriz();
+initEstadoToggle();

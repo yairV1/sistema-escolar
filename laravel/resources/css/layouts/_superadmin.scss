@@ -202,11 +202,66 @@ body[data-panel="superadmin"] {
     // pestañas — no solo tarjetas y gráficos. ----
     // Acotado a .panel-content: el sidebar (.slink, .td-item, etc.) trae
     // su propio color de texto vía _panel.scss y no debe heredar esto.
-    .panel-content a {
+    // :not(.btn) es necesario: sin él, esta regla (más específica que
+    // `.btn { color: var(--bs-btn-color) }`) le ganaba el texto a
+    // cualquier <a class="btn btn-primary">, dejando violeta claro sobre
+    // violeta oscuro (2.73:1, detectado por auditoría de contraste).
+    .panel-content a:not(.btn) {
         color: var(--sb-primary);
     }
-    .panel-content a:hover, .panel-content a:focus {
+    .panel-content a:not(.btn):hover, .panel-content a:not(.btn):focus {
         color: #a89df0;
+    }
+
+    // .text-bg-primary (badges de acción "editar" en auditoría, etc.):
+    // Bootstrap asume blanco sobre un primary oscuro — el nuestro es un
+    // violeta claro pensado para leerse sobre fondos oscuros, así que
+    // blanco encima falla contraste (3.12:1). Texto oscuro en su lugar.
+    .text-bg-primary {
+        color: #14101f !important;
+    }
+
+    // .text-secondary (subtítulos, descripciones, columnas secundarias en
+    // tablas — usado en casi todas las vistas): Bootstrap lo compila con
+    // el gris institucional pensado para fondo claro (#4a5568), que sobre
+    // el fondo casi negro del panel da 2.59:1 — detectado en auditoría
+    // como el fallo de contraste más extendido de todo el panel.
+    .text-secondary {
+        color: #a29bc4 !important;
+    }
+
+    // Mismo problema que .btn-primary: .btn-outline-secondary fija sus
+    // variables en tiempo de compilación con el mismo gris institucional.
+    .btn-outline-secondary {
+        --bs-btn-color: #a29bc4;
+        --bs-btn-border-color: #4a4270;
+        --bs-btn-hover-color: #14101f;
+        --bs-btn-hover-bg: #a29bc4;
+        --bs-btn-hover-border-color: #a29bc4;
+        --bs-btn-active-color: #14101f;
+        --bs-btn-active-bg: #a29bc4;
+        --bs-btn-active-border-color: #a29bc4;
+        --bs-btn-disabled-color: #a29bc4;
+        --bs-btn-disabled-border-color: #4a4270;
+    }
+
+    // Texto de los ítems activos del sidebar (.slink.active span): la
+    // regla compartida de _panel.scss usa --sb-primary-dark, pensada para
+    // el marrón medio del bronce original sobre su tinte claro — con el
+    // violeta oscuro nuevo sobre --sb-primary-light (también oscuro) cae a
+    // 1.83:1. El ícono ya usa --sb-primary (claro); el texto debe hacer lo
+    // mismo para leerse sobre el tinte oscuro.
+    .slink.active, .slink-toggle.active, .slink-child.active {
+        color: var(--sb-primary);
+    }
+
+    // Etiquetas de sección del sidebar ("PLATAFORMA", "AJUSTES"...): el
+    // gris apagado compartido (--sb-text-faint) se calibró para el fondo
+    // oscuro institucional (#101613); sobre el vidrio violeta del
+    // SuperAdmin (~#141121) queda por debajo del piso de contraste
+    // (4.05:1 de 4.5:1 exigido).
+    .nav-group-label {
+        color: #8b86a3;
     }
 
     .btn-primary {
@@ -233,6 +288,13 @@ body[data-panel="superadmin"] {
 
     .nav-pills {
         --bs-nav-pills-link-active-bg: var(--sb-primary-dark);
+    }
+    // Especificidad extra necesaria: .panel-content a:not(.btn) (arriba)
+    // también alcanza a .nav-link.active (es un <a>, no un .btn) y le
+    // pinta el texto en violeta claro sobre este mismo fondo oscuro
+    // (2.73:1, detectado por auditoría) — mismo problema que .btn-primary.
+    .nav-pills .nav-link.active {
+        color: #ffffff;
     }
 
     .dropdown-item.active, .dropdown-item:active {

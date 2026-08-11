@@ -74,4 +74,38 @@ class RolPermisoController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Matriz de permisos actualizada.']);
     }
+
+    /**
+     * Desactivar un rol bloquea el acceso de todos sus usuarios: invalida
+     * sus sesiones activas (EnsureSessionFresh, mismo mecanismo que al
+     * cambiar permisos arriba) y, vía Usuario::estaActivo(), les impide
+     * volver a iniciar sesión hasta que el rol se reactive.
+     */
+    public function desactivar(Request $request, Rol $rol): JsonResponse
+    {
+        abort_unless($this->policy->gestionar($request->user()), 403);
+        abort_if($rol->id_rol === self::ID_ROL_SUPERADMIN, 403, 'El rol SuperAdmin no se puede desactivar.');
+
+        $antes = ['estado' => $rol->estado];
+        $rol->update(['estado' => 'inactivo']);
+        DB::table('usuarios')->where('id_rol', $rol->id_rol)->update(['sesion_valida_desde' => now()]);
+        $this->auditLogger->record('rol.desactivar', $rol, $antes, ['estado' => 'inactivo']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Rol desactivado. Los usuarios con este rol perdieron su sesión activa y no podrán volver a iniciar sesión hasta que se reactive.',
+        ]);
+    }
+
+    public function activar(Request $request, Rol $rol): JsonResponse
+    {
+        abort_unless($this->policy->gestionar($request->user()), 403);
+        abort_if($rol->id_rol === self::ID_ROL_SUPERADMIN, 403);
+
+        $antes = ['estado' => $rol->estado];
+        $rol->update(['estado' => 'activo']);
+        $this->auditLogger->record('rol.activar', $rol, $antes, ['estado' => 'activo']);
+
+        return response()->json(['success' => true, 'message' => 'Rol reactivado correctamente.']);
+    }
 }
