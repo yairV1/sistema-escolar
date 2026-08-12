@@ -14,8 +14,7 @@
     @endforeach
 </div>
 
-<form method="GET" action="{{ route('listados') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
-    <input type="hidden" name="tab" value="estudiantes">
+<form method="GET" action="{{ route('listados.estudiantes.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
     <div class="col-12 col-md-4">
         <div class="input-group">
             <span class="input-group-text bg-body"><i class="fas fa-search"></i></span>
@@ -40,7 +39,7 @@
         </select>
     </div>
     <div class="col-md-2 d-grid">
-        <a href="{{ route('listados', ['tab' => 'estudiantes']) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+        <a href="{{ route('listados.estudiantes.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
     </div>
 </form>
 

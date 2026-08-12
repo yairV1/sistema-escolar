@@ -121,7 +121,9 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('soportes')->name('
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('listados')->group(function () {
-    Route::get('/', [ListadosController::class, 'index'])->name('listados');
+    Route::get('/estudiantes', [ListadosController::class, 'estudiantes'])->name('listados.estudiantes.index');
+    Route::get('/docentes', [ListadosController::class, 'docentes'])->name('listados.docentes.index');
+    Route::get('/administrativos', [ListadosController::class, 'administrativos'])->name('listados.administrativos.index');
     Route::post('/estudiantes/{estudiante}/desactivar', [ListadosController::class, 'desactivarEstudiante'])->name('listados.estudiantes.desactivar');
     Route::post('/estudiantes/{estudiante}/activar', [ListadosController::class, 'activarEstudiante'])->name('listados.estudiantes.activar');
     Route::post('/docentes/{profesor}/desactivar', [ListadosController::class, 'desactivarDocente'])->name('listados.docentes.desactivar');

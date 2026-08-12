@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         // Nombre, logo y demás datos institucionales: antes quemados en cada
         // vista/mailable, ahora vienen todos de la fila única de configuración.
         View::composer(
-            ['layouts.auth', 'layouts.panel', 'Rector.dashboard.index', 'website.index'],
+            ['layouts.auth', 'layouts.panel', 'layouts.rector', 'Rector.dashboard.index', 'website.index'],
             fn ($view) => $view->with('colegioConfiguracion', ColegioConfiguracion::singleton()),
         );
 
