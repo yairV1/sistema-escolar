@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
     <title>@yield('title', 'Iniciar sesión') · {{ $colegioConfiguracion->nombre_colegio }}</title>
+    <link rel="icon" href="{{ $colegioConfiguracion->logoUrl ?? asset('favicon.ico') }}">
 
     {{-- Fija el tema antes del primer paint para evitar el parpadeo --}}
     <script>

@@ -2,10 +2,10 @@
 // CALENDARIO INSTITUCIONAL — layout, sidebar, estados y tema de FullCalendar
 // =============================================================
 
-// ---------- Layout: sidebar + calendario principal ----------
+// ---------- Layout: sidebar + calendario principal + próximos eventos ----------
 .calendario-layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 260px 1fr 280px;
     gap: 16px;
     align-items: start;
 }
@@ -18,12 +18,15 @@
     top: 16px;
 }
 
+// Mismos tokens que .card en _rector.scss (border-radius: 1.1rem,
+// box-shadow: var(--rc-card-shadow)) en vez de valores propios — la
+// tarjeta del sidebar debe verse igual de "tarjeta" que el resto del panel.
 .calendario-sidebar__bloque {
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color-translucent);
-    border-radius: $border-radius-lg;
+    background: var(--bs-card-bg, var(--bs-body-bg));
+    border: 1px solid var(--bs-card-border-color, var(--bs-border-color-translucent));
+    border-radius: 1.1rem;
     padding: 12px;
-    box-shadow: 0 1px 3px rgba(11, 11, 11, .05);
+    box-shadow: var(--rc-card-shadow, 0 1px 3px rgba(11, 11, 11, .05));
 }
 
 .calendario-sidebar__titulo {
@@ -63,6 +66,13 @@
     .calendario-sidebar__bloque {
         flex: 1 1 220px;
     }
+
+    // Secundario en pantallas chicas: se apila debajo de .calendario-main
+    // (ya es el último hijo de .calendario-layout en el markup) en vez de
+    // competir por espacio con la grilla del mes.
+    .calendario-proximos {
+        position: static;
+    }
 }
 
 // ---------- Categorías (toggles) ----------
@@ -79,18 +89,26 @@
     --categoria-color: var(--bs-secondary-color);
 }
 
+// Fila tipo "píldora": redondeada del todo, con un tinte del color de la
+// categoría cuando está marcada — mismo color-mix() que ya usa el punto
+// (línea de abajo) y el bloque de evento en FullCalendar, para que las tres
+// cosas (checkbox marcado, punto, evento en la grilla) lean como una unidad.
 .calendario-categoria-toggle {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 8px;
-    border-radius: $border-radius-sm;
+    padding: 6px 10px;
+    border-radius: $border-radius-pill;
     cursor: pointer;
     font-size: .82rem;
     transition: background-color .15s ease;
 
     &:hover {
         background: var(--bs-tertiary-bg);
+    }
+
+    &:has(input:checked) {
+        background: color-mix(in srgb, var(--categoria-color) 12%, transparent);
     }
 
     input[type="checkbox"] {
@@ -119,6 +137,76 @@
     flex-shrink: 0;
     background: var(--categoria-color);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--categoria-color) 22%, transparent);
+}
+
+// ---------- Próximos eventos (panel derecho) ----------
+.calendario-proximos {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.calendario-proximos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.calendario-proximo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: $border-radius-sm;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease;
+
+    &:hover {
+        background: var(--bs-tertiary-bg);
+    }
+
+    // El punto se alinea con la primera línea de texto, no con todo el bloque.
+    .calendario-categoria-dot {
+        margin-top: 5px;
+    }
+}
+
+.calendario-proximo-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.calendario-proximo-fecha {
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--bs-secondary-color);
+}
+
+.calendario-proximo-titulo {
+    font-size: .84rem;
+    color: var(--bs-body-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendario-proximos-vacio {
+    padding: 20px 8px;
+    text-align: center;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
 }
 
 // ---------- Mini-calendario ----------
@@ -261,8 +349,10 @@
 // ---------- Bloques de evento ----------
 // Mismo lenguaje visual que _horarios.scss (borde izquierdo + degradado
 // sutil + punto), con --categoria-color en vez de --bloque-color: son
-// contextos distintos (grilla de horarios vs. FullCalendar).
-.fc-event.calendario-evento {
+// contextos distintos (grilla de horarios vs. FullCalendar). Se acota a
+// timeGrid (semana/día) — dayGridMonth usa eventDisplay:'list-item' (ver
+// calendar-ui.js) y sus puntos se estilan más abajo, no esta barra.
+.fc-timegrid .fc-event.calendario-evento {
     border: none;
     border-left: 3px solid var(--categoria-color, var(--bs-secondary-color));
     background: color-mix(in srgb, var(--categoria-color, var(--bs-secondary-color)) 12%, var(--bs-body-bg));
@@ -284,6 +374,14 @@
 .fc-list-event.calendario-evento .fc-list-event-dot {
     border-color: var(--categoria-color, var(--bs-secondary-color)) !important;
     background: var(--categoria-color, var(--bs-secondary-color));
+}
+
+// dayGridMonth con eventDisplay:'list-item' (calendar-ui.js): FullCalendar ya
+// genera el punto (.fc-daygrid-event-dot) — mismo idioma que el punto de
+// .fc-list-event de arriba, coloreado con la misma --categoria-color que
+// aplicarColorEvento() ya fija en cada .fc-event vía eventDidMount.
+.fc-daygrid-dot-event.calendario-evento .fc-daygrid-event-dot {
+    border-color: var(--categoria-color, var(--bs-secondary-color)) !important;
 }
 
 // ---------- Drag & drop (Fase 3) ----------

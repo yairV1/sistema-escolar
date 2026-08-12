@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends(in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel')
 
 @section('title', 'Calificar: '.$actividad->titulo)
 

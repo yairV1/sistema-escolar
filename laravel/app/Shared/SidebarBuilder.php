@@ -129,7 +129,10 @@ class SidebarBuilder
                     %s
                     <i class="bi bi-chevron-right accordion-arrow"></i>
                 </button>
-                <ul class="nav-children" %s>%s</ul>
+                <ul class="nav-children" %s>
+                    <li class="flyout-title">%s</li>
+                    %s
+                </ul>
             </li>',
             $isOpen ? ' is-open' : '',
             $childrenActive ? ' active' : '',
@@ -139,6 +142,7 @@ class SidebarBuilder
             $this->esc($item['title']),
             $this->renderBadge($item['badge'] ?? null),
             $isOpen ? '' : 'style="display:none;"',
+            $this->esc($item['title']),
             $childrenHtml,
         );
     }

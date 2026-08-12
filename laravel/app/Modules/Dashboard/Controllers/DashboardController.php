@@ -3,6 +3,7 @@
 namespace App\Modules\Dashboard\Controllers;
 
 use App\Core\Http\Controllers\Controller;
+use App\Modules\Calendario\Models\Evento;
 use App\Modules\Comunicados\Models\Notificacion;
 use App\Modules\Matriculas\Models\Matricula;
 use App\Modules\Matriculas\Models\SolicitudAdmision;
@@ -67,6 +68,41 @@ class DashboardController extends Controller
             ->orderBy('cursos.nombre_curso')
             ->get();
 
+        // Conteo de matriculados por curso para la tabla del dashboard — en
+        // una consulta aparte de $promedioPorGrado porque esa cuenta solo
+        // cursa con boletín publicado (undercuenta matrícula real); acá se
+        // cuenta la matrícula activa del año en curso, mismo criterio que
+        // $estudiantesMatriculados arriba.
+        $estudiantesPorCurso = DB::table('cursos')
+            ->join('matriculas', 'matriculas.id_curso', '=', 'cursos.id_curso')
+            ->where('cursos.id_institucion', $idInstitucion)
+            ->where('matriculas.anio_lectivo', $anioActual)
+            ->where('matriculas.estado_matricula', 'activa')
+            ->select('cursos.nombre_curso', DB::raw('COUNT(DISTINCT matriculas.id_estudiante) as total'))
+            ->groupBy('cursos.nombre_curso')
+            ->pluck('total', 'cursos.nombre_curso');
+
+        $promedioPorGrado = $promedioPorGrado->map(function ($curso) use ($estudiantesPorCurso) {
+            $curso->total_estudiantes = $estudiantesPorCurso[$curso->nombre_curso] ?? 0;
+
+            return $curso;
+        });
+
+        // Calendario no filtra por institución en ningún punto reutilizable
+        // hoy (ver VisibilidadCalendarioService — para admin/rector devuelve
+        // "ve todo curso", no "ve todo lo de su institución"), así que ese
+        // aislamiento se hace acá mismo, vía el creador del evento — mismo
+        // patrón que $comunicadosRecientes más abajo. fecha_fin >= hoy (no
+        // fecha_inicio) para no perder un evento multi-día ya iniciado.
+        $proximosEventos = Evento::activos()
+            ->whereHas('creador', fn ($q) => $q->where('id_institucion', $idInstitucion))
+            ->where('fecha_fin', '>=', now()->toDateString())
+            ->with('categoria')
+            ->orderBy('fecha_inicio')
+            ->orderBy('hora_inicio')
+            ->limit(4)
+            ->get();
+
         $matriculasRecientes = Matricula::with(['estudiante.usuario', 'curso'])
             ->whereHas('estudiante.usuario', fn ($q) => $q->where('id_institucion', $idInstitucion))
             ->orderByDesc('fecha_matricula')
@@ -109,6 +145,7 @@ class DashboardController extends Controller
                 'estudiantesEnRiesgo' => $estudiantesEnRiesgo,
             ],
             'promedioPorGrado' => $promedioPorGrado,
+            'proximosEventos' => $proximosEventos,
             'matriculasRecientes' => $matriculasRecientes,
             'docentesLista' => $docentesLista,
             'estudiantesMuestra' => $estudiantesMuestra,

@@ -45,6 +45,14 @@ class ConfiguracionColegioController extends Controller
 
         $configuracion->update($data);
 
+        // El sidebar del panel institucional muestra el logo de la Institucion
+        // del usuario logueado (modelo multi-tenant), no el de este singleton
+        // legacy — sin este sync, subir/quitar el logo acá nunca se reflejaba
+        // ahí y parecía que el logo se había quedado "pegado".
+        if (array_key_exists('logo', $data)) {
+            auth()->user()?->institucion?->update(['logo' => $data['logo']]);
+        }
+
         return response()->json(['success' => true, 'message' => 'Configuración actualizada correctamente.']);
     }
 

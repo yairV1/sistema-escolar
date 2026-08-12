@@ -16,6 +16,7 @@ class SoporteStoreRequest extends FormRequest
         return [
             'asunto' => ['required', 'string', 'max:150'],
             'mensaje' => ['required', 'string', 'max:2000'],
+            'imagen' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

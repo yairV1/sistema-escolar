@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', $profesor ? 'Editar docente' : 'Registro de docentes')
 
@@ -10,7 +10,7 @@
 @endphp
 
 @section('content')
-    <div class="container-fluid p-3 p-md-4" style="max-width: 700px;">
+    <div class="container-fluid p-3 p-md-4" style="max-width: 1080px;">
         <div class="d-flex align-items-center gap-2 mb-3">
             <a href="{{ route('listados', ['tab' => 'docentes']) }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
@@ -18,14 +18,18 @@
             <h1 class="h4 fw-semibold font-serif mb-0">{{ $profesor ? 'Editar docente' : 'Registro de docentes' }}</h1>
         </div>
 
-        <div class="wizard-pills">
-            <div class="wizard-pill active" data-step-link="1"><span class="step-num"><span>1</span></span> Datos personales</div>
-            <div class="wizard-pill" data-step-link="2"><span class="step-num"><span>2</span></span> Datos profesionales</div>
-        </div>
+        <form id="wizardForm" class="wizard-layout" novalidate>
+            <aside class="wizard-rail">
+                <ol class="wizard-rail-list">
+                    <li class="wizard-pill active" data-step-link="1"><span class="step-num"><span>1</span></span> <span class="step-label">Datos personales</span></li>
+                    <li class="wizard-pill" data-step-link="2"><span class="step-num"><span>2</span></span> <span class="step-label">Datos profesionales</span></li>
+                </ol>
+            </aside>
 
-        <form id="wizardForm" novalidate>
+            <div class="wizard-content">
             <div class="wizard-step card mb-3" data-step="1">
                 <div class="card-body">
+                    <p class="wizard-step-eyebrow">Datos personales</p>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Primer nombre *</label>
@@ -78,6 +82,7 @@
 
             <div class="wizard-step card mb-3 d-none" data-step="2">
                 <div class="card-body">
+                    <p class="wizard-step-eyebrow">Datos profesionales</p>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Profesión</label>
@@ -94,9 +99,9 @@
                     </div>
                     <div class="row g-3 mt-1">
                         <div class="col-12">
-                            <label class="form-label">Materias que dicta</label>
+                            <label class="form-label">Asignaturas que dicta</label>
                             @if ($materias->isEmpty())
-                                <p class="text-secondary small mb-0">No hay materias activas registradas todavía. Puedes crearlas en <strong>Gestión Académica</strong> y asignarlas después desde el detalle del docente.</p>
+                                <p class="text-secondary small mb-0">No hay asignaturas activas registradas todavía. Puedes crearlas en <strong>Gestión Académica</strong> y asignarlas después desde el detalle del docente.</p>
                             @else
                                 <div class="row row-cols-2 row-cols-md-3 g-2 border rounded p-2" style="max-height: 220px; overflow-y: auto;">
                                     @foreach ($materias as $materia)
@@ -114,7 +119,7 @@
                     </div>
                     <div class="alert alert-secondary mt-3 mb-0 small">
                         <i class="fas fa-circle-info me-1"></i>
-                        El curso y el año lectivo de cada materia se asignan desde <strong>Gestión Académica</strong> una vez el docente esté registrado.
+                        El curso y el año lectivo de cada asignatura se asignan desde <strong>Gestión Académica</strong> una vez el docente esté registrado.
                     </div>
                 </div>
             </div>
@@ -131,6 +136,7 @@
                         <i class="fas fa-save me-1"></i> {{ $profesor ? 'Guardar cambios' : 'Registrar docente' }}
                     </button>
                 </div>
+            </div>
             </div>
         </form>
     </div>

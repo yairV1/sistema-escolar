@@ -21,8 +21,7 @@
     </button>
 </div>
 
-<form method="GET" action="{{ route('gestion-academica.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
-    <input type="hidden" name="tab" value="cursos">
+<form method="GET" action="{{ route('gestion-academica.cursos.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
     <div class="col-12 col-md-4">
         <div class="input-group">
             <span class="input-group-text bg-body"><i class="fas fa-search"></i></span>
@@ -47,7 +46,7 @@
         </select>
     </div>
     <div class="col-md-2 d-grid">
-        <a href="{{ route('gestion-academica.index', ['tab' => 'cursos']) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+        <a href="{{ route('gestion-academica.cursos.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
     </div>
 </form>
 
@@ -128,6 +127,7 @@
     {{ $cursos->links('pagination::bootstrap-5') }}
 @endif
 
+@push('modals')
 @php
     $nivelesOpciones = ['preescolar' => 'Preescolar', 'primaria' => 'Primaria', 'secundaria' => 'Secundaria', 'media' => 'Media'];
     $jornadasOpciones = ['manana' => 'Mañana', 'tarde' => 'Tarde', 'noche' => 'Noche', 'unica' => 'Única'];
@@ -258,3 +258,4 @@
         </div>
     </div>
 @endforeach
+@endpush

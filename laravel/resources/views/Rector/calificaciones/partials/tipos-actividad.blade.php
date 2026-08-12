@@ -105,6 +105,7 @@
     {{ $tiposActividad->links('pagination::bootstrap-5') }}
 @endif
 
+@push('modals')
 {{-- Modal: nuevo tipo de actividad --}}
 <div class="modal fade" id="modalNuevoTipoActividad" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -168,3 +169,4 @@
         </div>
     </div>
 @endforeach
+@endpush

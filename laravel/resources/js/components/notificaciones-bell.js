@@ -31,7 +31,7 @@ export function initNotificacionesBell() {
         }
 
         lista.innerHTML = notificaciones.map((n) => `
-            <a href="${calendarioUrl}" class="campanita-item ${n.leida ? 'leida' : ''}">
+            <a href="${n.url || calendarioUrl}" class="campanita-item ${n.leida ? 'leida' : ''}">
                 <span class="campanita-item-titulo">${escaparHtml(n.titulo)}</span>
                 <span class="campanita-item-meta">${escaparHtml(n.creada_hace)}</span>
             </a>
@@ -63,6 +63,13 @@ export function initNotificacionesBell() {
     toggle.addEventListener('click', (e) => {
         e.stopPropagation();
         const abrir = !panel.classList.contains('open');
+
+        // Mismo motivo que el cierre simétrico en components/sidebar.js:
+        // el menú de usuario también usa stopPropagation() en su propio
+        // toggle, así que sin este cierre explícito ambos paneles pueden
+        // quedar abiertos y superpuestos a la vez.
+        document.getElementById('userMenuDropup')?.classList.remove('open');
+        document.getElementById('userMenuToggle')?.setAttribute('aria-expanded', 'false');
 
         if (abrir) {
             panel.classList.add('open');

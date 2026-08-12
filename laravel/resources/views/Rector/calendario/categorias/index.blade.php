@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Categorías del calendario')
 
@@ -94,8 +94,10 @@
         </table>
     </div>
 </div>
+@endsection
 
-{{-- Modal: nueva categoría --}}
+@push('modals')
+    {{-- Modal: nueva categoría --}}
 <div class="modal fade" id="modalNuevaCategoria" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -126,7 +128,7 @@
         </div>
     </div>
 @endforeach
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/calendario/categorias.js')

@@ -111,6 +111,7 @@
     {{ $periodos->links('pagination::bootstrap-5') }}
 @endif
 
+@push('modals')
 {{-- Modal: nuevo periodo --}}
 <div class="modal fade" id="modalNuevoPeriodo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -209,3 +210,4 @@
         </div>
     </div>
 @endforeach
+@endpush

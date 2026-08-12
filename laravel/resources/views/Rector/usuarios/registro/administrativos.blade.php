@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', $admin ? 'Editar administrativo' : 'Registro de administrativos')
 

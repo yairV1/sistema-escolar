@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Observaciones')
 
@@ -139,6 +139,9 @@
         @endif
     </div>
 
+@endsection
+
+@push('modals')
     @php
         $tiposOpciones = ['academica' => 'Académica', 'disciplinaria' => 'Disciplinaria', 'convivencia' => 'Convivencia', 'positiva' => 'Positiva'];
         $nivelesOpciones = ['baja' => 'Baja', 'media' => 'Media', 'alta' => 'Alta'];
@@ -289,7 +292,7 @@
             </div>
         </div>
     @endforeach
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/observaciones/observaciones.js')

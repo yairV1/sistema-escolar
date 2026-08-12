@@ -9,6 +9,7 @@ use App\Modules\Comunicados\Models\Notificacion;
 use App\Modules\Comunicados\Requests\ComunicadoRequest;
 use App\Modules\Comunicados\Services\WhatsappCloudService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -45,6 +46,30 @@ class ComunicadosController extends Controller
         return view('Rector.comunicados.index', [
             'currentPage' => 'Comunicados',
             'comunicados' => $comunicados,
+        ]);
+    }
+
+    /** Reconstruye el "comunicado" a partir del mismo criterio de agrupación que index(): no hay un id de lote propio, así que titulo+tipo+canal+fecha_envio identifican el envío. */
+    public function detalle(Request $request): View
+    {
+        $filtros = $request->only(['titulo', 'tipo_notificacion', 'canal', 'fecha_envio']);
+
+        $notificaciones = Notificacion::query()
+            ->where('titulo', $filtros['titulo'] ?? null)
+            ->where('tipo_notificacion', $filtros['tipo_notificacion'] ?? null)
+            ->where('canal', $filtros['canal'] ?? null)
+            ->where('fecha_envio', $filtros['fecha_envio'] ?? null)
+            ->with('destino')
+            ->orderBy('leida')
+            ->orderBy('id_notificacion')
+            ->get();
+
+        abort_if($notificaciones->isEmpty(), 404);
+
+        return view('Rector.comunicados.detalle', [
+            'currentPage' => 'Comunicados',
+            'comunicado' => $notificaciones->first(),
+            'notificaciones' => $notificaciones,
         ]);
     }
 

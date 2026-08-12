@@ -40,7 +40,7 @@
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th>Materia</th>
+                        <th>Asignatura</th>
                         <th>Profesor</th>
                         <th>Nota definitiva</th>
                     </tr>
@@ -57,7 +57,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="3" class="text-center text-secondary py-4">Sin materias registradas.</td></tr>
+                        <tr><td colspan="3" class="text-center text-secondary py-4">Sin asignaturas registradas.</td></tr>
                     @endforelse
                 </tbody>
             </table>

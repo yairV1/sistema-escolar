@@ -1,0 +1,613 @@
+// =============================================================
+// PANEL RECTOR — identidad visual propia (azul/violeta, inspirada en un
+// dashboard educativo de referencia), construida sobre el mismo shell de
+// _panel.scss (sidebar, dashboard, componentes de Bootstrap) pero con su
+// propio sistema de color. A diferencia de SuperAdmin (_superadmin.scss),
+// el Rector SÍ conserva el toggle claro/oscuro institucional — por eso este
+// archivo define dos juegos de tokens (claro en el bloque base, oscuro bajo
+// [data-bs-theme="dark"]) en vez de uno solo.
+//
+// Mismo mecanismo que SuperAdmin: varios componentes de Bootstrap fijan su
+// color en variables LOCALES a su propia clase en tiempo de compilación
+// (--bs-btn-bg dentro de .btn-primary, etc.), no solo en --bs-primary
+// global — así que además de redefinir custom properties se repiten los
+// mismos puntuales que allí (.btn-primary, .btn-outline-secondary,
+// .form-check-input, .table-secondary, .pagination, .nav-pills), una vez
+// por modo.
+// =============================================================
+
+body[data-panel="rector"] {
+    // ---------- Modo claro (valores base) ----------
+    --sb-primary: #6f5cf6;
+    --sb-primary-dark: #5142d1;
+    --sb-primary-light: #eeecff;
+    --sb-secondary: #4f8cff;
+
+    --sb-bg: #ffffff;
+    --sb-bg-alt: #f4f5fb;
+    --sb-border: #e6e8f5;
+    --sb-text: #262a4d;
+    --sb-text-muted: #6b7099;
+    --sb-text-faint: #9ea3cf;
+
+    --sb-badge-info-bg: #eeecff;
+    --sb-badge-info-text: #5142d1;
+    --sb-badge-pendiente-bg: #fff3e0;
+    --sb-badge-pendiente-text: #b5690a;
+    --sb-badge-urgente-bg: #ffe9ec;
+    --sb-badge-urgente-text: #c22b45;
+    --sb-badge-novedad-bg: #e8f0ff;
+    --sb-badge-novedad-text: #2f66d6;
+
+    --sb-shadow-md: 0 10px 34px rgba(76, 66, 168, .14);
+    --sb-shadow-tooltip: 0 8px 22px rgba(76, 66, 168, .18);
+
+    // ---- Tokens propios del panel rector ----
+    --rc-card-shadow: 0 10px 28px rgba(76, 66, 168, .08), 0 2px 6px rgba(76, 66, 168, .06);
+    --rc-hero-gradient: linear-gradient(135deg, #6f5cf6 0%, #4f8cff 100%);
+
+    --bs-body-bg: #f6f7fc;
+    --bs-body-bg-rgb: 246, 247, 252;
+    --bs-body-color: #262a4d;
+    --bs-body-color-rgb: 38, 42, 77;
+    --bs-tertiary-bg: #f4f5fb;
+    --bs-tertiary-bg-rgb: 244, 245, 251;
+    --bs-secondary-bg: #eef0fa;
+    --bs-secondary-bg-rgb: 238, 240, 250;
+    --bs-emphasis-color: #14162b;
+    --bs-emphasis-color-rgb: 20, 22, 43;
+    --bs-border-color: #e6e8f5;
+    --bs-border-color-translucent: #e6e8f5;
+    --bs-card-bg: #ffffff;
+    --bs-card-border-color: #e6e8f5;
+    --bs-tertiary-color: #6b7099;
+    --bs-secondary-color: #6b7099;
+
+    --bs-primary: #6f5cf6;
+    --bs-primary-rgb: 111, 92, 246;
+    --bs-primary-bg-subtle: #eeecff;
+    --bs-primary-border-subtle: #d6d0fb;
+    --bs-primary-text-emphasis: #5142d1;
+
+    --cs-dorado: #6f5cf6;
+    --cs-dorado-suave: #eeecff;
+    --cs-verde-oscuro: #262a4d;
+    --cs-verde-claro: #eeecff;
+    --cs-verde-suave: #e3e0fd;
+
+    color: var(--bs-body-color);
+
+    .font-serif,
+    h1, h2, h3, h4, h5, h6,
+    .h1, .h2, .h3, .h4, .h5, .h6,
+    .kpi-value {
+        letter-spacing: -.01em;
+    }
+
+    .kpi-value, .tnum { font-variant-numeric: tabular-nums; }
+
+    // ---------- Tarjetas: esquinas más redondeadas + elevación propia ----------
+    .card {
+        border-radius: 1.1rem;
+        border-color: var(--bs-card-border-color);
+        box-shadow: var(--rc-card-shadow);
+    }
+
+    .kpi-card {
+        border: 1px solid var(--bs-card-border-color);
+        border-radius: 1.1rem;
+        box-shadow: var(--rc-card-shadow);
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(76, 66, 168, .14), 0 2px 8px rgba(76, 66, 168, .08);
+    }
+    .kpi-icon { border-radius: 50%; width: 44px; height: 44px; font-size: 1.05rem; }
+
+    // ---------- Hero de bienvenida ----------
+    .dash-welcome { background: var(--rc-hero-gradient); border-radius: 1.25rem; }
+    // Versión más baja: menos scroll para llegar al resto del dashboard.
+    .dash-welcome-compact { padding: 1rem 1.5rem; }
+
+    // ---------- Listas del dashboard (Matrículas/Docentes/Estudiantes/
+    // Comunicados): alto fijo con scroll propio en vez de estirar la
+    // página — la tarjeta no crece con la cantidad de datos.
+    .dash-list-scroll {
+        max-height: 260px;
+        overflow-y: auto;
+    }
+    .dash-list-scroll::-webkit-scrollbar { width: 5px; }
+    .dash-list-scroll::-webkit-scrollbar-thumb { background: var(--sb-border); border-radius: 10px; }
+
+    // ---------- Shell flotante: sidebar como tarjeta separada del contenido
+    // (no pegada al borde), con una barra superior propia — en vez del
+    // sidebar de borde a borde que usan el resto de paneles. ----------
+    --rc-shell-gap: 20px;
+
+    &.has-sidebar {
+        margin-left: calc(var(--sb-width) + var(--rc-shell-gap) * 2);
+    }
+    &.has-sidebar.sidebar-collapsed {
+        margin-left: calc(var(--sb-width-collapsed) + var(--rc-shell-gap) * 2);
+    }
+
+    .sidebar {
+        top: var(--rc-shell-gap);
+        left: var(--rc-shell-gap);
+        height: calc(100vh - var(--rc-shell-gap) * 2);
+        border-radius: 1.25rem;
+        border: 1px solid var(--sb-border);
+        box-shadow: var(--rc-card-shadow);
+    }
+
+    @media (max-width: 1024px) {
+        // En móvil el sidebar vuelve a ser un drawer de borde a borde:
+        // flotar con margen no tiene sentido cuando ocupa toda la pantalla.
+        .sidebar {
+            top: 0;
+            left: 0;
+            height: 100vh;
+            border-radius: 0;
+            border-width: 0 1px 0 0;
+        }
+        &.has-sidebar, &.has-sidebar.sidebar-collapsed { margin-left: 0; }
+    }
+
+    // ---------- Barra superior (buscador + notificaciones + tema + usuario) ----------
+    .rc-topbar {
+        position: sticky;
+        top: var(--rc-shell-gap);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: var(--rc-shell-gap) var(--rc-shell-gap) var(--rc-shell-gap) 0;
+        padding: 10px 16px;
+        border-radius: 1rem;
+        background: var(--bs-card-bg);
+        border: 1px solid var(--bs-card-border-color);
+        box-shadow: var(--rc-card-shadow);
+    }
+
+    // Contenedor de cada página, envuelto a propósito en una capa de
+    // apilamiento propia (z-index explícito, aunque bajo) para que NINGÚN
+    // elemento de contenido — sea cual sea el z-index que traiga por dentro
+    // (tabs, modales mal cerrados, badges, etc.) — pueda pintar por encima
+    // de la barra superior o del sidebar. No es una corrección puntual de
+    // un caso, es un techo estructural: si algo del contenido "se escapa",
+    // como mucho llega hasta acá, nunca más arriba.
+    .rc-page {
+        position: relative;
+        z-index: 1;
+    }
+
+    .rc-search {
+        position: relative;
+        flex: 1;
+        max-width: 360px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--sb-bg-alt);
+        border: 1px solid var(--sb-border);
+        color: var(--sb-text-faint);
+    }
+    .rc-search input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        outline: none;
+        color: var(--sb-text);
+        font-size: .85rem;
+    }
+    .rc-search input::placeholder { color: var(--sb-text-faint); }
+
+    // ---------- Resultados en vivo del buscador ----------
+    .rc-search-results {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        max-height: 60vh;
+        overflow-y: auto;
+        background: var(--sb-bg);
+        border: 1px solid var(--sb-border);
+        border-radius: .85rem;
+        box-shadow: var(--rc-card-shadow);
+        padding: 8px;
+        z-index: 50;
+        display: none;
+    }
+    .rc-search-results.open { display: block; }
+
+    .rc-search-group { margin-bottom: 6px; }
+    .rc-search-group:last-child { margin-bottom: 0; }
+    .rc-search-group-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--sb-text-faint);
+        padding: 6px 10px 4px;
+    }
+
+    .rc-search-item {
+        display: flex;
+        flex-direction: column;
+        padding: 7px 10px;
+        border-radius: var(--sb-radius-sm, 8px);
+        text-decoration: none;
+        transition: background .15s ease;
+    }
+    .rc-search-item:hover, .rc-search-item:focus-visible { background: var(--sb-bg-alt); }
+    .rc-search-item-titulo { font-size: .85rem; font-weight: 600; color: var(--sb-text); }
+    .rc-search-item-sub { font-size: .74rem; color: var(--sb-text-muted); }
+
+    .rc-search-empty {
+        padding: 14px 10px;
+        text-align: center;
+        font-size: .82rem;
+        color: var(--sb-text-faint);
+    }
+
+    .rc-topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+        position: relative;
+    }
+
+    .rc-topbar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 10px 4px 4px;
+        border: none;
+        background: transparent;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background .2s ease;
+    }
+    .rc-topbar-user:hover { background: var(--sb-bg-alt); }
+    .rc-topbar-user .td-avatar { width: 38px; height: 38px; font-size: .74rem; }
+    .rc-topbar-user .td-info { text-align: left; line-height: 1.2; }
+    .rc-topbar-user .td-name { margin: 0; font-size: .82rem; }
+    .rc-topbar-user .td-email { margin: 0; }
+    .rc-topbar-user-chevron { font-size: 11px; color: var(--sb-text-faint); transition: transform .2s ease; }
+    .rc-topbar-user[aria-expanded="true"] .rc-topbar-user-chevron { transform: rotate(180deg); }
+
+    // El dropdown compartido (.td-dropup) por defecto se abre hacia ARRIBA
+    // (pensado para vivir al pie del sidebar) — acá vive en una barra
+    // superior, así que se reabre hacia abajo, alineado a la derecha.
+    .rc-topbar-actions .td-dropup {
+        left: auto;
+        right: 0;
+        bottom: auto;
+        top: calc(100% + 8px);
+        width: 200px;
+        transform: translateY(-6px);
+    }
+    .rc-topbar-actions .td-dropup.open { transform: translateY(0); }
+
+    @media (max-width: 768px) {
+        .rc-search { display: none; }
+    }
+    @media (max-width: 1024px) {
+        // Deja espacio al botón hamburguesa fijo (top:14px;left:14px) que
+        // solo existe en este breakpoint — si no, se solapan.
+        .rc-topbar { padding-left: 64px; }
+    }
+
+    // ---------- Cerrar sesión (pie del sidebar) ----------
+    .sidebar-footer { padding: 12px; border-top: 1px solid var(--sb-border); }
+    .sidebar-logout {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        background: transparent;
+        color: var(--sb-text-muted);
+        border-radius: var(--sb-radius-sm, 8px);
+        cursor: pointer;
+        text-align: left;
+        font-size: .85rem;
+        font-weight: 600;
+        transition: background .2s ease, color .2s ease;
+    }
+    .sidebar-logout:hover { background: var(--sb-bg-alt); color: #e53e3e; }
+    .sidebar.collapsed .sidebar-logout { justify-content: center; padding: 10px 4px; }
+    .sidebar.collapsed .sidebar-logout span { display: none; }
+
+    // ---------- Gráfica de barras: degradado del acento en vez de color plano ----------
+    .chart-bar.bg-primary {
+        background: linear-gradient(180deg, var(--sb-secondary) 0%, var(--sb-primary) 100%) !important;
+        border-radius: 6px 6px 2px 2px;
+    }
+
+    // ---------- Avatar circular: usaba el degradado verde institucional fijado en
+    // tiempo de compilación (_panel.scss) — se redeclara con los tokens en vivo. ----------
+    .td-avatar {
+        background: linear-gradient(135deg, var(--sb-primary), var(--sb-primary-dark));
+    }
+
+    // ---------- Calendario del dashboard (grid estático, sin FullCalendar) ----------
+    .cal-big-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        text-align: center;
+    }
+    .cal-big-dow {
+        font-size: .74rem;
+        font-weight: 600;
+        color: var(--sb-text-faint);
+        padding-bottom: 8px;
+    }
+    .cal-big-day {
+        font-size: .92rem;
+        padding: 12px 0;
+        border-radius: .65rem;
+        color: var(--sb-text);
+        transition: background .15s ease;
+    }
+    .cal-big-day:not(:empty):hover { background: var(--sb-bg-alt); }
+    .cal-big-day.is-today {
+        background: var(--sb-primary);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    // ---------- Enlaces dentro del contenido (no botones) ----------
+    .panel-content a:not(.btn) { color: var(--sb-primary-dark); }
+    .panel-content a:not(.btn):hover, .panel-content a:not(.btn):focus { color: var(--sb-primary); }
+
+    .text-secondary { color: var(--sb-text-muted) !important; }
+
+    .empty-state .empty-icon { background: var(--cs-verde-claro); color: var(--bs-primary); }
+
+    .btn-primary {
+        --bs-btn-color: #ffffff;
+        --bs-btn-bg: var(--sb-primary);
+        --bs-btn-border-color: var(--sb-primary);
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: var(--sb-primary-dark);
+        --bs-btn-hover-border-color: var(--sb-primary-dark);
+        --bs-btn-active-color: #ffffff;
+        --bs-btn-active-bg: var(--sb-primary-dark);
+        --bs-btn-active-border-color: var(--sb-primary-dark);
+        --bs-btn-disabled-color: #ffffff;
+        --bs-btn-disabled-bg: var(--sb-primary);
+        --bs-btn-disabled-border-color: var(--sb-primary);
+        box-shadow: none;
+    }
+
+    .btn-outline-secondary {
+        --bs-btn-color: #6b7099;
+        --bs-btn-border-color: #cfd3ec;
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #6b7099;
+        --bs-btn-hover-border-color: #6b7099;
+        --bs-btn-active-color: #ffffff;
+        --bs-btn-active-bg: #6b7099;
+        --bs-btn-active-border-color: #6b7099;
+        --bs-btn-disabled-color: #6b7099;
+        --bs-btn-disabled-border-color: #cfd3ec;
+    }
+
+    .pagination {
+        --bs-pagination-active-bg: var(--sb-primary);
+        --bs-pagination-active-border-color: var(--sb-primary);
+        --bs-pagination-color: var(--sb-primary-dark);
+        --bs-pagination-hover-color: var(--sb-primary-dark);
+    }
+
+    .nav-pills { --bs-nav-pills-link-active-bg: var(--sb-primary); }
+
+    .dropdown-item.active, .dropdown-item:active { background-color: var(--sb-primary); }
+
+    .table-secondary {
+        --bs-table-bg: var(--sb-primary-light);
+        --bs-table-color: var(--sb-primary-dark);
+        --bs-table-border-color: var(--bs-border-color);
+    }
+
+    .form-select, .form-control { border-radius: .65rem; }
+
+    .form-check-input:checked {
+        background-color: var(--sb-primary);
+        border-color: var(--sb-primary);
+    }
+    .form-check-input:focus {
+        border-color: var(--sb-primary);
+        box-shadow: 0 0 0 .25rem rgba(111, 92, 246, .25);
+    }
+
+    // ---------- Anillo de progreso circular (x-stat-ring) ----------
+    .stat-ring {
+        --ring-color: var(--sb-primary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .35rem;
+        width: 100%;
+    }
+    .stat-ring-svg { width: 74px; height: 74px; position: relative; }
+    .stat-ring-bg { fill: none; stroke: var(--sb-bg-alt); stroke-width: 3; }
+    .stat-ring-fg {
+        fill: none;
+        stroke: var(--ring-color);
+        stroke-width: 3;
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: 18px 18px;
+        transition: stroke-dasharray .4s ease;
+    }
+    .stat-ring { position: relative; }
+    .stat-ring-center {
+        position: absolute;
+        top: 0; left: 50%;
+        transform: translateX(-50%);
+        width: 74px; height: 74px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .stat-ring-value { font-size: .95rem; font-weight: 700; color: var(--sb-text); }
+    .stat-ring-label {
+        margin-top: 74px;
+        font-size: .74rem;
+        color: var(--sb-text-muted);
+        text-align: center;
+    }
+}
+
+// ---------- Modo oscuro ----------
+[data-bs-theme="dark"] body[data-panel="rector"] {
+    --sb-primary: #a394fa;
+    --sb-primary-dark: #5b4bd6;
+    --sb-primary-light: #2f2b63;
+    --sb-secondary: #5b9dff;
+
+    --sb-bg: #1b1e37;
+    --sb-bg-alt: #242849;
+    --sb-border: #2c3157;
+    --sb-text: #eef0fb;
+    --sb-text-muted: #a6acd6;
+    --sb-text-faint: #6f76a8;
+
+    --sb-badge-info-bg: #2f2b63;
+    --sb-badge-info-text: #c3bdf5;
+    --sb-badge-pendiente-bg: #3a2a17;
+    --sb-badge-pendiente-text: #e6a15e;
+    --sb-badge-urgente-bg: #3a1f1e;
+    --sb-badge-urgente-text: #f29a98;
+    --sb-badge-novedad-bg: #17263a;
+    --sb-badge-novedad-text: #8ab4e6;
+
+    --sb-shadow-md: 0 18px 50px rgba(4, 5, 16, .55);
+    --sb-shadow-tooltip: 0 10px 26px rgba(4, 5, 16, .5);
+
+    --rc-card-shadow: 0 14px 32px rgba(4, 5, 16, .4), 0 2px 8px rgba(4, 5, 16, .3);
+
+    --bs-body-bg: #14162b;
+    --bs-body-bg-rgb: 20, 22, 43;
+    --bs-body-color: #eef0fb;
+    --bs-body-color-rgb: 238, 240, 251;
+    --bs-tertiary-bg: #1c1f3b;
+    --bs-tertiary-bg-rgb: 28, 31, 59;
+    --bs-secondary-bg: #242849;
+    --bs-secondary-bg-rgb: 36, 40, 73;
+    --bs-emphasis-color: #ffffff;
+    --bs-emphasis-color-rgb: 255, 255, 255;
+    --bs-border-color: #2c3157;
+    --bs-border-color-translucent: #2c3157;
+    --bs-card-bg: #1f2242;
+    --bs-card-border-color: #2c3157;
+    --bs-tertiary-color: #a6acd6;
+    --bs-secondary-color: #a6acd6;
+
+    --bs-primary: #a394fa;
+    --bs-primary-rgb: 163, 148, 250;
+    --bs-primary-bg-subtle: #2f2b63;
+    --bs-primary-border-subtle: #423c85;
+    --bs-primary-text-emphasis: #c3bdf5;
+
+    --cs-dorado: #a394fa;
+    --cs-dorado-suave: #2f2b63;
+    --cs-verde-oscuro: #eef0fb;
+    --cs-verde-claro: #232057;
+    --cs-verde-suave: #292463;
+
+    color: var(--bs-body-color);
+
+    .dash-welcome { background: linear-gradient(135deg, #4f3fc9 0%, #2f66d6 100%); }
+
+    .chart-bar.bg-primary {
+        background: linear-gradient(180deg, var(--sb-secondary) 0%, var(--sb-primary) 100%) !important;
+    }
+
+    // El texto de los ítems activos del sidebar usa --sb-primary (claro) en vez de
+    // --sb-primary-dark: con el violeta oscuro sobre el tinte también oscuro de
+    // --sb-primary-light la pareja por defecto no alcanza el piso de contraste.
+    .slink.active, .slink-toggle.active, .slink-child.active { color: var(--sb-primary); }
+
+    .panel-content a:not(.btn) { color: var(--sb-primary); }
+    .panel-content a:not(.btn):hover, .panel-content a:not(.btn):focus { color: #c3bdf5; }
+
+    .text-bg-primary { color: #14101f !important; }
+
+    .btn-primary {
+        --bs-btn-color: #14162b;
+        --bs-btn-bg: var(--sb-primary);
+        --bs-btn-border-color: var(--sb-primary);
+        --bs-btn-hover-color: #14162b;
+        --bs-btn-hover-bg: #b6aafb;
+        --bs-btn-hover-border-color: #b6aafb;
+        --bs-btn-active-color: #14162b;
+        --bs-btn-active-bg: #8676e8;
+        --bs-btn-active-border-color: #8676e8;
+        --bs-btn-disabled-color: #14162b;
+        --bs-btn-disabled-bg: var(--sb-primary);
+        --bs-btn-disabled-border-color: var(--sb-primary);
+    }
+
+    .btn-outline-secondary {
+        --bs-btn-color: #a6acd6;
+        --bs-btn-border-color: #3d4270;
+        --bs-btn-hover-color: #14162b;
+        --bs-btn-hover-bg: #a6acd6;
+        --bs-btn-hover-border-color: #a6acd6;
+        --bs-btn-active-color: #14162b;
+        --bs-btn-active-bg: #a6acd6;
+        --bs-btn-active-border-color: #a6acd6;
+        --bs-btn-disabled-color: #a6acd6;
+        --bs-btn-disabled-border-color: #3d4270;
+    }
+
+    .pagination {
+        --bs-pagination-active-bg: var(--sb-primary-dark);
+        --bs-pagination-active-border-color: var(--sb-primary-dark);
+        --bs-pagination-color: var(--sb-primary);
+        --bs-pagination-hover-color: var(--sb-primary);
+    }
+
+    .nav-pills {
+        --bs-nav-pills-link-active-bg: var(--sb-primary-dark);
+        .nav-link.active { color: #ffffff; }
+    }
+
+    .dropdown-item.active, .dropdown-item:active { background-color: var(--sb-primary-dark); }
+
+    .table-secondary {
+        --bs-table-bg: var(--sb-primary-light);
+        --bs-table-color: var(--sb-primary);
+        --bs-table-border-color: var(--bs-border-color);
+    }
+
+    .form-select, .form-control {
+        background-color: var(--bs-tertiary-bg);
+        border-color: var(--bs-border-color);
+        color: var(--bs-body-color);
+    }
+
+    .form-check-input { border-color: #4a4f88; }
+    .form-check-input:checked {
+        background-color: var(--sb-primary-dark);
+        border-color: var(--sb-primary-dark);
+    }
+    .form-check-input:focus {
+        border-color: var(--sb-primary);
+        box-shadow: 0 0 0 .25rem rgba(163, 148, 250, .25);
+    }
+
+    .table { --bs-table-bg: transparent; --bs-table-color: var(--bs-body-color); }
+
+    .empty-state .empty-icon { background: var(--sb-primary-light); color: var(--sb-primary); }
+
+    .stat-ring-value { color: var(--sb-text); }
+}

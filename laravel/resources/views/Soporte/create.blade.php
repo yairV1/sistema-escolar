@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : (in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel'))
 
 @section('title', 'Soporte')
 
@@ -11,7 +11,7 @@
             <div class="col-lg-7">
                 <div class="card">
                     <div class="card-body">
-                        <form id="formSoporte" data-crud-form data-url="{{ route('soporte.store') }}" novalidate>
+                        <form id="formSoporte" data-crud-form data-url="{{ route('soporte.store') }}" enctype="multipart/form-data" novalidate>
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label">Asunto *</label>
@@ -25,6 +25,11 @@
                                               placeholder="Contanos qué pasó, en qué pantalla estabas y qué esperabas que sucediera."
                                               data-feedback="err-sop-mensaje" required></textarea>
                                     <div class="invalid-feedback" id="err-sop-mensaje"></div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Captura de pantalla <span class="text-muted fw-normal">(opcional)</span></label>
+                                    <input type="file" class="form-control" name="imagen" accept="image/*" data-feedback="err-sop-imagen">
+                                    <div class="invalid-feedback" id="err-sop-imagen"></div>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end mt-3">

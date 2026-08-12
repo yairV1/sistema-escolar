@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Roles')
 
@@ -59,9 +59,11 @@
         </table>
     </div>
 </div>
+@endsection
 
-{{-- Modales: editar rol (uno por fila) --}}
-@foreach ($roles as $rol)
+@push('modals')
+    {{-- Modales: editar rol (uno por fila) --}}
+    @foreach ($roles as $rol)
     <div class="modal fade" id="modalEditarRol{{ $rol->id_rol }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -93,7 +95,7 @@
         </div>
     </div>
 @endforeach
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/roles/roles.js')

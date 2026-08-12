@@ -1,0 +1,63 @@
+// =============================================================
+// SOPORTE — stepper vertical de seguimiento en el detalle de un ticket
+// =============================================================
+
+.soporte-seguimiento {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.soporte-seguimiento-item {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding-bottom: 22px;
+
+    // Línea que conecta con el siguiente paso — pseudo-elemento en vez de
+    // un <span> aparte, así el HTML no necesita un nodo extra solo para esto.
+    &:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 16px;
+        bottom: 0;
+        width: 2px;
+        background: var(--bs-border-color);
+    }
+
+    &:last-child {
+        padding-bottom: 0;
+    }
+
+    &.is-completo:not(:last-child)::before {
+        background: var(--bs-primary);
+    }
+}
+
+.soporte-seguimiento-punto {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    border-radius: 50%;
+    background: var(--bs-tertiary-bg);
+    border: 2px solid var(--bs-border-color);
+}
+
+.soporte-seguimiento-item.is-completo .soporte-seguimiento-punto {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.soporte-seguimiento-etiqueta {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.soporte-seguimiento-item:not(.is-completo) .soporte-seguimiento-etiqueta {
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+}

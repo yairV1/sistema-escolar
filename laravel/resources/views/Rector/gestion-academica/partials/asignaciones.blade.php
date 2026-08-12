@@ -18,7 +18,7 @@
     </div>
     @if ($profesores->isEmpty() || $todasLasMaterias->isEmpty() || $todosLosCursos->isEmpty())
         <button type="button" class="btn btn-primary btn-sm text-nowrap" disabled
-                title="Se necesita al menos un profesor, una materia y un curso activos">
+                title="Se necesita al menos un profesor, una asignatura y un curso activos">
             <i class="fas fa-plus me-1"></i> Nueva asignación
         </button>
     @else
@@ -28,8 +28,7 @@
     @endif
 </div>
 
-<form method="GET" action="{{ route('gestion-academica.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
-    <input type="hidden" name="tab" value="asignaciones">
+<form method="GET" action="{{ route('gestion-academica.asignaciones.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
     <div class="col-6 col-md-4">
         <select class="form-select" name="curso" data-autosubmit>
             <option value="">Todos los cursos</option>
@@ -46,7 +45,7 @@
         </select>
     </div>
     <div class="col-md-2 d-grid">
-        <a href="{{ route('gestion-academica.index', ['tab' => 'asignaciones']) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+        <a href="{{ route('gestion-academica.asignaciones.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
     </div>
 </form>
 
@@ -56,7 +55,7 @@
         @if (($filtros['curso'] ?? '') || ($filtros['estado'] ?? ''))
             <p class="mb-0">No hay asignaciones que coincidan con los filtros.</p>
         @elseif ($profesores->isEmpty() || $todasLasMaterias->isEmpty() || $todosLosCursos->isEmpty())
-            <p class="mb-0">Registra al menos un profesor, una materia y un curso activos para poder crear asignaciones.</p>
+            <p class="mb-0">Registra al menos un profesor, una asignatura y un curso activos para poder crear asignaciones.</p>
         @else
             <p class="mb-2">Aún no hay asignaciones registradas.</p>
             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaAsignacion">
@@ -70,7 +69,7 @@
             <thead>
                 <tr>
                     <th>Profesor</th>
-                    <th>Materia</th>
+                    <th>Asignatura</th>
                     <th>Curso</th>
                     <th>Año</th>
                     <th>Estado</th>
@@ -115,6 +114,7 @@
     {{ $asignaciones->links('pagination::bootstrap-5') }}
 @endif
 
+@push('modals')
 {{-- Modal: nueva asignación --}}
 <div class="modal fade" id="modalNuevaAsignacion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -137,11 +137,11 @@
                             <div class="invalid-feedback" id="err-na-profesor"></div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Materia *</label>
+                            <label class="form-label">Asignatura *</label>
                             <select class="form-select" name="id_materia" data-feedback="err-na-materia" required>
-                                <option value="" selected disabled>Selecciona una materia</option>
+                                <option value="" selected disabled>Selecciona una asignatura</option>
                                 @foreach ($todasLasMaterias as $materia)
-                                    <option value="{{ $materia->id_materia }}">{{ $materia->nombre_materia }}</option>
+                                    <option value="{{ $materia->id_materia }}">{{ $materia->id_materia_padre ? '↳ ' : '' }}{{ $materia->nombre_materia }}</option>
                                 @endforeach
                             </select>
                             <div class="invalid-feedback" id="err-na-materia"></div>
@@ -171,3 +171,4 @@
         </div>
     </div>
 </div>
+@endpush

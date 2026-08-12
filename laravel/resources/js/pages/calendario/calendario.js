@@ -8,6 +8,7 @@ import { initPanelEvento, crearHandlerAbrirPanel } from '../../components/calend
 import { crearHandlerMover } from '../../components/calendar/calendar-drag';
 import { initTiempoReal } from '../../components/calendar/calendar-realtime';
 import { initExportarCalendario } from '../../components/calendar/calendar-export';
+import { initPanelProximos } from '../../components/calendar/calendar-upcoming';
 
 document.addEventListener('DOMContentLoaded', () => {
     const root = document.getElementById('calendarioRoot');
@@ -24,7 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initFiltrosCalendario(calendar);
     initModalEvento();
     initPanelEvento();
-    initTiempoReal(calendar);
+    const recargarProximos = initPanelProximos();
+    initTiempoReal(calendar, recargarProximos);
     initExportarCalendario();
     initCrudForms();
 

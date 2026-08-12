@@ -66,7 +66,7 @@
     <table class="notas">
         <thead>
             <tr>
-                <th>Materia</th>
+                <th>Asignatura</th>
                 <th>Profesor</th>
                 <th class="nota">Nota definitiva</th>
             </tr>
@@ -79,7 +79,7 @@
                     <td class="nota">{{ $detalle->nota_definitiva ?? '—' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3">Sin materias registradas.</td></tr>
+                <tr><td colspan="3">Sin asignaturas registradas.</td></tr>
             @endforelse
         </tbody>
     </table>

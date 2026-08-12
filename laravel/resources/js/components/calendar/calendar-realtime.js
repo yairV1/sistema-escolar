@@ -12,9 +12,11 @@ const EVENTOS_CALENDARIO = ['.evento.creado', '.evento.actualizado', '.evento.mo
  * filtro — se reutiliza, no se duplica la consulta). El payload que llega
  * no tiene detalle (ver EventoBroadcastEvent) — cada mensaje solo dispara
  * un refetchEvents() debounced, que ya resuelve visibilidad/recurrencia
- * correctamente en el servidor.
+ * correctamente en el servidor. `onCambio` es opcional — hoy lo usa el
+ * panel de próximos eventos para recargarse con el mismo debounce, sin
+ * suscribirse otra vez a los mismos canales.
  */
-export function initTiempoReal(calendar) {
+export function initTiempoReal(calendar, onCambio) {
     if (!window.Echo) return;
 
     const root = document.getElementById('calendarioRoot');
@@ -23,7 +25,10 @@ export function initTiempoReal(calendar) {
     const idUsuario = root.dataset.usuarioId;
     const cursosIds = (root.dataset.cursosIds || '').split(',').filter(Boolean);
 
-    const refrescar = debounce(() => calendar.refetchEvents(), 400);
+    const refrescar = debounce(() => {
+        calendar.refetchEvents();
+        onCambio?.();
+    }, 400);
 
     if (idUsuario) {
         suscribirCanal(`App.Modules.Auth.Models.Usuario.${idUsuario}`, refrescar);

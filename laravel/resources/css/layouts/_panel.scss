@@ -158,6 +158,43 @@ body.has-sidebar.sidebar-collapsed {
 .sidebar.collapsed .sidebar-header { flex-direction: column; padding: 16px 10px; gap: 10px; }
 .sidebar.collapsed .sidebar-collapse { margin-left: 0; }
 
+// ---------- Buscador del menú ----------
+.sidebar-search {
+    position: relative;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--sb-border);
+    flex-shrink: 0;
+}
+.sidebar-search i {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sb-text-faint);
+    font-size: 12.5px;
+    pointer-events: none;
+}
+.sidebar-search input {
+    width: 100%;
+    padding: 7px 10px 7px 30px;
+    border: 1px solid var(--sb-border);
+    border-radius: var(--sb-radius-sm);
+    background: var(--sb-bg-alt);
+    color: var(--sb-text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color var(--sb-transition), background var(--sb-transition);
+}
+.sidebar-search input::placeholder { color: var(--sb-text-faint); }
+.sidebar-search input:focus { border-color: var(--sb-primary); background: var(--sb-bg); }
+.sidebar-search input::-webkit-search-cancel-button { cursor: pointer; }
+
+// Colapsado no hay espacio para un input de texto — mismo criterio que
+// .sidebar-brand, que también desaparece en este estado.
+.sidebar.collapsed .sidebar-search { display: none; }
+
+.search-hidden { display: none !important; }
+
 // ---------- Navegación ----------
 .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 12px 24px; }
 .sidebar-nav::-webkit-scrollbar { width: 5px; }
@@ -167,6 +204,14 @@ body.has-sidebar.sidebar-collapsed {
 .nav-top-level { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--sb-border); }
 .nav-section { margin-bottom: 22px; }
 .nav-section:last-child { margin-bottom: 0; }
+
+// Colapsado: la etiqueta de sección ("REGISTROS", "ACADÉMICO"...) desaparece
+// pero el margen de 22px entre secciones (pensado para separarla del grupo
+// anterior) se quedaba igual — entre íconos apretados de 9px de padding,
+// ese salto se ve desproporcionado y descuadrado frente al resto. Se
+// achica a algo consistente con el espaciado interno de cada grupo.
+.sidebar.collapsed .nav-top-level { margin-bottom: 12px; padding-bottom: 12px; }
+.sidebar.collapsed .nav-section { margin-bottom: 10px; }
 
 .nav-group-label {
     display: block;
@@ -252,11 +297,21 @@ body.has-sidebar.sidebar-collapsed {
 .sidebar.collapsed .slink i:first-child,
 .sidebar.collapsed .slink-toggle i:first-child { width: auto; }
 
+// La flechita de accordion (i, no span) no la alcanzaba la regla de abajo
+// que solo oculta spans — se quedaba flotando sola junto al ícono sin el
+// texto que le daba sentido. El acceso a los hijos en este estado lo da
+// el flyout al pasar el mouse (ver .flyout-open más abajo), no esta flecha.
+.sidebar.collapsed .accordion-arrow { display: none; }
+
 .sidebar.collapsed .slink span:not(.slink-badge),
 .sidebar.collapsed .slink-toggle span:not(.slink-badge) { display: none; }
 
-.sidebar.collapsed .slink[data-label]:hover::after,
-.sidebar.collapsed .slink-toggle[data-label]:hover::after {
+// :not(.slink-toggle) a propósito: el botón del accordion trae AMBAS
+// clases ("slink slink-toggle"), así que sin esta exclusión este tooltip
+// simple se disparaba a la vez que el flyout de abajo — dos burbujas
+// distintas superpuestas sobre el mismo ícono. El toggle ya no lo necesita:
+// su título va como encabezado dentro del flyout mismo.
+.sidebar.collapsed .slink:not(.slink-toggle)[data-label]:hover::after {
     content: attr(data-label);
     position: fixed;
     left: calc(var(--sb-width-collapsed) + 10px);
@@ -325,6 +380,53 @@ body.has-sidebar.sidebar-collapsed {
 .slink-child:focus-visible { outline: 2px solid var(--sb-primary); outline-offset: 2px; }
 
 .sidebar.collapsed .nav-children { display: none !important; }
+
+// ---------- Flyout de submenú en sidebar colapsado ----------
+// Sin esto, un ítem con hijos (Usuarios, Matrículas, Evaluaciones...)
+// queda inalcanzable al colapsar: el accordion de arriba se oculta y no
+// hay forma de llegar a "Registro de Estudiantes" ni similares.
+// position:fixed (no absolute) a propósito: .sidebar-nav tiene overflow-y:
+// auto/overflow-x:hidden para su propio scroll — un flyout absolute
+// quedaría recortado por ese overflow. fixed lo escapa por completo, pero
+// entonces no puede heredar la alineación vertical de su <li> (fixed
+// siempre es relativo al viewport) — por eso components/sidebar.js calcula
+// esa posición en JS y la pasa acá vía --flyout-top.
+// Oculto por defecto (sidebar expandido): solo existe para el flyout de
+// abajo, que lo muestra explícitamente cuando el sidebar está colapsado.
+.flyout-title { display: none; }
+
+.sidebar.collapsed .nav-parent.flyout-open .nav-children {
+    display: block !important;
+    position: fixed;
+    top: var(--flyout-top, 20px);
+    left: calc(var(--sb-width-collapsed) + 10px);
+    margin: 0;
+    padding: 8px;
+    width: 224px;
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+    border-left: none;
+    background: var(--sb-bg);
+    border: 1px solid var(--sb-border);
+    border-radius: var(--sb-radius-sm);
+    box-shadow: var(--sb-shadow-md);
+    z-index: 1050;
+    animation: sb-tooltip-in 120ms ease forwards;
+}
+
+.sidebar.collapsed .nav-parent.flyout-open .flyout-title {
+    display: block;
+    padding: 4px 10px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--sb-text-faint);
+    border-bottom: 1px solid var(--sb-border);
+    margin-bottom: 6px;
+}
+
+.sidebar.collapsed .nav-parent.flyout-open .slink-child { white-space: normal; }
 
 // ---------- Badges ----------
 .slink-badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; line-height: 1; }

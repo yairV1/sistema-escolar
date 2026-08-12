@@ -6,6 +6,7 @@ use App\Modules\Auth\Controllers\TwoFactorChallengeController;
 use App\Modules\Acudiente\Controllers\AcudienteController;
 use App\Modules\Auditoria\Controllers\AuditoriaController;
 use App\Modules\Auth\Controllers\RolController;
+use App\Modules\Busqueda\Controllers\BusquedaController;
 use App\Modules\Calendario\Controllers\CalendarioController;
 use App\Modules\Calendario\Controllers\CalendarioExportController;
 use App\Modules\Calendario\Controllers\EventoAdjuntoController;
@@ -75,6 +76,10 @@ Route::get('/inicio', [DashboardController::class, 'index'])
     ->middleware(['auth', 'role:admin,rector'])
     ->name('inicio');
 
+Route::get('/buscar', [BusquedaController::class, 'index'])
+    ->middleware(['auth', 'role:admin,rector'])
+    ->name('buscar');
+
 Route::get('/mi-panel', [DocenteController::class, 'dashboard'])
     ->middleware(['auth', 'role:docente'])
     ->name('docente.dashboard');
@@ -102,6 +107,7 @@ Route::middleware(['auth', 'role:acudiente'])->prefix('acudiente')->name('acudie
 Route::middleware('auth')->group(function () {
     Route::get('/soporte', [SoporteController::class, 'create'])->name('soporte.create');
     Route::post('/soporte', [SoporteController::class, 'store'])->name('soporte.store');
+    Route::get('/soporte/mis-solicitudes', [SoporteController::class, 'misSolicitudes'])->name('soporte.mis-solicitudes');
 });
 
 // role:admin,superadmin (no solo role:superadmin): la bandeja de soporte no
@@ -131,23 +137,25 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('matriculas')->group(fu
 });
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('gestion-academica')->name('gestion-academica.')->group(function () {
-    Route::get('/', [GestionAcademicaController::class, 'index'])->name('index');
-
+    Route::get('/materias', [GestionAcademicaController::class, 'materias'])->name('materias.index');
     Route::post('/materias', [GestionAcademicaController::class, 'storeMateria'])->name('materias.store');
     Route::post('/materias/{materia}', [GestionAcademicaController::class, 'updateMateria'])->name('materias.update');
     Route::post('/materias/{materia}/desactivar', [GestionAcademicaController::class, 'desactivarMateria'])->name('materias.desactivar');
     Route::post('/materias/{materia}/activar', [GestionAcademicaController::class, 'activarMateria'])->name('materias.activar');
 
+    Route::get('/cursos', [GestionAcademicaController::class, 'cursos'])->name('cursos.index');
     Route::get('/cursos/{curso}', [GestionAcademicaController::class, 'show'])->name('cursos.show');
     Route::post('/cursos', [GestionAcademicaController::class, 'storeCurso'])->name('cursos.store');
     Route::post('/cursos/{curso}', [GestionAcademicaController::class, 'updateCurso'])->name('cursos.update');
     Route::post('/cursos/{curso}/desactivar', [GestionAcademicaController::class, 'desactivarCurso'])->name('cursos.desactivar');
     Route::post('/cursos/{curso}/activar', [GestionAcademicaController::class, 'activarCurso'])->name('cursos.activar');
 
+    Route::get('/asignaciones', [GestionAcademicaController::class, 'asignaciones'])->name('asignaciones.index');
     Route::post('/asignaciones', [GestionAcademicaController::class, 'storeAsignacion'])->name('asignaciones.store');
     Route::post('/asignaciones/{asignacion}/desactivar', [GestionAcademicaController::class, 'desactivarAsignacion'])->name('asignaciones.desactivar');
     Route::post('/asignaciones/{asignacion}/activar', [GestionAcademicaController::class, 'activarAsignacion'])->name('asignaciones.activar');
 
+    Route::get('/horarios', [GestionAcademicaController::class, 'horarios'])->name('horarios.index');
     Route::post('/horarios', [GestionAcademicaController::class, 'storeHorario'])->name('horarios.store');
     Route::post('/horarios/{horario}', [GestionAcademicaController::class, 'updateHorario'])->name('horarios.update');
     Route::post('/horarios/{horario}/desactivar', [GestionAcademicaController::class, 'desactivarHorario'])->name('horarios.desactivar');
@@ -232,6 +240,7 @@ Route::get('/estadisticas', [EstadisticasController::class, 'index'])
 
 Route::middleware(['auth', 'role:admin,rector'])->prefix('comunicados')->name('comunicados.')->group(function () {
     Route::get('/', [ComunicadosController::class, 'index'])->name('index');
+    Route::get('/detalle', [ComunicadosController::class, 'detalle'])->name('detalle');
     Route::post('/', [ComunicadosController::class, 'store'])->name('store');
 });
 

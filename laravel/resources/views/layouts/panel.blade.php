@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
     <title>@yield('title', 'Panel') · {{ (auth()->user()?->institucion?->nombre) ?? $colegioConfiguracion->nombre_colegio }}</title>
+    <link rel="icon" href="{{ auth()->user()?->institucion?->logoUrl ?? asset('favicon.ico') }}">
 
     <script>
         (function () {
@@ -65,6 +66,11 @@
             </button>
         </div>
 
+        <div class="sidebar-search">
+            <i class="bi bi-search"></i>
+            <input type="search" id="sidebarSearch" placeholder="Buscar en el menú..." aria-label="Buscar en el menú">
+        </div>
+
         <nav class="sidebar-nav" aria-label="Navegación principal">
             {!! $sidebarBuilder->render() !!}
         </nav>
@@ -117,5 +123,11 @@
     <main class="panel-content">
         @yield('content')
     </main>
+
+    {{-- Mismo motivo que en layouts/rector.blade.php: algunas páginas (ej.
+         calificaciones/asignacion.blade.php) extienden uno u otro layout
+         según el rol, así que este stack tiene que existir acá también
+         aunque este layout no tenga el problema de z-index que lo motivó. --}}
+    @stack('modals')
 </body>
 </html>

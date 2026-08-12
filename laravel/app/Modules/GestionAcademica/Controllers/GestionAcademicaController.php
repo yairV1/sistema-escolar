@@ -21,16 +21,34 @@ use Illuminate\View\View;
 
 class GestionAcademicaController extends Controller
 {
-    public function index(Request $request): View
+    public function materias(Request $request): View
     {
-        $tab = $request->query('tab', 'materias');
-        $tab = in_array($tab, ['materias', 'cursos', 'asignaciones', 'horarios'], true) ? $tab : 'materias';
+        return $this->renderTab($request, 'materias', 'Asignaturas');
+    }
 
+    public function cursos(Request $request): View
+    {
+        return $this->renderTab($request, 'cursos', 'Cursos');
+    }
+
+    public function asignaciones(Request $request): View
+    {
+        return $this->renderTab($request, 'asignaciones', 'Asignaciones');
+    }
+
+    public function horarios(Request $request): View
+    {
+        return $this->renderTab($request, 'horarios', 'Horarios académicos');
+    }
+
+    private function renderTab(Request $request, string $tab, string $titulo): View
+    {
         $cursosParaHorario = $tab === 'horarios' ? Curso::where('estado', 'activo')->orderByDesc('anio_lectivo')->orderBy('nombre_curso')->get() : null;
         $cursoHorarioId = $tab === 'horarios' ? (int) ($request->query('curso') ?: optional($cursosParaHorario->first())->id_curso) : null;
 
         return view('Rector.gestion-academica.index', [
-            'currentPage' => 'GestionAcademica',
+            'currentPage' => 'GestionAcademica'.ucfirst($tab),
+            'titulo' => $titulo,
             'tab' => $tab,
             'filtros' => $request->only(['q', 'estado', 'curso', 'anio', 'nivel']),
             'profesores' => Profesor::with('usuario')->where('estado_laboral', 'activo')->get(),
@@ -38,6 +56,9 @@ class GestionAcademicaController extends Controller
             'todosLosCursos' => $tab === 'asignaciones' ? Curso::where('estado', 'activo')->orderBy('nombre_curso')->get() : null,
             'materias' => $tab === 'materias' ? $this->buscarMaterias($request) : null,
             'resumenMaterias' => $tab === 'materias' ? $this->resumenMaterias() : null,
+            'materiasPadre' => $tab === 'materias'
+                ? Materia::whereNull('id_materia_padre')->where('estado', 'activo')->orderBy('nombre_materia')->get()
+                : null,
             'cursos' => $tab === 'cursos' ? $this->buscarCursos($request) : null,
             'resumenCursos' => $tab === 'cursos' ? $this->resumenCursos() : null,
             'asignaciones' => $tab === 'asignaciones' ? $this->buscarAsignaciones($request) : null,
@@ -81,7 +102,7 @@ class GestionAcademicaController extends Controller
             ->get();
 
         return view('Rector.gestion-academica.cursos.show', [
-            'currentPage' => 'GestionAcademica',
+            'currentPage' => 'GestionAcademicaCursos',
             'curso' => $curso,
             'estudiantes' => $estudiantes,
             'asignaciones' => $asignaciones,
@@ -92,7 +113,7 @@ class GestionAcademicaController extends Controller
 
     private function buscarMaterias(Request $request)
     {
-        $query = Materia::query();
+        $query = Materia::query()->with('padre');
 
         if ($q = $request->query('q')) {
             $query->where('nombre_materia', 'like', "%{$q}%");
@@ -103,7 +124,13 @@ class GestionAcademicaController extends Controller
             $query->where('estado', $estado);
         }
 
-        return $query->orderBy('nombre_materia')->paginate(15)->withQueryString();
+        // Agrupa cada sub-asignatura junto a su padre: primero por la "raíz" del
+        // grupo (el propio id si es principal, o el id del padre si es sub-asignatura),
+        // luego el padre antes que sus hijas (id_materia_padre nulo ordena primero).
+        return $query->orderByRaw('COALESCE(id_materia_padre, id_materia)')
+            ->orderByRaw('id_materia_padre IS NOT NULL')
+            ->orderBy('nombre_materia')
+            ->paginate(15)->withQueryString();
     }
 
     private function resumenMaterias(): array
@@ -178,10 +205,10 @@ class GestionAcademicaController extends Controller
         try {
             $materia = Materia::create($request->validated() + ['estado' => 'activo']);
         } catch (QueryException $e) {
-            return $this->respuestaDuplicado($e, 'Ya existe una materia con ese nombre.');
+            return $this->respuestaDuplicado($e, 'Ya existe una asignatura con ese nombre.');
         }
 
-        return response()->json(['success' => true, 'message' => 'Materia creada correctamente.', 'id' => $materia->id_materia]);
+        return response()->json(['success' => true, 'message' => 'Asignatura creada correctamente.', 'id' => $materia->id_materia]);
     }
 
     public function updateMateria(MateriaRequest $request, Materia $materia): JsonResponse
@@ -189,24 +216,24 @@ class GestionAcademicaController extends Controller
         try {
             $materia->update($request->validated());
         } catch (QueryException $e) {
-            return $this->respuestaDuplicado($e, 'Ya existe una materia con ese nombre.');
+            return $this->respuestaDuplicado($e, 'Ya existe una asignatura con ese nombre.');
         }
 
-        return response()->json(['success' => true, 'message' => 'Materia actualizada correctamente.']);
+        return response()->json(['success' => true, 'message' => 'Asignatura actualizada correctamente.']);
     }
 
     public function desactivarMateria(Materia $materia): JsonResponse
     {
         $materia->update(['estado' => 'inactivo']);
 
-        return response()->json(['success' => true, 'message' => 'Materia desactivada correctamente.']);
+        return response()->json(['success' => true, 'message' => 'Asignatura desactivada correctamente.']);
     }
 
     public function activarMateria(Materia $materia): JsonResponse
     {
         $materia->update(['estado' => 'activo']);
 
-        return response()->json(['success' => true, 'message' => 'Materia reactivada correctamente.']);
+        return response()->json(['success' => true, 'message' => 'Asignatura reactivada correctamente.']);
     }
 
     public function storeCurso(CursoRequest $request): JsonResponse
@@ -250,7 +277,7 @@ class GestionAcademicaController extends Controller
         try {
             $asignacion = AsignacionAcademica::create($request->validated() + ['estado' => 'activo']);
         } catch (QueryException $e) {
-            return $this->respuestaDuplicado($e, 'Ese profesor ya tiene asignada esa materia en ese curso y año.');
+            return $this->respuestaDuplicado($e, 'Ese profesor ya tiene asignada esa asignatura en ese curso y año.');
         }
 
         return response()->json(['success' => true, 'message' => 'Asignación creada correctamente.', 'id' => $asignacion->id_asignacion]);
@@ -337,7 +364,7 @@ class GestionAcademicaController extends Controller
      * Evita solapamientos de horario en dos sentidos:
      * 1) Un mismo profesor con 2 clases a la vez (en cualquier curso) — error duro,
      *    no tiene sentido "reemplazar" la clase de otro curso.
-     * 2) Un mismo curso con 2 materias a la vez — se informa cuál choca y se ofrece
+     * 2) Un mismo curso con 2 asignaturas a la vez — se informa cuál choca y se ofrece
      *    reemplazarla (el frontend desactiva ese horario y reintenta el guardado).
      */
     private function validarSolapamientoHorario(HorarioRequest $request, ?int $ignorarHorarioId = null): ?JsonResponse

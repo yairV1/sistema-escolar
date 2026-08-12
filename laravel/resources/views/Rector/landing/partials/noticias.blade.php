@@ -64,6 +64,7 @@
     </div>
 @endif
 
+@push('modals')
 {{-- Modal: nueva noticia --}}
 <div class="modal fade" id="modalNuevaNoticia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -158,3 +159,4 @@
         </div>
     </div>
 @endforeach
+@endpush

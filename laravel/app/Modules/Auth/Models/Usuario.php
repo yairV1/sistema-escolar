@@ -4,6 +4,7 @@ namespace App\Modules\Auth\Models;
 
 use App\Modules\GestionAcademica\Models\AsignacionAcademica;
 use App\Modules\Instituciones\Models\Institucion;
+use App\Modules\Instituciones\Support\BelongsToInstitucion;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Storage;
 class Usuario extends Authenticatable
 {
     use Notifiable;
+    /** Autocompleta id_institucion al crear (Estudiante/Docente/Acudiente/Administrativo) con la del rector/admin autenticado — ver App\Modules\Instituciones\Support\BelongsToInstitucion. SuperAdmin (sin institución) y las altas de InstitucionController (que ya la pasan explícita) quedan intactos. */
+    use BelongsToInstitucion;
 
     protected $table = 'usuarios';
 
@@ -143,6 +146,13 @@ class Usuario extends Authenticatable
     public static function allRoleSlugs(): array
     {
         return array_values(self::ROLE_SLUGS);
+    }
+
+    public static function superAdmins(): Collection
+    {
+        $idRol = array_search(self::ROL_SUPERADMIN, self::ROLE_SLUGS, true);
+
+        return self::where('id_rol', $idRol)->get();
     }
 
     /**

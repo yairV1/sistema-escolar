@@ -50,6 +50,7 @@
     </div>
 @endif
 
+@push('modals')
 {{-- Modal: nueva foto --}}
 <div class="modal fade" id="modalNuevaFoto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -112,3 +113,4 @@
         </div>
     </div>
 @endforeach
+@endpush

@@ -27,6 +27,10 @@ export function crearCalendarioPrincipal(root, eventSource, handlers = {}) {
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
         },
         buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' },
+        // dayGridMonth con puntos en vez de barras de color (mismo lenguaje
+        // que la vista Lista, que ya usa dot nativo) — timeGrid/list quedan
+        // con su bloque/fila por defecto, tiene más sentido para horarios.
+        views: { dayGridMonth: { eventDisplay: 'list-item' } },
         height: 'auto',
         nowIndicator: true,
         firstDay: 1,

@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Docente — '.trim($profesor->usuario->nombres.' '.$profesor->usuario->apellidos))
 
@@ -43,11 +43,11 @@
         </div>
 
         <div class="mb-4">
-            <h2 class="h6 fw-semibold mb-2">Materias que dicta</h2>
+            <h2 class="h6 fw-semibold mb-2">Asignaturas que dicta</h2>
             @forelse ($profesor->materias as $materia)
                 <span class="badge text-bg-light border me-1 mb-1">{{ $materia->nombre_materia }}</span>
             @empty
-                <p class="text-secondary small mb-0">Sin materias asignadas. Puedes agregarlas editando el docente.</p>
+                <p class="text-secondary small mb-0">Sin asignaturas asignadas. Puedes agregarlas editando el docente.</p>
             @endforelse
         </div>
 
@@ -56,7 +56,7 @@
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th>Materia</th>
+                        <th>Asignatura</th>
                         <th>Curso</th>
                         <th>Año lectivo</th>
                         <th>Estado</th>
@@ -75,7 +75,7 @@
                     @endforelse
                 </tbody>
             </table>
-            <p class="text-secondary small mb-0">La asignación de materias y cursos se gestiona desde Gestión Académica.</p>
+            <p class="text-secondary small mb-0">La asignación de asignaturas y cursos se gestiona desde Gestión Académica.</p>
         </div>
     </div>
 @endsection

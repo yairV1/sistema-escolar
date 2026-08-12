@@ -1,4 +1,4 @@
-@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : 'layouts.panel')
+@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : (in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel'))
 
 @section('title', 'Soporte — '.$soporte->asunto)
 
@@ -25,31 +25,69 @@
                 <div class="card">
                     <div class="card-body">
                         <h2 class="h6 fw-semibold mb-3"><i class="fas fa-message text-primary me-1"></i> Mensaje</h2>
-                        <p class="mb-0" style="white-space: pre-line;">{{ $soporte->mensaje }}</p>
+                        <p class="{{ $soporte->imagen ? 'mb-3' : 'mb-0' }}" style="white-space: pre-line;">{{ $soporte->mensaje }}</p>
+                        @if ($soporte->imagen)
+                            <a href="{{ $soporte->imagenUrl }}" target="_blank" rel="noopener">
+                                <img src="{{ $soporte->imagenUrl }}" alt="Captura adjunta"
+                                     class="img-fluid rounded border" style="max-height: 420px;">
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
-                        @if ($soporte->estado === 'resuelto')
-                            <div class="empty-state py-3">
-                                <div class="empty-icon"><i class="fas fa-circle-check"></i></div>
-                                <p class="mb-1 fw-semibold">Resuelto</p>
-                                <p class="mb-0 small">
-                                    por {{ trim($soporte->resueltoPor->nombres.' '.$soporte->resueltoPor->apellidos) }}
-                                    · {{ $soporte->resuelto_at->format('d/m/Y g:i A') }}
-                                </p>
-                            </div>
-                        @else
+                        <h2 class="h6 fw-semibold mb-3"><i class="fas fa-route text-primary me-1"></i> Seguimiento</h2>
+
+                        @php $yaLeido = in_array($soporte->estado, ['leido', 'resuelto'], true); @endphp
+                        <ul class="soporte-seguimiento">
+                            <li class="soporte-seguimiento-item is-completo">
+                                <span class="soporte-seguimiento-punto"></span>
+                                <div>
+                                    <div class="soporte-seguimiento-etiqueta">Creado</div>
+                                    <div class="small text-secondary">
+                                        {{ trim($soporte->remitente->nombres.' '.$soporte->remitente->apellidos) }}
+                                        · {{ $soporte->created_at->format('d/m/Y g:i A') }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="soporte-seguimiento-item {{ $yaLeido ? 'is-completo' : '' }}">
+                                <span class="soporte-seguimiento-punto"></span>
+                                <div>
+                                    <div class="soporte-seguimiento-etiqueta">Leído por soporte</div>
+                                    <div class="small text-secondary">{{ $yaLeido ? 'Visto' : 'Pendiente' }}</div>
+                                </div>
+                            </li>
+                            <li class="soporte-seguimiento-item {{ $soporte->estado === 'resuelto' ? 'is-completo' : '' }}">
+                                <span class="soporte-seguimiento-punto"></span>
+                                <div>
+                                    <div class="soporte-seguimiento-etiqueta">Resuelto</div>
+                                    <div class="small text-secondary">
+                                        @if ($soporte->estado === 'resuelto')
+                                            {{ trim($soporte->resueltoPor->nombres.' '.$soporte->resueltoPor->apellidos) }}
+                                            · {{ $soporte->resuelto_at->format('d/m/Y g:i A') }}
+                                        @else
+                                            Pendiente
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                @unless ($soporte->estado === 'resuelto')
+                    <div class="card">
+                        <div class="card-body">
                             <p class="text-secondary small mb-3">Cuando termines de atender esta solicitud, marcala como resuelta.</p>
                             <button type="button" class="btn btn-primary w-100" id="btnMarcarResuelto" data-url="{{ route('soportes.resolver', $soporte) }}">
                                 <i class="fas fa-check me-1"></i> Marcar como resuelto
                             </button>
-                        @endif
+                        </div>
                     </div>
-                </div>
+                @endunless
             </div>
         </div>
     </div>

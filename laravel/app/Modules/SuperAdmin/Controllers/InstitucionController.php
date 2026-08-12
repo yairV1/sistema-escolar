@@ -166,15 +166,12 @@ class InstitucionController extends Controller
             ];
 
             $rector = $institucion->usuarios()->where('id_rol', 2)->first();
-            \Illuminate\Support\Facades\Log::info('DIAG rector update', ['rector_existente' => $rector?->id_usuario, 'numero_documento' => $d['rector_numero_documento']]);
             if ($rector) {
                 $rector->update($datosRector);
             } else {
-                $hash = Hash::make($d['rector_numero_documento']);
-                \Illuminate\Support\Facades\Log::info('DIAG rector create', ['numero_documento' => $d['rector_numero_documento'], 'hash' => $hash, 'verifica' => Hash::check($d['rector_numero_documento'], $hash)]);
                 Usuario::create([
                     ...$datosRector,
-                    'password' => $hash,
+                    'password' => Hash::make($d['rector_numero_documento']),
                     'id_rol' => 2,
                     'id_institucion' => $institucion->id_institucion,
                 ]);

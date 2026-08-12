@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Estudiante — '.trim($estudiante->usuario->nombres.' '.$estudiante->usuario->apellidos))
 

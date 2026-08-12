@@ -2,6 +2,7 @@
 
 namespace App\Modules\Usuarios\Requests\Registro;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class EstudianteStoreRequest extends FormRequest
@@ -9,6 +10,21 @@ class EstudianteStoreRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    /** El formulario deja escribir la fecha de nacimiento como texto DD/MM/AAAA (más rápido que navegar el calendario nativo hasta años lejanos); acá se normaliza a Y-m-d para que la regla 'date' y el guardado en BD sigan iguales. Si no matchea el formato se deja tal cual y 'date' la rechaza con el mensaje estándar. */
+    protected function prepareForValidation(): void
+    {
+        if (! $this->filled('fecha_nacimiento')) {
+            return;
+        }
+
+        try {
+            $fecha = Carbon::createFromFormat('d/m/Y', trim($this->input('fecha_nacimiento')));
+            $this->merge(['fecha_nacimiento' => $fecha->format('Y-m-d')]);
+        } catch (\Throwable) {
+            // Deja el valor original; la regla 'date' de abajo lo rechaza.
+        }
     }
 
     public function rules(): array
@@ -66,6 +82,7 @@ class EstudianteStoreRequest extends FormRequest
     {
         return [
             'required' => 'Este campo es obligatorio.',
+            'fecha_nacimiento.date' => 'Escribe la fecha en formato DD/MM/AAAA.',
             'nee_descripcion.required_if' => 'Describe la necesidad educativa especial.',
             '*.regex' => 'El formato no es válido.',
             '*.email' => 'Ingresa un correo válido.',

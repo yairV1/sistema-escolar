@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Calendario')
 
@@ -55,8 +55,14 @@
                  data-usuario-id="{{ auth()->user()->id_usuario }}"
                  data-cursos-ids="{{ $cursosParaFiltro->pluck('id_curso')->implode(',') }}"></div>
         </div>
+
+        @include('Rector.calendario.partials._proximos')
     </div>
 
+</div>
+@endsection
+
+@push('modals')
     @if ($categoriasCreables->isNotEmpty())
         @include('Rector.calendario.partials._modal-evento', [
             'categoriasCreables' => $categoriasCreables,
@@ -65,8 +71,7 @@
     @endif
 
     @include('Rector.calendario.partials._side-panel')
-</div>
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/calendario/calendario.js')

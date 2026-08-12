@@ -17,12 +17,11 @@
         @endforeach
     </div>
     <button type="button" class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalNuevaMateria">
-        <i class="fas fa-plus me-1"></i> Nueva materia
+        <i class="fas fa-plus me-1"></i> Nueva asignatura
     </button>
 </div>
 
-<form method="GET" action="{{ route('gestion-academica.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
-    <input type="hidden" name="tab" value="materias">
+<form method="GET" action="{{ route('gestion-academica.materias.index') }}" class="row g-2 mb-3 align-items-center" data-autosubmit-form>
     <div class="col-12 col-md-5">
         <div class="input-group">
             <span class="input-group-text bg-body"><i class="fas fa-search"></i></span>
@@ -38,7 +37,7 @@
         </select>
     </div>
     <div class="col-md-2 d-grid">
-        <a href="{{ route('gestion-academica.index', ['tab' => 'materias']) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+        <a href="{{ route('gestion-academica.materias.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
     </div>
 </form>
 
@@ -46,11 +45,11 @@
     <div class="empty-state">
         <div class="empty-icon"><i class="fas fa-book"></i></div>
         @if (($filtros['q'] ?? '') || ($filtros['estado'] ?? ''))
-            <p class="mb-0">No hay materias que coincidan con los filtros.</p>
+            <p class="mb-0">No hay asignaturas que coincidan con los filtros.</p>
         @else
-            <p class="mb-2">Aún no hay materias registradas.</p>
+            <p class="mb-2">Aún no hay asignaturas registradas.</p>
             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaMateria">
-                Registrar la primera materia
+                Registrar la primera asignatura
             </button>
         @endif
     </div>
@@ -59,7 +58,7 @@
         <table class="table table-hover align-middle">
             <thead>
                 <tr>
-                    <th>Materia</th>
+                    <th>Asignatura</th>
                     <th>Intensidad horaria</th>
                     <th>Estado</th>
                     <th class="text-end">Acciones</th>
@@ -70,7 +69,9 @@
                     <tr>
                         <td>
                             <div class="fw-semibold">{{ $materia->nombre_materia }}</div>
-                            @if ($materia->descripcion)
+                            @if ($materia->padre)
+                                <div class="small text-secondary">↳ Sub-asignatura de {{ $materia->padre->nombre_materia }}</div>
+                            @elseif ($materia->descripcion)
                                 <div class="small text-secondary">{{ \Illuminate\Support\Str::limit($materia->descripcion, 80) }}</div>
                             @endif
                         </td>
@@ -110,13 +111,14 @@
     {{ $materias->links('pagination::bootstrap-5') }}
 @endif
 
-{{-- Modal: nueva materia --}}
+@push('modals')
+{{-- Modal: nueva asignatura --}}
 <div class="modal fade" id="modalNuevaMateria" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form data-crud-form data-url="{{ route('gestion-academica.materias.store') }}" novalidate>
                 <div class="modal-header">
-                    <h5 class="modal-title font-serif">Nueva materia</h5>
+                    <h5 class="modal-title font-serif">Nueva asignatura</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -129,6 +131,17 @@
                         <label class="form-label">Descripción</label>
                         <textarea class="form-control" name="descripcion" rows="2" data-feedback="err-nm-descripcion"></textarea>
                         <div class="invalid-feedback" id="err-nm-descripcion"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Asignatura padre</label>
+                        <select class="form-select" name="id_materia_padre" data-feedback="err-nm-padre">
+                            <option value="">Ninguna (asignatura principal)</option>
+                            @foreach ($materiasPadre as $padre)
+                                <option value="{{ $padre->id_materia }}">{{ $padre->nombre_materia }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback" id="err-nm-padre"></div>
+                        <div class="form-text">Si eliges una, esta asignatura queda agrupada como sub-asignatura de esa.</div>
                     </div>
                     <div class="mb-1">
                         <label class="form-label">Intensidad horaria (h/semana) *</label>
@@ -145,14 +158,14 @@
     </div>
 </div>
 
-{{-- Modales: editar materia (uno por fila) --}}
+{{-- Modales: editar asignatura (uno por fila) --}}
 @foreach ($materias as $materia)
     <div class="modal fade" id="modalEditarMateria{{ $materia->id_materia }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form data-crud-form data-url="{{ route('gestion-academica.materias.update', $materia) }}" novalidate>
                     <div class="modal-header">
-                        <h5 class="modal-title font-serif">Editar materia</h5>
+                        <h5 class="modal-title font-serif">Editar asignatura</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
@@ -167,6 +180,16 @@
                             <textarea class="form-control" name="descripcion" rows="2"
                                       data-feedback="err-em-descripcion-{{ $materia->id_materia }}">{{ $materia->descripcion }}</textarea>
                             <div class="invalid-feedback" id="err-em-descripcion-{{ $materia->id_materia }}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Asignatura padre</label>
+                            <select class="form-select" name="id_materia_padre" data-feedback="err-em-padre-{{ $materia->id_materia }}">
+                                <option value="">Ninguna (asignatura principal)</option>
+                                @foreach ($materiasPadre->reject(fn ($p) => $p->id_materia === $materia->id_materia) as $padre)
+                                    <option value="{{ $padre->id_materia }}" @selected($materia->id_materia_padre === $padre->id_materia)>{{ $padre->nombre_materia }}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="err-em-padre-{{ $materia->id_materia }}"></div>
                         </div>
                         <div class="mb-1">
                             <label class="form-label">Intensidad horaria (h/semana) *</label>
@@ -184,3 +207,4 @@
         </div>
     </div>
 @endforeach
+@endpush

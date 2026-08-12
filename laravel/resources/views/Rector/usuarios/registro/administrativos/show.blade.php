@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Administrativo — '.trim($admin->nombres.' '.$admin->apellidos))
 

@@ -1,6 +1,7 @@
 import { initWizard } from '../../components/wizard';
 import { toast } from '../../components/alerts/toast';
 import { setFieldError, clearFormErrors, applyServerErrors } from '../../components/forms/validation';
+import { initDateMask } from '../../components/forms/dateMask';
 import { appUrl } from '../../core/csrf';
 
 const CAMPO_A_PASO = {
@@ -51,6 +52,8 @@ if (form) {
         }
         return valido;
     }
+
+    initDateMask();
 
     const wizard = initWizard(form, { onValidateStep: validarPaso });
 

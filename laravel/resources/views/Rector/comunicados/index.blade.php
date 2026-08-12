@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Comunicados')
 
@@ -31,7 +31,7 @@
                     </thead>
                     <tbody>
                         @foreach ($comunicados as $comunicado)
-                            <tr>
+                            <tr role="button" onclick="window.location='{{ route('comunicados.detalle', ['titulo' => $comunicado->titulo, 'tipo_notificacion' => $comunicado->tipo_notificacion, 'canal' => $comunicado->canal, 'fecha_envio' => $comunicado->fecha_envio]) }}'">
                                 <td>
                                     <div class="fw-semibold">{{ $comunicado->titulo }}</div>
                                     <div class="small text-secondary">{{ \Illuminate\Support\Str::limit($comunicado->mensaje, 70) }}</div>
@@ -51,6 +51,9 @@
         @endif
     </div>
 
+@endsection
+
+@push('modals')
     @php
         $tiposOpciones = ['informativa' => 'Informativa', 'academica' => 'Académica', 'disciplinaria' => 'Disciplinaria', 'pago' => 'Pago', 'sistema' => 'Sistema'];
         $canalesOpciones = ['interno' => 'Interno (panel)', 'correo' => 'Correo', 'whatsapp' => 'WhatsApp', 'todos' => 'Todos los canales'];
@@ -118,7 +121,7 @@
             </div>
         </div>
     </div>
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/comunicados/comunicados.js')

@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Calificaciones')
 
@@ -7,7 +7,7 @@
         <h1 class="h4 fw-semibold font-serif mb-2">Calificaciones</h1>
         <p class="text-secondary small mb-3">
             <i class="fas fa-circle-info me-1"></i>
-            Para crear actividades y cargar notas, entrá a <strong>Gestión Académica → un curso → Materias y profesores asignados → Calificar</strong>.
+            Para crear actividades y cargar notas, entrá a <strong>Gestión Académica → un curso → Asignaturas y profesores asignados → Calificar</strong>.
         </p>
 
         <ul class="nav nav-tabs mb-3">

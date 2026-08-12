@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends(in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel')
 
 @section('title', $asignacion->materia->nombre_materia.' — '.$asignacion->curso->nombre_curso)
 
@@ -109,7 +109,9 @@
             </div>
         @endif
     </div>
+@endsection
 
+@push('modals')
     {{-- Modal: nueva actividad --}}
     <div class="modal fade" id="modalNuevaActividad" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -232,7 +234,7 @@
             </div>
         </div>
     @endforeach
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/calificaciones/asignacion.js')

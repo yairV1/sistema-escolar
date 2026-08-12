@@ -23,6 +23,7 @@ class NotificacionPanelController extends Controller
             'notificaciones' => $usuario->notifications()->limit(10)->get()->map(fn ($notificacion) => [
                 'id' => $notificacion->id,
                 'titulo' => $notificacion->data['titulo'] ?? '',
+                'url' => $notificacion->data['url'] ?? null,
                 'fecha_ocurrencia' => $notificacion->data['fecha_ocurrencia'] ?? null,
                 'hora_inicio' => $notificacion->data['hora_inicio'] ?? null,
                 'leida' => $notificacion->read_at !== null,

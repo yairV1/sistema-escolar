@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', $estudiante ? 'Editar estudiante' : 'Registro de estudiantes')
 
@@ -7,6 +7,7 @@
     $nombresPartes = $u ? explode(' ', $u->nombres, 2) : [];
     $apellidosPartes = $u ? explode(' ', $u->apellidos, 2) : [];
     $parentescoForm = $acudiente ? (array_search($acudiente->parentesco, \App\Modules\Usuarios\Models\Estudiante::PARENTESCO_MAP) ?: 'otro') : '';
+    $fechaNacimientoTexto = $estudiante?->fecha_nacimiento ? \Illuminate\Support\Carbon::parse($estudiante->fecha_nacimiento)->format('d/m/Y') : '';
 
     if (! $estudiante && $solicitud) {
         $partesSolicitud = explode(' ', trim($solicitud->nombre_estudiante));
@@ -24,7 +25,7 @@
 @endphp
 
 @section('content')
-    <div class="container-fluid p-3 p-md-4" style="max-width: 900px;">
+    <div class="container-fluid p-3 p-md-4" style="max-width: 1250px;">
         <div class="d-flex align-items-center gap-2 mb-3">
             <a href="{{ route('listados', ['tab' => 'estudiantes']) }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
@@ -32,27 +33,31 @@
             <h1 class="h4 fw-semibold font-serif mb-0">{{ $estudiante ? 'Editar estudiante' : 'Registro de estudiantes' }}</h1>
         </div>
 
-        <div class="wizard-pills">
-            <div class="wizard-pill active" data-step-link="1"><span class="step-num"><span>1</span></span> Personales</div>
-            <div class="wizard-pill" data-step-link="2"><span class="step-num"><span>2</span></span> Contacto</div>
-            <div class="wizard-pill" data-step-link="3"><span class="step-num"><span>3</span></span> Académico</div>
-            <div class="wizard-pill" data-step-link="4"><span class="step-num"><span>4</span></span> Acudiente</div>
-        </div>
+        <form id="wizardForm" class="wizard-layout" novalidate>
+            <aside class="wizard-rail">
+                <ol class="wizard-rail-list">
+                    <li class="wizard-pill active" data-step-link="1"><span class="step-num"><span>1</span></span> <span class="step-label">Personales</span></li>
+                    <li class="wizard-pill" data-step-link="2"><span class="step-num"><span>2</span></span> <span class="step-label">Contacto</span></li>
+                    <li class="wizard-pill" data-step-link="3"><span class="step-num"><span>3</span></span> <span class="step-label">Académico</span></li>
+                    <li class="wizard-pill" data-step-link="4"><span class="step-num"><span>4</span></span> <span class="step-label">Acudiente</span></li>
+                </ol>
+            </aside>
 
-        @if ($solicitud)
-            <div class="alert alert-info small">
-                <i class="fas fa-inbox me-1"></i> Datos precargados desde la solicitud de admisión enviada por
-                {{ $solicitud->nombre_acudiente }} {{ $solicitud->apellido_acudiente }}. Revisa y completa el resto de campos antes de guardar.
-            </div>
-        @endif
-
-        <form id="wizardForm" novalidate>
+            <div class="wizard-content">
             <input type="hidden" id="idEstudiante" value="{{ $estudiante?->id_estudiante }}">
             <input type="hidden" name="id_solicitud" value="{{ $solicitud?->id_solicitud }}">
+
+            @if ($solicitud)
+                <div class="alert alert-info small">
+                    <i class="fas fa-inbox me-1"></i> Datos precargados desde la solicitud de admisión enviada por
+                    {{ $solicitud->nombre_acudiente }} {{ $solicitud->apellido_acudiente }}. Revisa y completa el resto de campos antes de guardar.
+                </div>
+            @endif
 
             {{-- Paso 1 — Datos personales --}}
             <div class="wizard-step card mb-3" data-step="1">
                 <div class="card-body">
+                    <p class="wizard-step-eyebrow">Datos personales</p>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Primer nombre *</label>
@@ -91,8 +96,9 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Fecha de nacimiento *</label>
-                            <input type="date" class="form-control" name="fecha_nacimiento" id="fecha_nacimiento"
-                                   value="{{ $estudiante?->fecha_nacimiento }}" data-feedback="err-fecha_nacimiento" required>
+                            <input type="text" class="form-control" name="fecha_nacimiento" id="fecha_nacimiento"
+                                   value="{{ $fechaNacimientoTexto }}" placeholder="DD/MM/AAAA" inputmode="numeric" maxlength="10"
+                                   data-date-mask data-feedback="err-fecha_nacimiento" required>
                             <div class="invalid-feedback" id="err-fecha_nacimiento"></div>
                         </div>
                         <div class="col-md-4">
@@ -136,6 +142,7 @@
             {{-- Paso 2 — Contacto --}}
             <div class="wizard-step card mb-3 d-none" data-step="2">
                 <div class="card-body">
+                    <p class="wizard-step-eyebrow">Contacto</p>
                     <div class="row g-3">
                         <div class="col-md-8">
                             <label class="form-label">Dirección *</label>
@@ -188,6 +195,7 @@
             {{-- Paso 3 — Académico --}}
             <div class="wizard-step card mb-3 d-none" data-step="3">
                 <div class="card-body">
+                    <p class="wizard-step-eyebrow">Académico</p>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Tipo de matrícula *</label>
@@ -271,6 +279,7 @@
             {{-- Paso 4 — Acudiente --}}
             <div class="wizard-step card mb-3 d-none" data-step="4">
                 <div class="card-body">
+                    <p class="wizard-step-eyebrow">Acudiente</p>
                     @if ($estudiante)
                         <p class="text-secondary small">Deja este bloque vacío si no quieres cambiar el acudiente registrado.</p>
                     @endif
@@ -342,6 +351,7 @@
                         <i class="fas fa-save me-1"></i> {{ $estudiante ? 'Guardar cambios' : 'Registrar estudiante' }}
                     </button>
                 </div>
+            </div>
             </div>
         </form>
     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', 'Configuración del Colegio')
 
@@ -163,7 +163,9 @@
             </div>
         </div>
     </div>
+@endsection
 
+@push('modals')
     {{-- Modal: nueva imagen de galería --}}
     <div class="modal fade" id="modalNuevaImagen" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -203,7 +205,7 @@
             </div>
         </div>
     </div>
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/configuracion-colegio/configuracion-colegio.js')

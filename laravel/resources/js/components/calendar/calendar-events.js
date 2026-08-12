@@ -39,22 +39,37 @@ export function initPanelEvento() {
 
 /** Callback `eventClick` de FullCalendar: TODO clic (propio, ajeno visible, o derivado) abre el panel. */
 export function crearHandlerAbrirPanel() {
-    return function (info) {
-        const panelEl = document.getElementById('panelEvento');
-        if (!panelEl) return;
+    return (info) => abrirPanelDesdeItem(info.event);
+}
 
-        const { tipo } = info.event.extendedProps;
+/**
+ * Abre y pinta el panel lateral para un ítem — `info.event` de FullCalendar
+ * (start/end ya son Date) o un ítem crudo del feed (start/end como string,
+ * ver calendar-upcoming.js) siempre que traiga `title`/`start`/`end`/
+ * `allDay`/`extendedProps`. Compartido por el clic en el calendario y por
+ * la lista de próximos eventos, para no reimplementar el fetch/pintado.
+ */
+export function abrirPanelDesdeItem(item) {
+    const panelEl = document.getElementById('panelEvento');
+    if (!panelEl) return;
 
-        if (tipo === 'evento') {
-            idEventoActual = info.event.extendedProps.id_evento;
-            abrirDetalleEvento(idEventoActual);
-        } else {
-            idEventoActual = null;
-            abrirDetalleDerivado(info.event);
-        }
+    const { tipo } = item.extendedProps;
 
-        Offcanvas.getOrCreateInstance(panelEl).show();
-    };
+    if (tipo === 'evento') {
+        idEventoActual = item.extendedProps.id_evento;
+        abrirDetalleEvento(idEventoActual);
+    } else {
+        idEventoActual = null;
+        abrirDetalleDerivado({
+            title: item.title,
+            start: item.start instanceof Date ? item.start : new Date(item.start),
+            end: item.end ? (item.end instanceof Date ? item.end : new Date(item.end)) : null,
+            allDay: item.allDay,
+            extendedProps: item.extendedProps,
+        });
+    }
+
+    Offcanvas.getOrCreateInstance(panelEl).show();
 }
 
 async function abrirDetalleEvento(idEvento) {
@@ -251,15 +266,19 @@ async function eliminarAdjunto(idAdjunto) {
     }
 }
 
+let modoActual = 'evento';
+
 function alternarModo(modo) {
+    modoActual = modo;
     document.getElementById('panelEventoContenido')?.classList.toggle('d-none', modo !== 'evento');
     document.getElementById('panelEventoSoloLectura')?.classList.toggle('d-none', modo !== 'derivado');
 }
 
+/** El spinner solo tapa el contenido en modo 'evento' (única rama con un await de por medio); en modo 'derivado' alternarModo() ya decidió qué mostrar y no debe pisarlo. */
 function alternarCargando(cargando) {
     document.getElementById('panelEventoCargando')?.classList.toggle('d-none', !cargando);
-    if (cargando) {
-        document.getElementById('panelEventoContenido')?.classList.add('d-none');
+    if (modoActual === 'evento') {
+        document.getElementById('panelEventoContenido')?.classList.toggle('d-none', cargando);
     }
 }
 

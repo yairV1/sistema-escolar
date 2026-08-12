@@ -90,7 +90,13 @@ async function enviarCrudForm(form) {
     submitBtn && (submitBtn.disabled = true);
 
     try {
-        const payload = Object.fromEntries(new FormData(form).entries());
+        const formData = new FormData(form);
+        // Si hay un archivo seleccionado, se manda el FormData tal cual
+        // (axios arma el multipart/boundary solo) — aplanarlo a JSON, como
+        // se hace para el resto de los formularios, pierde el contenido
+        // binario del archivo.
+        const tieneArchivo = [...formData.values()].some((valor) => valor instanceof File && valor.size > 0);
+        const payload = tieneArchivo ? formData : Object.fromEntries(formData.entries());
         const { data } = await window.axios.post(form.dataset.url, payload);
 
         toast.success(data.message);

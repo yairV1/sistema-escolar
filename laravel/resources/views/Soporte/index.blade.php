@@ -1,4 +1,4 @@
-@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : 'layouts.panel')
+@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : (in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel'))
 
 @section('title', 'Bandeja de soportes')
 

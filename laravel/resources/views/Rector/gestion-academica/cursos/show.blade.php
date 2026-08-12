@@ -1,11 +1,11 @@
-@extends('layouts.panel')
+@extends('layouts.rector')
 
 @section('title', $curso->nombre_curso.' — Detalle del curso')
 
 @section('content')
     <div class="container-fluid p-3 p-md-4">
         <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
-            <a href="{{ route('gestion-academica.index', ['tab' => 'cursos']) }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('gestion-academica.cursos.index') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>
@@ -26,7 +26,7 @@
         <div class="row g-3 mb-4">
             @foreach ([
                 ['icon' => 'fa-user-graduate', 'label' => 'Estudiantes matriculados', 'value' => $estudiantes->count(), 'color' => 'primary'],
-                ['icon' => 'fa-book', 'label' => 'Materias asignadas', 'value' => $asignaciones->count(), 'color' => 'info'],
+                ['icon' => 'fa-book', 'label' => 'Asignaturas asignadas', 'value' => $asignaciones->count(), 'color' => 'info'],
                 ['icon' => 'fa-chalkboard-teacher', 'label' => 'Profesores', 'value' => $profesoresUnicos, 'color' => 'success'],
             ] as $stat)
                 <div class="col-6 col-md-4">
@@ -79,7 +79,7 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h2 class="h6 fw-semibold mb-0"><i class="fas fa-diagram-project text-primary me-1"></i> Materias y profesores asignados</h2>
+                            <h2 class="h6 fw-semibold mb-0"><i class="fas fa-diagram-project text-primary me-1"></i> Asignaturas y profesores asignados</h2>
                             <a href="{{ route('boletines.index', ['curso' => $curso->id_curso]) }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-file-lines me-1"></i> Boletines
                             </a>
@@ -88,8 +88,8 @@
                         @if ($asignaciones->isEmpty())
                             <div class="empty-state">
                                 <div class="empty-icon"><i class="fas fa-diagram-project"></i></div>
-                                <p class="mb-2">Este curso todavía no tiene materias asignadas.</p>
-                                <a href="{{ route('gestion-academica.index', ['tab' => 'asignaciones', 'curso' => $curso->id_curso]) }}" class="btn btn-sm btn-primary">
+                                <p class="mb-2">Este curso todavía no tiene asignaturas asignadas.</p>
+                                <a href="{{ route('gestion-academica.asignaciones.index', ['curso' => $curso->id_curso]) }}" class="btn btn-sm btn-primary">
                                     Ir a Asignaciones
                                 </a>
                             </div>
@@ -124,7 +124,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3 horario-toolbar">
                     <h2 class="h6 fw-semibold mb-0"><i class="fas fa-calendar-week text-primary me-1"></i> Horario semanal</h2>
                     @if ($asignaciones->isEmpty())
-                        <button type="button" class="btn btn-primary btn-sm" disabled title="Asigná al menos una materia primero">
+                        <button type="button" class="btn btn-primary btn-sm" disabled title="Asigná al menos una asignatura primero">
                             <i class="fas fa-plus me-1"></i> Agregar horario
                         </button>
                     @else
@@ -137,7 +137,7 @@
                 @if ($asignaciones->isEmpty())
                     <div class="empty-state">
                         <div class="empty-icon"><i class="fas fa-calendar-week"></i></div>
-                        <p class="mb-0">Asigná materias a este curso para poder armar el horario.</p>
+                        <p class="mb-0">Asigná asignaturas a este curso para poder armar el horario.</p>
                     </div>
                 @else
                     @if ($horarios->isEmpty())
@@ -149,6 +149,9 @@
         </div>
     </div>
 
+@endsection
+
+@push('modals')
     @php
         $diasOpciones = ['lunes' => 'Lunes', 'martes' => 'Martes', 'miercoles' => 'Miércoles', 'jueves' => 'Jueves', 'viernes' => 'Viernes', 'sabado' => 'Sábado'];
 
@@ -181,7 +184,7 @@
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Materia / Profesor *</label>
+                                <label class="form-label">Asignatura / Profesor *</label>
                                 <select class="form-select" name="id_asignacion" data-feedback="err-nh-asignacion" required>
                                     <option value="" selected disabled>Selecciona...</option>
                                     @foreach ($asignaciones as $asignacion)
@@ -251,7 +254,7 @@
                             </div>
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <label class="form-label">Materia / Profesor *</label>
+                                    <label class="form-label">Asignatura / Profesor *</label>
                                     <select class="form-select" name="id_asignacion" data-feedback="err-eh-asignacion-{{ $horario->id_horario }}" required>
                                         @foreach ($asignaciones as $asignacion)
                                             <option value="{{ $asignacion->id_asignacion }}" @selected($horario->id_asignacion == $asignacion->id_asignacion)>
@@ -304,7 +307,7 @@
             </div>
         </div>
     @endforeach
-@endsection
+@endpush
 
 @push('scripts')
     @vite('resources/js/pages/gestion-academica/curso-detalle.js')

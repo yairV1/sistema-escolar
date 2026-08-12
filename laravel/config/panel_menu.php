@@ -56,6 +56,12 @@ return [
             'route' => 'soporte.create',
             'page'  => 'SoporteCreate',
         ],
+        [
+            'title' => 'Mis solicitudes',
+            'icon'  => 'fas fa-clipboard-list',
+            'route' => 'soporte.mis-solicitudes',
+            'page'  => 'SoporteMisSolicitudes',
+        ],
     ],
 
     // ---------- SECCIONES ----------
@@ -99,17 +105,22 @@ return [
                 [
                     'title' => 'Gestión Académica',
                     'icon'  => 'fas fa-graduation-cap',
-                    'route' => 'gestion-academica.index',
-                    'page'  => 'GestionAcademica',
+                    'page'  => 'gestion-academica',
+                    'children' => [
+                        ['title' => 'Asignaturas',    'route' => 'gestion-academica.materias.index',     'page' => 'GestionAcademicaMaterias'],
+                        ['title' => 'Cursos',         'route' => 'gestion-academica.cursos.index',       'page' => 'GestionAcademicaCursos'],
+                        ['title' => 'Asignaciones',   'route' => 'gestion-academica.asignaciones.index', 'page' => 'GestionAcademicaAsignaciones'],
+                        ['title' => 'Horarios',       'route' => 'gestion-academica.horarios.index',     'page' => 'GestionAcademicaHorarios'],
+                        ['title' => 'Calificaciones', 'route' => 'calificaciones.index',                 'page' => 'Calificaciones'],
+                        ['title' => 'Boletines',      'route' => 'boletines.index',                      'page' => 'Boletines'],
+                    ],
                 ],
                 [
-                    'title' => 'Evaluaciones',
+                    'title' => 'Gestión de Convivencia',
                     'icon'  => 'fas fa-clipboard-check',
                     'page'  => 'evaluaciones',
                     'children' => [
-                        ['title' => 'Calificaciones', 'route' => 'calificaciones.index', 'page' => 'Calificaciones'],
-                        ['title' => 'Observaciones',  'route' => 'observaciones.index',  'page' => 'Observaciones'],
-                        ['title' => 'Boletines',      'route' => 'boletines.index',      'page' => 'Boletines'],
+                        ['title' => 'Observaciones', 'route' => 'observaciones.index', 'page' => 'Observaciones'],
                     ],
                 ],
                 [
@@ -167,7 +178,7 @@ return [
             'roles' => ['estudiante'],
             'items' => [
                 ['title' => 'Horario',     'icon' => 'fas fa-calendar-week',   'route' => 'estudiante.horario',     'page' => 'EstudianteHorario'],
-                ['title' => 'Materias',    'icon' => 'fas fa-book',            'route' => 'estudiante.materias',    'page' => 'EstudianteMaterias'],
+                ['title' => 'Asignaturas', 'icon' => 'fas fa-book',            'route' => 'estudiante.materias',    'page' => 'EstudianteMaterias'],
                 ['title' => 'Notas',       'icon' => 'fas fa-star',            'route' => 'estudiante.notas',       'page' => 'EstudianteNotas'],
                 ['title' => 'Asistencia',  'icon' => 'fas fa-clipboard-check', 'route' => 'estudiante.asistencia',  'page' => 'EstudianteAsistencia'],
                 ['title' => 'Comunicados', 'icon' => 'fas fa-bullhorn',        'route' => 'estudiante.comunicados', 'page' => 'EstudianteComunicados'],

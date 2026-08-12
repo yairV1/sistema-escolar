@@ -1,15 +1,15 @@
 @extends('layouts.panel')
 
-@section('title', 'Mis materias')
+@section('title', 'Mis asignaturas')
 
 @section('content')
     <div class="container-fluid p-3 p-md-4">
-        <h1 class="h4 fw-semibold font-serif mb-4">Mis materias</h1>
+        <h1 class="h4 fw-semibold font-serif mb-4">Mis asignaturas</h1>
 
         @if ($materias->isEmpty())
             <div class="empty-state">
                 <div class="empty-icon"><i class="fas fa-book"></i></div>
-                <p class="mb-0">Todavía no tienes materias asignadas este año lectivo.</p>
+                <p class="mb-0">Todavía no tienes asignaturas asignadas este año lectivo.</p>
             </div>
         @else
             <div class="row g-3">

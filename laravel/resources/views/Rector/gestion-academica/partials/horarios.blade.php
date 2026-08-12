@@ -6,11 +6,10 @@
     <div class="empty-state">
         <div class="empty-icon"><i class="fas fa-calendar-week"></i></div>
         <p class="mb-2">Todavía no hay cursos activos para armar un horario.</p>
-        <a href="{{ route('gestion-academica.index', ['tab' => 'cursos']) }}" class="btn btn-sm btn-primary">Ir a Cursos</a>
+        <a href="{{ route('gestion-academica.cursos.index') }}" class="btn btn-sm btn-primary">Ir a Cursos</a>
     </div>
 @else
-    <form method="GET" action="{{ route('gestion-academica.index') }}" class="horario-toolbar" data-autosubmit-form>
-        <input type="hidden" name="tab" value="horarios">
+    <form method="GET" action="{{ route('gestion-academica.horarios.index') }}" class="horario-toolbar" data-autosubmit-form>
         <select class="form-select" name="curso" data-autosubmit>
             @foreach ($cursosParaHorario as $curso)
                 <option value="{{ $curso->id_curso }}" @selected($curso->id_curso == $cursoHorarioId)>
@@ -20,7 +19,7 @@
         </select>
         <div class="ms-md-auto">
             @if ($asignacionesHorario->isEmpty())
-                <button type="button" class="btn btn-primary btn-sm" disabled title="Asigná al menos una materia a este curso primero">
+                <button type="button" class="btn btn-primary btn-sm" disabled title="Asigná al menos una asignatura a este curso primero">
                     <i class="fas fa-plus me-1"></i> Agregar horario
                 </button>
             @else
@@ -34,7 +33,7 @@
     @if ($asignacionesHorario->isEmpty())
         <div class="empty-state">
             <div class="empty-icon"><i class="fas fa-calendar-week"></i></div>
-            <p class="mb-0">Asigná materias a este curso para poder armar el horario.</p>
+            <p class="mb-0">Asigná asignaturas a este curso para poder armar el horario.</p>
         </div>
     @else
         @if ($horariosCurso->isEmpty())
@@ -43,6 +42,7 @@
         @include('Rector.gestion-academica.partials.horario-grid', ['horarios' => $horariosCurso, 'puedeAgregar' => true])
     @endif
 
+@push('modals')
     @php
         $diasCompletos = ['lunes' => 'Lunes', 'martes' => 'Martes', 'miercoles' => 'Miércoles', 'jueves' => 'Jueves', 'viernes' => 'Viernes', 'sabado' => 'Sábado'];
         $cursoActual = $cursosParaHorario->firstWhere('id_curso', $cursoHorarioId);
@@ -76,7 +76,7 @@
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Materia / Profesor *</label>
+                                <label class="form-label">Asignatura / Profesor *</label>
                                 <select class="form-select" name="id_asignacion" data-feedback="err-nhg-asignacion" required>
                                     <option value="" selected disabled>Selecciona...</option>
                                     @foreach ($asignacionesHorario as $asignacion)
@@ -149,7 +149,7 @@
                             </div>
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <label class="form-label">Materia / Profesor *</label>
+                                    <label class="form-label">Asignatura / Profesor *</label>
                                     <select class="form-select" name="id_asignacion" data-feedback="err-ehg-asignacion-{{ $horario->id_horario }}" required>
                                         @foreach ($asignacionesHorario as $asignacion)
                                             <option value="{{ $asignacion->id_asignacion }}" @selected($horario->id_asignacion == $asignacion->id_asignacion)>
@@ -202,4 +202,5 @@
             </div>
         </div>
     @endforeach
+@endpush
 @endif

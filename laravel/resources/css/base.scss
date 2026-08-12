@@ -6,6 +6,24 @@ html {
     scroll-behavior: smooth;
 }
 
+// Scrollbar del navegador (Firefox + Chrome/Edge/Safari) alineado con los
+// tokens del tema activo, en vez del scroll gris por defecto del sistema
+// operativo — se nota especialmente en modo oscuro, donde ese gris claro
+// desentona contra el fondo oscuro.
+html {
+    scrollbar-color: var(--bs-border-color) transparent;
+    scrollbar-width: thin;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--bs-border-color);
+    border-radius: 10px;
+    border: 2px solid var(--bs-body-bg);
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--bs-secondary-color); }
+
 body {
     color: var(--cs-verde-oscuro, var(--bs-body-color));
 }
