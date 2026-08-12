@@ -92,8 +92,12 @@ return [
                 [
                     'title' => 'Listados',
                     'icon'  => 'fas fa-list-alt',
-                    'route' => 'listados',
-                    'page'  => 'Listados',
+                    'page'  => 'listados',
+                    'children' => [
+                        ['title' => 'Estudiantes',     'route' => 'listados.estudiantes.index',     'page' => 'ListadosEstudiantes'],
+                        ['title' => 'Docentes',        'route' => 'listados.docentes.index',        'page' => 'ListadosDocentes'],
+                        ['title' => 'Administrativos', 'route' => 'listados.administrativos.index', 'page' => 'ListadosAdministrativos'],
+                    ],
                 ],
             ],
         ],

@@ -1,0 +1,426 @@
+// Página 404: "radar" de sistema buscando la ruta perdida + mascota,
+// todo dibujado con CSS/SVG inline (sin assets externos) y coherente con
+// la paleta institucional en ambos temas.
+.notfound-page {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    max-width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(var(--bs-primary-rgb), .14), transparent 42%),
+        radial-gradient(circle at 85% 90%, rgba(var(--bs-primary-rgb), .12), transparent 46%),
+        radial-gradient(circle at 50% 0%, var(--cs-verde-claro) 0%, var(--bs-body-bg) 65%);
+}
+
+// Grilla técnica muy sutil, apagada hacia los bordes con una máscara radial.
+.notfound-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--bs-border-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bs-border-color) 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: .3;
+    -webkit-mask-image: radial-gradient(circle at 50% 38%, #000 0%, transparent 65%);
+    mask-image: radial-gradient(circle at 50% 38%, #000 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.notfound-cloud {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--cs-verde-suave);
+    filter: blur(55px);
+    opacity: .5;
+    pointer-events: none;
+}
+
+.notfound-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    min-width: 0;
+    max-width: 460px;
+}
+
+// ---- 404 con profundidad (capa outline detrás + capa degradada encima) ----
+.notfound-hero {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+    margin-bottom: -.5rem;
+}
+
+.notfound-hero__ghost,
+.notfound-hero__main {
+    display: block;
+    font-family: var(--cs-font-serif);
+    font-weight: 700;
+    font-size: clamp(4.25rem, 15vw, 7rem);
+    letter-spacing: -.02em;
+}
+
+.notfound-hero__ghost {
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--bs-primary);
+    opacity: .3;
+    transform: translate(7px, 7px);
+    z-index: 0;
+}
+
+.notfound-hero__main {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(160deg, var(--bs-primary), var(--cs-verde-oscuro));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+// ---- Radar: anillos + barrido + mascota + dos íconos orbitando ----
+.notfound-radar {
+    position: relative;
+    width: clamp(190px, 34vw, 250px);
+    height: clamp(190px, 34vw, 250px);
+    margin: .5rem 0 1.25rem;
+}
+
+.notfound-radar__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px dashed var(--bs-border-color);
+}
+
+.notfound-radar__ring--inner {
+    inset: 16%;
+    border-style: solid;
+    border-color: rgba(var(--bs-primary-rgb), .18);
+}
+
+.notfound-radar__sweep {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(var(--bs-primary-rgb), .55), transparent);
+    transform-origin: left center;
+    animation: notfound-sweep 5s linear infinite;
+}
+
+@keyframes notfound-sweep {
+    to { transform: rotate(360deg); }
+}
+
+.notfound-radar__chip {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--bs-card-bg, var(--bs-body-bg));
+    color: var(--bs-primary);
+    box-shadow: var(--cs-shadow-sm);
+    border: 1px solid var(--bs-border-color);
+    animation: notfound-chip-float 3.6s ease-in-out infinite;
+}
+
+.notfound-radar__chip svg {
+    width: 17px;
+    height: 17px;
+}
+
+.notfound-radar__chip--doc {
+    top: 4%;
+    right: 2%;
+}
+
+.notfound-radar__chip--cap {
+    bottom: 10%;
+    left: -4%;
+    animation-delay: .6s;
+}
+
+@keyframes notfound-chip-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+}
+
+.notfound-mascot {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 58%;
+    height: 58%;
+    animation: notfound-float 3.2s ease-in-out infinite;
+}
+
+@keyframes notfound-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.notfound-mascot__body {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, var(--bs-primary), var(--cs-verde-oscuro));
+    border-radius: 46% 54% 58% 42% / 55% 48% 52% 45%;
+    box-shadow: var(--cs-shadow-md);
+}
+
+.notfound-mascot__eyes {
+    position: absolute;
+    top: 33%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 16%;
+}
+
+.notfound-mascot__eye {
+    width: 27%;
+    aspect-ratio: 1;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notfound-mascot__eye span {
+    width: 44%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cs-gris-oscuro);
+    animation: notfound-look 4.5s ease-in-out infinite;
+}
+
+.notfound-mascot__eye--right span {
+    animation-delay: .1s;
+}
+
+@keyframes notfound-look {
+    0%, 15%   { transform: translate(0, 0); }
+    25%, 40%  { transform: translate(-15%, 10%); }
+    50%, 65%  { transform: translate(15%, -10%); }
+    75%, 90%  { transform: translate(0, 10%); }
+    100%      { transform: translate(0, 0); }
+}
+
+.notfound-mascot__blush {
+    position: absolute;
+    top: 46%;
+    width: 14%;
+    aspect-ratio: 1.4 / 1;
+    background: #ff9d9d;
+    opacity: .5;
+    border-radius: 50%;
+}
+
+.notfound-mascot__blush--left { left: 8%; }
+.notfound-mascot__blush--right { right: 8%; }
+
+.notfound-mascot__mouth {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    width: 16%;
+    aspect-ratio: 1 / 1.15;
+    background: #fff;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12);
+}
+
+// ---- Indicador de estado ----
+.notfound-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--bs-secondary-color);
+    margin-bottom: .75rem;
+}
+
+.notfound-status__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    animation: notfound-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes notfound-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .25; }
+}
+
+// ---- Tarjeta de diagnóstico (panel translúcido) ----
+.notfound-card {
+    width: 100%;
+    min-width: 0;
+    text-align: left;
+    // Fallback sólido primero: si el navegador no soporta color-mix(), se
+    // queda con este; si lo soporta, la siguiente línea lo reemplaza.
+    background: var(--bs-card-bg, var(--bs-body-bg));
+    background: color-mix(in srgb, var(--bs-card-bg, var(--bs-body-bg)) 78%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    padding: .85rem 1.1rem;
+    box-shadow: var(--cs-shadow-sm);
+}
+
+.notfound-card__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: .4rem 0;
+    min-width: 0;
+}
+
+.notfound-card__row + .notfound-card__row {
+    border-top: 1px dashed var(--bs-border-color);
+}
+
+.notfound-card__label {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--bs-secondary-color);
+}
+
+.notfound-card__label i {
+    color: var(--bs-primary);
+    font-size: .8rem;
+}
+
+.notfound-card__value {
+    min-width: 0;
+    font-size: .85rem;
+    color: var(--bs-emphasis-color);
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notfound-card__value--code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--bs-tertiary-bg);
+    padding: .15rem .45rem;
+    border-radius: .35rem;
+    cursor: help;
+}
+
+// ---- Botones ----
+.notfound-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .6rem;
+}
+
+.notfound-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.notfound-actions .btn:hover {
+    transform: translateY(-2px);
+}
+
+.notfound-actions .btn:active {
+    transform: translateY(0);
+}
+
+.notfound-actions .btn i {
+    transition: transform .2s ease;
+}
+
+.notfound-actions .btn:hover i {
+    transform: translateX(-2px);
+}
+
+.notfound-actions .btn-outline-secondary:hover i {
+    transform: rotate(-45deg);
+}
+
+// ---- Entrada progresiva (una sola vez) ----
+.notfound-content > * {
+    animation: notfound-fade-up .5s ease both;
+}
+
+.notfound-content > *:nth-child(1) { animation-delay: 0s; }
+.notfound-content > *:nth-child(2) { animation-delay: .1s; }
+.notfound-content > *:nth-child(3) { animation-delay: .25s; }
+.notfound-content > *:nth-child(4) { animation-delay: .35s; }
+.notfound-content > *:nth-child(5) { animation-delay: .42s; }
+.notfound-content > *:nth-child(6) { animation-delay: .5s; }
+.notfound-content > *:nth-child(7) { animation-delay: .58s; }
+
+@keyframes notfound-fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 420px) {
+    .notfound-radar { margin: .25rem 0 1rem; }
+
+    .notfound-card__row {
+        flex-wrap: wrap;
+    }
+
+    .notfound-card__value {
+        width: 100%;
+        flex: 1 1 100%;
+        text-align: left;
+        // La ruta larga se ve mejor partida en dos líneas en pantallas
+        // angostas que truncada con "…" — hay poco ancho para lucirla.
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .notfound-actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}
+
+// Respeta la preferencia del sistema: nada de barrido, flotado, parpadeo
+// ni entrada en cascada — todo aparece fijo de una.
+@media (prefers-reduced-motion: reduce) {
+    .notfound-radar__sweep,
+    .notfound-radar__chip,
+    .notfound-mascot,
+    .notfound-mascot__eye span,
+    .notfound-status__dot,
+    .notfound-content > * {
+        animation: none !important;
+    }
+}

@@ -16,23 +16,41 @@ class ListadosController extends Controller
     /** id_rol considerados "personal administrativo" (no hay tabla propia, son usuarios de estos roles). */
     private const ROLES_ADMINISTRATIVOS = [1, 2, 3, 4];
 
-    public function index(Request $request): View
+    public function estudiantes(Request $request): View
     {
-        $tab = $request->query('tab', 'estudiantes');
-        $tab = in_array($tab, ['estudiantes', 'docentes', 'administrativos'], true) ? $tab : 'estudiantes';
-
         return view('Rector.usuarios.listados.index', [
-            'currentPage' => 'Listados',
-            'tab' => $tab,
-            'filtros' => $request->only(['q', 'estado', 'curso', 'rol']),
+            'currentPage' => 'ListadosEstudiantes',
+            'tab' => 'estudiantes',
+            'titulo' => 'Estudiantes',
+            'filtros' => $request->only(['q', 'estado', 'curso']),
             'cursos' => Curso::orderBy('nivel_academico')->orderBy('nombre_curso')->get(),
-            'estudiantes' => $tab === 'estudiantes' ? $this->buscarEstudiantes($request) : null,
-            'resumenEstudiantes' => $tab === 'estudiantes' ? $this->resumenEstudiantes() : null,
-            'idsEnRiesgo' => $tab === 'estudiantes' ? Estudiante::idsEnRiesgo() : null,
-            'docentes' => $tab === 'docentes' ? $this->buscarDocentes($request) : null,
-            'resumenDocentes' => $tab === 'docentes' ? $this->resumenDocentes() : null,
-            'administrativos' => $tab === 'administrativos' ? $this->buscarAdministrativos($request) : null,
-            'resumenAdministrativos' => $tab === 'administrativos' ? $this->resumenAdministrativos() : null,
+            'estudiantes' => $this->buscarEstudiantes($request),
+            'resumenEstudiantes' => $this->resumenEstudiantes(),
+            'idsEnRiesgo' => Estudiante::idsEnRiesgo(),
+        ]);
+    }
+
+    public function docentes(Request $request): View
+    {
+        return view('Rector.usuarios.listados.index', [
+            'currentPage' => 'ListadosDocentes',
+            'tab' => 'docentes',
+            'titulo' => 'Docentes',
+            'filtros' => $request->only(['q', 'estado']),
+            'docentes' => $this->buscarDocentes($request),
+            'resumenDocentes' => $this->resumenDocentes(),
+        ]);
+    }
+
+    public function administrativos(Request $request): View
+    {
+        return view('Rector.usuarios.listados.index', [
+            'currentPage' => 'ListadosAdministrativos',
+            'tab' => 'administrativos',
+            'titulo' => 'Administrativos',
+            'filtros' => $request->only(['q', 'estado', 'rol']),
+            'administrativos' => $this->buscarAdministrativos($request),
+            'resumenAdministrativos' => $this->resumenAdministrativos(),
         ]);
     }
 
