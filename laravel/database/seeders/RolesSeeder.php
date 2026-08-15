@@ -22,10 +22,10 @@ class RolesSeeder extends Seeder
         $ahora = now();
 
         $roles = [
-            ['id_rol' => 1, 'nombre_rol' => 'Administrador Técnico', 'descripcion' => 'Operatividad tecnica del sistema y gestion de accesos', 'estado' => 'activo', 'fecha_creacion' => $ahora],
-            ['id_rol' => 2, 'nombre_rol' => 'Rector', 'descripcion' => 'Maxima autoridad institucional', 'estado' => 'activo', 'fecha_creacion' => $ahora],
+            ['id_rol' => 1, 'nombre_rol' => 'Administrador', 'descripcion' => 'Operatividad tecnica del sistema y gestion de accesos', 'estado' => 'activo', 'fecha_creacion' => $ahora],
+            ['id_rol' => 2, 'nombre_rol' => 'Directivo', 'descripcion' => 'Maxima autoridad institucional', 'estado' => 'activo', 'fecha_creacion' => $ahora],
             ['id_rol' => 3, 'nombre_rol' => 'Coordinador', 'descripcion' => 'Continuidad y calidad del proceso academico diario', 'estado' => 'activo', 'fecha_creacion' => $ahora],
-            ['id_rol' => 4, 'nombre_rol' => 'Secretaría', 'descripcion' => 'Operacion administrativa formal del colegio', 'estado' => 'activo', 'fecha_creacion' => $ahora],
+            ['id_rol' => 4, 'nombre_rol' => 'Secretario', 'descripcion' => 'Operacion administrativa formal del colegio', 'estado' => 'activo', 'fecha_creacion' => $ahora],
             ['id_rol' => 5, 'nombre_rol' => 'Docente', 'descripcion' => 'Proceso de enseñanza, evaluacion y seguimiento del estudiante', 'estado' => 'activo', 'fecha_creacion' => $ahora],
             ['id_rol' => 6, 'nombre_rol' => 'Estudiante', 'descripcion' => 'Participante de su propio proceso formativo', 'estado' => 'activo', 'fecha_creacion' => $ahora],
             ['id_rol' => 7, 'nombre_rol' => 'Acudiente', 'descripcion' => 'Acompañamiento del proceso educativo desde la familia', 'estado' => 'activo', 'fecha_creacion' => $ahora],

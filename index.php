@@ -14,7 +14,7 @@
  * para que coincida con la URL pública antes de cargar Laravel.
  */
 
-$_SERVER['SCRIPT_NAME'] = '/colegio/index.php';
+$_SERVER['SCRIPT_NAME'] = '/sistema-escolar/index.php';
 $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/laravel/public/index.php';
 
 chdir(__DIR__ . '/laravel/public');

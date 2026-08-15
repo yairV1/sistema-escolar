@@ -4,7 +4,7 @@
 # sin que el navegador vea ese cambio.
 # =============================================================
 RewriteEngine On
-RewriteBase /colegio/
+RewriteBase /sistema-escolar/
 
 # Deja pasar archivos o carpetas reales tal cual (scripts/, docs/, y
 # cualquier otra cosa que exista físicamente acá).
@@ -14,7 +14,7 @@ RewriteRule ^ - [L]
 
 # Assets estáticos que sí existen dentro de laravel/public/ (build/, etc.):
 # se sirven directo desde ahí, sin pasar por PHP.
-RewriteCond %{DOCUMENT_ROOT}/colegio/laravel/public/$1 -f
+RewriteCond %{DOCUMENT_ROOT}/sistema-escolar/laravel/public/$1 -f
 RewriteRule ^(.*)$ laravel/public/$1 [L]
 
 # Cualquier otra ruta (las rutas reales de Laravel) pasa por el shim de
