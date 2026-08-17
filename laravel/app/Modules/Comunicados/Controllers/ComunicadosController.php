@@ -81,7 +81,7 @@ class ComunicadosController extends Controller
 
         $destinatarios = Usuario::where('estado_usuario', 'activo')
             ->whereIn('id_rol', $idsRoles)
-            ->get(['id_usuario', 'correo', 'telefono']);
+            ->get(['id_usuario', 'correo', 'telefono', 'notificaciones_email']);
 
         if ($destinatarios->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'No hay usuarios activos para los destinatarios seleccionados.'], 422);
@@ -137,7 +137,7 @@ class ComunicadosController extends Controller
     private function enviarPorCorreo($destinatarios, string $titulo, string $mensaje, string $tipoNotificacion): void
     {
         foreach ($destinatarios as $usuario) {
-            if (empty($usuario->correo)) {
+            if (empty($usuario->correo) || ! $usuario->notificaciones_email) {
                 continue;
             }
 

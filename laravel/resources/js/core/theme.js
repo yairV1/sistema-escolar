@@ -1,11 +1,24 @@
 const STORAGE_KEY = 'cs-theme';
 
-function applyTheme(theme) {
+/**
+ * persist=false para la sincronización inicial al cargar la página: ese
+ * valor puede venir de la detección automática de tema del sistema
+ * (prefers-color-scheme), no de una elección consciente del usuario — no
+ * hay que guardar eso en la cuenta como si lo hubiera elegido. Solo se
+ * persiste cuando el usuario clickea el toggle a propósito.
+ */
+function applyTheme(theme, { persist = true } = {}) {
     document.documentElement.setAttribute('data-bs-theme', theme);
     localStorage.setItem(STORAGE_KEY, theme);
     document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
         btn.setAttribute('aria-pressed', theme === 'dark');
     });
+
+    // Fire-and-forget: en la página de login (sin sesión) esto simplemente
+    // falla en silencio, mismo patrón defensivo que initPanelSearch().
+    if (persist) {
+        window.axios?.post('/perfil/preferencias', { tema: theme }).catch(() => {});
+    }
 }
 
 /**
@@ -27,7 +40,7 @@ export function initTheme() {
     }
 
     const current = document.documentElement.getAttribute('data-bs-theme') || 'light';
-    applyTheme(current);
+    applyTheme(current, { persist: false });
 
     document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
         btn.addEventListener('click', () => {

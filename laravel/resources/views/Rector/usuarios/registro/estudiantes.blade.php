@@ -27,7 +27,7 @@
 @section('content')
     <div class="container-fluid p-3 p-md-4" style="max-width: 1250px;">
         <div class="d-flex align-items-center gap-2 mb-3">
-            <a href="{{ route('listados', ['tab' => 'estudiantes']) }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('listados.estudiantes.index') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <h1 class="h4 fw-semibold font-serif mb-0">{{ $estudiante ? 'Editar estudiante' : 'Registro de estudiantes' }}</h1>

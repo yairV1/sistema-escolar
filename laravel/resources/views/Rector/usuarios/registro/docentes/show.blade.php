@@ -5,7 +5,7 @@
 @section('content')
     <div class="container-fluid p-3 p-md-4">
         <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
-            <a href="{{ route('listados', ['tab' => 'docentes']) }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('listados.docentes.index') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>

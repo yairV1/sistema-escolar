@@ -46,9 +46,9 @@ class SidebarBuilder
                 $this->resolveUrl($item),
                 $isActive ? ' active' : '',
                 $this->esc($item['page'] ?? ''),
-                $this->esc($item['title']),
+                $this->title($item['title']),
                 $this->esc($item['icon']),
-                $this->esc($item['title']),
+                $this->title($item['title']),
             );
         }
         $out .= '</ul>';
@@ -72,7 +72,7 @@ class SidebarBuilder
 
         return sprintf(
             '<div class="nav-section"><span class="nav-group-label">%s</span><ul>%s</ul></div>',
-            $this->esc($section['section']),
+            $this->title($section['section']),
             $itemsHtml,
         );
     }
@@ -93,9 +93,9 @@ class SidebarBuilder
             $this->resolveUrl($item),
             $isActive ? ' active' : '',
             $this->esc($item['page'] ?? ''),
-            $this->esc($item['title']),
+            $this->title($item['title']),
             $this->esc($item['icon']),
-            $this->esc($item['title']),
+            $this->title($item['title']),
             $this->renderBadge($item['badge'] ?? null),
         );
     }
@@ -116,7 +116,7 @@ class SidebarBuilder
                 $this->resolveUrl($child),
                 $childActive ? ' active' : '',
                 $this->esc($child['page'] ?? ''),
-                $this->esc($child['title']),
+                $this->title($child['title']),
                 $this->renderBadge($child['badge'] ?? null),
             );
         }
@@ -137,12 +137,12 @@ class SidebarBuilder
             $isOpen ? ' is-open' : '',
             $childrenActive ? ' active' : '',
             $isOpen ? 'true' : 'false',
-            $this->esc($item['title']),
+            $this->title($item['title']),
             $this->esc($item['icon']),
-            $this->esc($item['title']),
+            $this->title($item['title']),
             $this->renderBadge($item['badge'] ?? null),
             $isOpen ? '' : 'style="display:none;"',
-            $this->esc($item['title']),
+            $this->title($item['title']),
             $childrenHtml,
         );
     }
@@ -206,5 +206,16 @@ class SidebarBuilder
     private function esc(?string $value): string
     {
         return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Título/label de sección traducible: __() devuelve el mismo texto sin
+     * cambios si no hay entrada para el locale activo en lang/*.json, así
+     * que envolver todo acá es seguro aunque la mayoría de los items
+     * todavía no tengan traducción cargada (ver lang/en.json).
+     */
+    private function title(?string $value): string
+    {
+        return $this->esc(__($value ?? ''));
     }
 }

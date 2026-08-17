@@ -16,6 +16,7 @@ export function initNotificacionesBell() {
     const indexUrl = raiz.dataset.indexUrl;
     const leerTodasUrl = raiz.dataset.leerTodasUrl;
     const calendarioUrl = raiz.dataset.calendarioUrl;
+    const emptyText = raiz.dataset.emptyText || 'No tienes notificaciones.';
 
     let cargado = false;
 
@@ -26,7 +27,7 @@ export function initNotificacionesBell() {
 
     function pintar(notificaciones) {
         if (notificaciones.length === 0) {
-            lista.innerHTML = '<p class="campanita-vacio">No tienes notificaciones.</p>';
+            lista.innerHTML = `<p class="campanita-vacio">${escaparHtml(emptyText)}</p>`;
             return;
         }
 

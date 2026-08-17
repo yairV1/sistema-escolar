@@ -18,6 +18,8 @@
     --sb-primary: #{$verde-principal};
     --sb-primary-dark: #{$verde-oscuro};
     --sb-primary-light: #{$verde-claro};
+    --sb-on-primary: #ffffff;
+    --hero-gradient: linear-gradient(135deg, #{$verde-oscuro} 0%, #{$verde-principal} 100%);
 
     --sb-bg: #ffffff;
     --sb-bg-alt: #f4f6f4;
@@ -61,6 +63,60 @@
     --sb-badge-urgente-text: #f29a98;
     --sb-badge-novedad-bg: #17263a;
     --sb-badge-novedad-text: #8ab4e6;
+}
+
+// ---------- Componentes de Bootstrap dirigidos por --sb-primary ----------
+// Mismo motivo que en _rector.scss/_docente.scss: varios componentes de
+// Bootstrap fijan su color en variables LOCALES a su propia clase en
+// tiempo de compilación (--bs-btn-bg dentro de .btn-primary, etc.), no
+// solo en --bs-primary global — así que no alcanza con cambiar los tokens
+// de arriba, hay que redeclarar estos puntuales para que reaccionen en
+// runtime. Esto no cambia el look por defecto (los tokens de :root ya son
+// este mismo verde) — solo hace que un color de acento elegido por el
+// usuario (ver App\Shared\AccentColor) también pinte estos componentes
+// para los roles que usan este layout base (estudiante/acudiente/
+// secretaría/coordinador). Rector/Docente/SuperAdmin ya tienen su propio
+// bloque equivalente con selector más específico (body[data-panel="..."]),
+// que sigue ganando por especificidad sobre este.
+.btn-primary {
+    --bs-btn-color: var(--sb-on-primary, #ffffff);
+    --bs-btn-bg: var(--sb-primary);
+    --bs-btn-border-color: var(--sb-primary);
+    --bs-btn-hover-color: var(--sb-on-primary, #ffffff);
+    --bs-btn-hover-bg: var(--sb-primary-dark);
+    --bs-btn-hover-border-color: var(--sb-primary-dark);
+    --bs-btn-active-color: var(--sb-on-primary, #ffffff);
+    --bs-btn-active-bg: var(--sb-primary-dark);
+    --bs-btn-active-border-color: var(--sb-primary-dark);
+    --bs-btn-disabled-color: var(--sb-on-primary, #ffffff);
+    --bs-btn-disabled-bg: var(--sb-primary);
+    --bs-btn-disabled-border-color: var(--sb-primary);
+}
+
+.pagination {
+    --bs-pagination-active-bg: var(--sb-primary);
+    --bs-pagination-active-border-color: var(--sb-primary);
+    --bs-pagination-color: var(--sb-primary-dark);
+    --bs-pagination-hover-color: var(--sb-primary-dark);
+}
+
+.nav-pills { --bs-nav-pills-link-active-bg: var(--sb-primary); }
+
+.dropdown-item.active, .dropdown-item:active { background-color: var(--sb-primary); }
+
+.table-secondary {
+    --bs-table-bg: var(--sb-primary-light);
+    --bs-table-color: var(--sb-primary-dark);
+    --bs-table-border-color: var(--bs-border-color);
+}
+
+.form-check-input:checked {
+    background-color: var(--sb-primary);
+    border-color: var(--sb-primary);
+}
+.form-check-input:focus {
+    border-color: var(--sb-primary);
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb), .25);
 }
 
 // ---------- Cuerpo con sidebar: desplaza el contenido ----------
