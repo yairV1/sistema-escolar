@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
     <title>@yield('title', 'Panel') · {{ (auth()->user()?->institucion?->nombre) ?? $colegioConfiguracion->nombre_colegio }}</title>
+    <link rel="icon" href="{{ auth()->user()?->institucion?->logoUrl ?? asset('favicon.ico') }}">
 
     <script>
         (function () {
@@ -15,9 +16,7 @@
         })();
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/fonts/fonts.css') }}">
 
     @vite(['resources/css/app.scss', 'resources/js/app.js', 'resources/js/pages/panel/panel.js'])
     @stack('styles')
