@@ -20,6 +20,7 @@ export default defineConfig({
                 'resources/js/pages/calificaciones/calificaciones.js',
                 'resources/js/pages/calificaciones/asignacion.js',
                 'resources/js/pages/calificaciones/notas.js',
+                'resources/js/pages/calificaciones/planilla.js',
                 'resources/js/pages/observaciones/observaciones.js',
                 'resources/js/pages/boletines/boletines.js',
                 'resources/js/pages/asistencia/asistencia.js',

@@ -87,18 +87,4 @@ class EstudianteController extends Controller
             'comunicados' => PortalFamiliaFixtures::comunicados(),
         ]);
     }
-
-    public function perfil(): View
-    {
-        return view('Estudiante.perfil', [
-            'currentPage' => 'EstudiantePerfil',
-            'usuario' => auth()->user(),
-            'acudiente' => (object) [
-                'nombre' => 'Claudia Gómez de Martínez',
-                'parentesco' => 'Madre',
-                'telefono' => '300 555 1234',
-                'correo' => 'claudia.gomez@example.com',
-            ],
-        ]);
-    }
 }

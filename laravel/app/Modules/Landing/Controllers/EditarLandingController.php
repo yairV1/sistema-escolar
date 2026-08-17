@@ -46,6 +46,33 @@ class EditarLandingController extends Controller
         return response()->json(['success' => true, 'message' => 'Contenido actualizado correctamente.']);
     }
 
+    public function updateHeroImagen(Request $request): JsonResponse
+    {
+        $request->validate(['hero_imagen' => ['required', 'image', 'max:4096']]);
+
+        $actual = LandingContenido::where('clave', 'hero_imagen')->value('valor');
+        if ($actual) {
+            Storage::disk('public')->delete($actual);
+        }
+
+        $ruta = $request->file('hero_imagen')->store('landing/hero', 'public');
+        LandingContenido::updateOrCreate(['clave' => 'hero_imagen'], ['valor' => $ruta, 'actualizado_en' => now()]);
+
+        return response()->json(['success' => true, 'message' => 'Imagen principal actualizada correctamente.']);
+    }
+
+    public function removerHeroImagen(): JsonResponse
+    {
+        $actual = LandingContenido::where('clave', 'hero_imagen')->value('valor');
+        if ($actual) {
+            Storage::disk('public')->delete($actual);
+        }
+
+        LandingContenido::where('clave', 'hero_imagen')->update(['valor' => null, 'actualizado_en' => now()]);
+
+        return response()->json(['success' => true, 'message' => 'Imagen principal eliminada.']);
+    }
+
     public function storeNoticia(LandingNoticiaRequest $request): JsonResponse
     {
         $data = $request->validated();

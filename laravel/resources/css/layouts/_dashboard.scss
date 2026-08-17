@@ -6,9 +6,9 @@
 // =============================================================
 
 .dash-welcome {
-    background: linear-gradient(135deg, $verde-oscuro 0%, $verde-principal 100%);
+    background: var(--hero-gradient);
     border-radius: var(--bs-border-radius-xl);
-    color: #fff;
+    color: var(--sb-on-primary, #fff);
     padding: 1.75rem 2rem;
 }
 

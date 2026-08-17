@@ -3,6 +3,7 @@
 namespace App\Modules\Perfil\Controllers;
 
 use App\Core\Http\Controllers\Controller;
+use App\Shared\Fixtures\PortalFamiliaFixtures;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,9 +15,22 @@ class PerfilController extends Controller
 {
     public function show(): View
     {
-        return view('Rector.perfil.index', [
+        $usuario = auth()->user();
+
+        $datosFamilia = match ($usuario->rolSlug) {
+            'estudiante' => ['acudiente' => PortalFamiliaFixtures::acudienteDe()],
+            'acudiente' => ['hijos' => PortalFamiliaFixtures::hijos()->map(fn ($h) => (object) array_merge((array) $h, [
+                'parentesco' => 'Madre',
+                'es_principal' => $h->id === 1,
+            ]))],
+            default => [],
+        };
+
+        return view('Perfil.index', [
             'currentPage' => 'Perfil',
-            'usuario' => auth()->user(),
+            'usuario' => $usuario,
+            'dosFactoresActivo' => $usuario->tieneDosFactoresActivos(),
+            ...$datosFamilia,
         ]);
     }
 
@@ -65,5 +79,25 @@ class PerfilController extends Controller
         $usuario->update(['password' => Hash::make($data['password_nueva'])]);
 
         return response()->json(['success' => true, 'message' => 'Contraseña actualizada correctamente.']);
+    }
+
+    /**
+     * Validación `sometimes` a propósito: este mismo endpoint lo usan tanto
+     * el formulario completo de la pestaña Configuración (idioma+tema+
+     * notificaciones) como el toggle de sol/luna de la topbar, que solo
+     * manda `tema` — ver resources/js/core/theme.js.
+     */
+    public function updatePreferencias(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'idioma' => ['sometimes', 'in:es,en'],
+            'tema' => ['sometimes', 'nullable', 'in:light,dark'],
+            'notificaciones_email' => ['sometimes', 'boolean'],
+            'color_acento' => ['sometimes', 'nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+        ]);
+
+        auth()->user()->update($data);
+
+        return response()->json(['success' => true, 'message' => 'Preferencias actualizadas correctamente.']);
     }
 }

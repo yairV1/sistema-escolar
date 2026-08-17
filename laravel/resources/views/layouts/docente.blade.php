@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
-    <title>@yield('title', 'Panel') · {{ (auth()->user()?->institucion?->nombre) ?? $colegioConfiguracion->nombre_colegio }}</title>
+    <title>@yield('title', __('Panel')) · {{ (auth()->user()?->institucion?->nombre) ?? $colegioConfiguracion->nombre_colegio }}</title>
 
     <script>
         (function () {
@@ -24,7 +24,7 @@
     @stack('styles')
     @stack('scripts')
 </head>
-<body class="has-sidebar" data-panel="rector" style="{{ \App\Shared\AccentColor::inlineStyle(auth()->user()?->color_acento) }}">
+<body class="has-sidebar" data-panel="docente" style="{{ \App\Shared\AccentColor::inlineStyle(auth()->user()?->color_acento) }}">
     @php
         $sidebarBuilder = new \App\Shared\SidebarBuilder(
             config('panel_menu'),
@@ -59,7 +59,7 @@
             </div>
             <div class="sidebar-brand">
                 <span class="sb-name">{{ $institucionUsuario->nombre ?? $colegioConfiguracion->nombre_colegio }}</span>
-                <span class="sb-sub">Panel {{ $usuario?->rolLabel }}</span>
+                <span class="sb-sub">{{ __('Panel :rol', ['rol' => __($usuario?->rolLabel ?? '')]) }}</span>
             </div>
             <button class="sidebar-collapse" id="sidebarCollapse" title="Contraer" aria-label="Contraer menú">
                 <i class="bi bi-chevron-left"></i>
@@ -73,8 +73,8 @@
         <div class="sidebar-footer">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="button" class="sidebar-logout" data-logout data-label="Cerrar sesión">
-                    <i class="bi bi-box-arrow-right"></i> <span>Cerrar sesión</span>
+                <button type="button" class="sidebar-logout" data-logout data-label="{{ __('Cerrar sesión') }}">
+                    <i class="bi bi-box-arrow-right"></i> <span>{{ __('Cerrar sesión') }}</span>
                 </button>
             </form>
         </div>
@@ -83,26 +83,26 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <main class="panel-content">
-        <header class="rc-topbar">
+        <header class="dc-topbar">
             <div class="rc-search" data-buscar-url="{{ route('buscar') }}">
                 <i class="bi bi-search"></i>
-                <input type="search" placeholder="Buscar en el panel…" aria-label="Buscar" autocomplete="off">
+                <input type="search" placeholder="{{ __('Buscar en el panel…') }}" aria-label="{{ __('Buscar') }}" autocomplete="off">
             </div>
 
-            <div class="rc-topbar-actions">
+            <div class="dc-topbar-actions">
                 <div class="icon-toolbar">
                     @include('layouts.partials._campanita-notificaciones')
 
                     <button type="button"
                             class="icon-toolbar-btn"
                             data-theme-toggle
-                            aria-label="Cambiar tema">
+                            aria-label="{{ __('Cambiar tema') }}">
                         <i class="bi bi-moon-stars theme-icon-light"></i>
                         <i class="bi bi-sun theme-icon-dark"></i>
                     </button>
                 </div>
 
-                <button type="button" class="rc-topbar-user" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="dc-topbar-user" id="userMenuToggle" aria-haspopup="true" aria-expanded="false">
                     <div class="td-avatar">
                         @if ($usuario?->fotoPerfilUrl)
                             <img src="{{ $usuario->fotoPerfilUrl }}" alt="{{ $nombreCompleto }}">
@@ -112,37 +112,32 @@
                     </div>
                     <div class="td-info d-none d-sm-block">
                         <p class="td-name">{{ $nombreCompleto }}</p>
-                        <p class="td-email">{{ $usuario?->rolLabel }}</p>
+                        <p class="td-email">{{ __($usuario?->rolLabel ?? '') }}</p>
                     </div>
-                    <i class="bi bi-chevron-down rc-topbar-user-chevron"></i>
+                    <i class="bi bi-chevron-down dc-topbar-user-chevron"></i>
                 </button>
 
                 <div class="td-dropup" id="userMenuDropup">
-                    <a href="{{ route('perfil.show') }}" class="td-item"><i class="bi bi-person-circle"></i> Mi perfil</a>
+                    <a href="{{ route('perfil.show') }}" class="td-item"><i class="bi bi-person-circle"></i> {{ __('Mi perfil') }}</a>
                     <div class="td-divider"></div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="button" class="td-item td-logout" data-logout>
-                            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                            <i class="bi bi-box-arrow-right"></i> {{ __('Cerrar sesión') }}
                         </button>
                     </form>
                 </div>
             </div>
         </header>
 
-        <div class="rc-page">
+        <div class="dc-page">
             @yield('content')
         </div>
     </main>
 
-    {{-- Modales/offcanvas fuera de .rc-page a propósito: ese contenedor fija
-         un z-index bajo como techo estructural para el contenido normal (ver
-         comentario en _rector.scss), pero eso mismo atrapa cualquier .modal/
-         .offcanvas declarado ahí dentro por debajo del backdrop de Bootstrap
-         (que siempre se agrega como hijo directo de <body>) — los campos se
-         ven pero los clics los intercepta el backdrop. Las páginas deben
-         encolar sus modales con @push('modals') en vez de declararlos
-         directamente en @section('content'). --}}
+    {{-- Mismo motivo que en layouts/rector.blade.php: algunas páginas (ej.
+         calificaciones/asignacion.blade.php) extienden uno u otro layout
+         según el rol, así que este stack tiene que existir acá también. --}}
     @stack('modals')
 </body>
 </html>

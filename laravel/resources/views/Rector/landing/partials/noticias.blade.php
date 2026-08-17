@@ -27,7 +27,7 @@
                     <tr>
                         <td>
                             @if ($noticia->imagen)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($noticia->imagen) }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($noticia->imagen) }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">
                             @else
                                 <div class="text-secondary"><i class="fas fa-image"></i></div>
                             @endif

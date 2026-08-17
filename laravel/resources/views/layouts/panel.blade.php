@@ -10,7 +10,8 @@
 
     <script>
         (function () {
-            var stored = localStorage.getItem('cs-theme');
+            var serverTheme = @json(auth()->user()?->tema);
+            var stored = serverTheme || localStorage.getItem('cs-theme');
             var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-bs-theme', theme);
         })();
@@ -24,7 +25,7 @@
     @stack('styles')
     @stack('scripts')
 </head>
-<body class="has-sidebar">
+<body class="has-sidebar" style="{{ \App\Shared\AccentColor::inlineStyle(auth()->user()?->color_acento) }}">
     @php
         $sidebarBuilder = new \App\Shared\SidebarBuilder(
             config('panel_menu'),
