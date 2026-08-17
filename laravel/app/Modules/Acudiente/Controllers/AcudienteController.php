@@ -15,21 +15,14 @@ use Illuminate\View\View;
  */
 class AcudienteController extends Controller
 {
-    private const HIJOS = [
-        1 => ['id' => 1, 'nombres' => 'Sofía', 'apellidos' => 'Martínez Gómez', 'curso' => '6°A', 'codigo' => 'EST-2026-014', 'perfil' => 'ordenado'],
-        2 => ['id' => 2, 'nombres' => 'Mateo', 'apellidos' => 'Martínez Gómez', 'curso' => '9°B', 'codigo' => 'EST-2026-071', 'perfil' => 'con_alertas'],
-    ];
-
     private function hijos(): \Illuminate\Support\Collection
     {
-        return collect(self::HIJOS)->map(fn ($h) => (object) $h);
+        return PortalFamiliaFixtures::hijos();
     }
 
     private function hijoActivo(Request $request): object
     {
-        $id = (int) $request->query('estudiante', 1);
-
-        return (object) (self::HIJOS[$id] ?? self::HIJOS[1]);
+        return PortalFamiliaFixtures::hijoActivo((int) $request->query('estudiante', 1));
     }
 
     public function inicio(): View
@@ -122,18 +115,6 @@ class AcudienteController extends Controller
             'hijos' => $this->hijos(),
             'hijoActivo' => $hijo,
             'comunicados' => PortalFamiliaFixtures::comunicados($hijo->perfil),
-        ]);
-    }
-
-    public function perfil(): View
-    {
-        return view('Acudiente.perfil', [
-            'currentPage' => 'AcudientePerfil',
-            'usuario' => auth()->user(),
-            'hijos' => $this->hijos()->map(fn ($h) => (object) array_merge((array) $h, [
-                'parentesco' => 'Madre',
-                'es_principal' => $h->id === 1,
-            ])),
         ]);
     }
 }

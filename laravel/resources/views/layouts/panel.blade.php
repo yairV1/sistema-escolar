@@ -10,21 +10,20 @@
 
     <script>
         (function () {
-            var stored = localStorage.getItem('cs-theme');
+            var serverTheme = @json(auth()->user()?->tema);
+            var stored = serverTheme || localStorage.getItem('cs-theme');
             var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-bs-theme', theme);
         })();
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/fonts/fonts.css') }}">
 
     @vite(['resources/css/app.scss', 'resources/js/app.js', 'resources/js/pages/panel/panel.js'])
     @stack('styles')
     @stack('scripts')
 </head>
-<body class="has-sidebar">
+<body class="has-sidebar" style="{{ \App\Shared\AccentColor::inlineStyle(auth()->user()?->color_acento) }}">
     @php
         $sidebarBuilder = new \App\Shared\SidebarBuilder(
             config('panel_menu'),

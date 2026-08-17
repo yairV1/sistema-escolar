@@ -43,6 +43,10 @@ class Usuario extends Authenticatable
         'id_institucion',
         'estado_usuario',
         'foto_perfil',
+        'idioma',
+        'notificaciones_email',
+        'tema',
+        'color_acento',
     ];
 
     protected $hidden = [
@@ -57,6 +61,7 @@ class Usuario extends Authenticatable
         'two_factor_recovery_codes' => 'encrypted:array',
         'two_factor_confirmed_at' => 'datetime',
         'sesion_valida_desde' => 'datetime',
+        'notificaciones_email' => 'boolean',
     ];
 
     private ?Collection $permisosEfectivosCache = null;
@@ -88,7 +93,7 @@ class Usuario extends Authenticatable
         'admin' => 'Administrador',
         'rector' => 'Directivo',
         'coordinador' => 'Coordinador',
-        'secretario' => 'Secretario',
+        'secretario' => 'Secretaría',
         'docente' => 'Profesor',
         'estudiante' => 'Estudiante',
         'acudiente' => 'Acudiente',

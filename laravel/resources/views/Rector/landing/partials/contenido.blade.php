@@ -2,6 +2,32 @@
     $c = fn ($clave) => $contenido[$clave] ?? '';
 @endphp
 
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="h6 fw-semibold mb-3"><i class="fas fa-image text-primary me-1"></i> Imagen principal (banner)</h2>
+        <p class="text-secondary small mb-3">Se muestra como imagen destacada del Hero en la página pública.</p>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            @if ($c('hero_imagen'))
+                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($c('hero_imagen')) }}" alt="Imagen principal"
+                     style="width:140px;height:90px;object-fit:cover;border-radius:.5rem;">
+            @endif
+            <form data-landing-form data-url="{{ route('editar-landing.contenido.imagen.update') }}" class="d-flex align-items-center gap-2">
+                <input type="file" class="form-control" name="hero_imagen" accept="image/*" required style="max-width:280px;">
+                <button type="submit" class="btn btn-outline-primary btn-sm text-nowrap">
+                    <i class="fas fa-upload me-1"></i> Subir
+                </button>
+            </form>
+            @if ($c('hero_imagen'))
+                <form data-landing-form data-url="{{ route('editar-landing.contenido.imagen.eliminar') }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash me-1"></i> Quitar imagen
+                    </button>
+                </form>
+            @endif
+        </div>
+    </div>
+</div>
+
 <form id="formContenidoLanding" data-url="{{ route('editar-landing.contenido.update') }}">
     <div class="card mb-3">
         <div class="card-body">

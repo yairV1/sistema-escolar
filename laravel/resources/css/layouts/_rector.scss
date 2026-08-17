@@ -44,7 +44,7 @@ body[data-panel="rector"] {
 
     // ---- Tokens propios del panel rector ----
     --rc-card-shadow: 0 10px 28px rgba(76, 66, 168, .08), 0 2px 6px rgba(76, 66, 168, .06);
-    --rc-hero-gradient: linear-gradient(135deg, #6f5cf6 0%, #4f8cff 100%);
+    --hero-gradient: linear-gradient(135deg, #6f5cf6 0%, #4f8cff 100%);
 
     --bs-body-bg: #f6f7fc;
     --bs-body-bg-rgb: 246, 247, 252;
@@ -106,7 +106,7 @@ body[data-panel="rector"] {
     .kpi-icon { border-radius: 50%; width: 44px; height: 44px; font-size: 1.05rem; }
 
     // ---------- Hero de bienvenida ----------
-    .dash-welcome { background: var(--rc-hero-gradient); border-radius: 1.25rem; }
+    .dash-welcome { background: var(--hero-gradient); border-radius: 1.25rem; }
     // Versión más baja: menos scroll para llegar al resto del dashboard.
     .dash-welcome-compact { padding: 1rem 1.5rem; }
 
@@ -373,16 +373,16 @@ body[data-panel="rector"] {
     .empty-state .empty-icon { background: var(--cs-verde-claro); color: var(--bs-primary); }
 
     .btn-primary {
-        --bs-btn-color: #ffffff;
+        --bs-btn-color: var(--sb-on-primary, #ffffff);
         --bs-btn-bg: var(--sb-primary);
         --bs-btn-border-color: var(--sb-primary);
-        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-color: var(--sb-on-primary, #ffffff);
         --bs-btn-hover-bg: var(--sb-primary-dark);
         --bs-btn-hover-border-color: var(--sb-primary-dark);
-        --bs-btn-active-color: #ffffff;
+        --bs-btn-active-color: var(--sb-on-primary, #ffffff);
         --bs-btn-active-bg: var(--sb-primary-dark);
         --bs-btn-active-border-color: var(--sb-primary-dark);
-        --bs-btn-disabled-color: #ffffff;
+        --bs-btn-disabled-color: var(--sb-on-primary, #ffffff);
         --bs-btn-disabled-bg: var(--sb-primary);
         --bs-btn-disabled-border-color: var(--sb-primary);
         box-shadow: none;
@@ -517,6 +517,8 @@ body[data-panel="rector"] {
     --bs-primary-border-subtle: #423c85;
     --bs-primary-text-emphasis: #c3bdf5;
 
+    --hero-gradient: linear-gradient(135deg, #4f3fc9 0%, #2f66d6 100%);
+
     --cs-dorado: #a394fa;
     --cs-dorado-suave: #2f2b63;
     --cs-verde-oscuro: #eef0fb;
@@ -524,8 +526,6 @@ body[data-panel="rector"] {
     --cs-verde-suave: #292463;
 
     color: var(--bs-body-color);
-
-    .dash-welcome { background: linear-gradient(135deg, #4f3fc9 0%, #2f66d6 100%); }
 
     .chart-bar.bg-primary {
         background: linear-gradient(180deg, var(--sb-secondary) 0%, var(--sb-primary) 100%) !important;
@@ -542,16 +542,16 @@ body[data-panel="rector"] {
     .text-bg-primary { color: #14101f !important; }
 
     .btn-primary {
-        --bs-btn-color: #14162b;
+        --bs-btn-color: var(--sb-on-primary, #14162b);
         --bs-btn-bg: var(--sb-primary);
         --bs-btn-border-color: var(--sb-primary);
-        --bs-btn-hover-color: #14162b;
+        --bs-btn-hover-color: var(--sb-on-primary, #14162b);
         --bs-btn-hover-bg: #b6aafb;
         --bs-btn-hover-border-color: #b6aafb;
-        --bs-btn-active-color: #14162b;
+        --bs-btn-active-color: var(--sb-on-primary, #14162b);
         --bs-btn-active-bg: #8676e8;
         --bs-btn-active-border-color: #8676e8;
-        --bs-btn-disabled-color: #14162b;
+        --bs-btn-disabled-color: var(--sb-on-primary, #14162b);
         --bs-btn-disabled-bg: var(--sb-primary);
         --bs-btn-disabled-border-color: var(--sb-primary);
     }

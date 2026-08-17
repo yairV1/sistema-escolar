@@ -1,4 +1,4 @@
-@extends('layouts.rector')
+@extends(auth()->user()?->esSuperAdmin() ? 'layouts.superadmin' : (in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : (auth()->user()?->rolSlug === 'docente' ? 'layouts.docente' : 'layouts.panel')))
 
 @section('title', 'Calendario')
 

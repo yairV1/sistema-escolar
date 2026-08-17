@@ -33,6 +33,35 @@ class PortalFamiliaFixtures
         'viernes'   => [3, 1, 8, 4],
     ];
 
+    private const HIJOS = [
+        1 => ['id' => 1, 'nombres' => 'Sofía', 'apellidos' => 'Martínez Gómez', 'curso' => '6°A', 'codigo' => 'EST-2026-014', 'perfil' => 'ordenado'],
+        2 => ['id' => 2, 'nombres' => 'Mateo', 'apellidos' => 'Martínez Gómez', 'curso' => '9°B', 'codigo' => 'EST-2026-071', 'perfil' => 'con_alertas'],
+    ];
+
+    private const ACUDIENTE = [
+        'nombre' => 'Claudia Gómez de Martínez',
+        'parentesco' => 'Madre',
+        'telefono' => '300 555 1234',
+        'correo' => 'claudia.gomez@example.com',
+    ];
+
+    /** Hijos de muestra de un acudiente (Acudiente/*, ver docblock de AcudienteController). */
+    public static function hijos(): Collection
+    {
+        return collect(self::HIJOS)->map(fn ($h) => (object) $h);
+    }
+
+    public static function hijoActivo(int $id): object
+    {
+        return (object) (self::HIJOS[$id] ?? self::HIJOS[1]);
+    }
+
+    /** Acudiente de muestra asociado a un estudiante (tab "Mi familia" del perfil). */
+    public static function acudienteDe(): object
+    {
+        return (object) self::ACUDIENTE;
+    }
+
     public static function materias(): Collection
     {
         return collect(self::MATERIAS)->map(fn ($m) => (object) $m);

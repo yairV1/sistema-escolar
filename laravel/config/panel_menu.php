@@ -178,6 +178,14 @@ return [
         ],
 
         [
+            'section' => 'Mis estudiantes',
+            'roles' => ['docente'],
+            'items' => [
+                ['title' => 'Anotaciones', 'icon' => 'fas fa-note-sticky', 'route' => 'docente.anotaciones.index', 'page' => 'DocenteAnotaciones'],
+            ],
+        ],
+
+        [
             'section' => 'Mi colegio',
             'roles' => ['estudiante'],
             'items' => [
@@ -186,7 +194,7 @@ return [
                 ['title' => 'Notas',       'icon' => 'fas fa-star',            'route' => 'estudiante.notas',       'page' => 'EstudianteNotas'],
                 ['title' => 'Asistencia',  'icon' => 'fas fa-clipboard-check', 'route' => 'estudiante.asistencia',  'page' => 'EstudianteAsistencia'],
                 ['title' => 'Comunicados', 'icon' => 'fas fa-bullhorn',        'route' => 'estudiante.comunicados', 'page' => 'EstudianteComunicados'],
-                ['title' => 'Mi perfil',   'icon' => 'fas fa-id-card',         'route' => 'estudiante.perfil',      'page' => 'EstudiantePerfil'],
+                ['title' => 'Mi perfil',   'icon' => 'fas fa-id-card',         'route' => 'perfil.show',            'page' => 'Perfil'],
             ],
         ],
 
@@ -199,7 +207,7 @@ return [
                 ['title' => 'Notas',               'icon' => 'fas fa-star',            'route' => 'acudiente.notas',       'page' => 'AcudienteNotas'],
                 ['title' => 'Asistencia',          'icon' => 'fas fa-clipboard-check', 'route' => 'acudiente.asistencia',  'page' => 'AcudienteAsistencia'],
                 ['title' => 'Comunicados',         'icon' => 'fas fa-bullhorn',        'route' => 'acudiente.comunicados', 'page' => 'AcudienteComunicados'],
-                ['title' => 'Mi perfil',           'icon' => 'fas fa-id-card',         'route' => 'acudiente.perfil',      'page' => 'AcudientePerfil'],
+                ['title' => 'Mi perfil',           'icon' => 'fas fa-id-card',         'route' => 'perfil.show',           'page' => 'Perfil'],
             ],
         ],
 

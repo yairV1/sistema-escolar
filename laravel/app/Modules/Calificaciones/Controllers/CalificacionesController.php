@@ -15,6 +15,9 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CalificacionesController extends Controller
 {
@@ -130,6 +133,125 @@ class CalificacionesController extends Controller
             'estudiantes' => $estudiantes,
             'notasExistentes' => $notasExistentes,
         ]);
+    }
+
+    public function planilla(Request $request, AsignacionAcademica $asignacion): View
+    {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
+        $asignacion->load(['materia', 'curso', 'profesor.usuario']);
+
+        $idPeriodo = $request->query('periodo') ? (int) $request->query('periodo') : null;
+
+        return view('Rector.calificaciones.planilla', [
+            'currentPage' => 'Calificaciones',
+            'asignacion' => $asignacion,
+            'periodos' => Periodo::orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
+            'filtroPeriodo' => $idPeriodo,
+            ...$this->construirPlanilla($asignacion, $idPeriodo),
+        ]);
+    }
+
+    public function exportarPlanilla(Request $request, AsignacionAcademica $asignacion): BinaryFileResponse
+    {
+        abort_unless($request->user()->puedeGestionarAsignacion($asignacion), 403);
+
+        $asignacion->load(['materia', 'curso']);
+
+        $idPeriodo = $request->query('periodo') ? (int) $request->query('periodo') : null;
+        $datos = $this->construirPlanilla($asignacion, $idPeriodo);
+
+        $filas = [];
+        $encabezado = ['Código', 'Estudiante'];
+        foreach ($datos['actividades'] as $actividad) {
+            $encabezado[] = $actividad->titulo.' ('.rtrim(rtrim(number_format($actividad->porcentaje, 2), '0'), '.').'% · '.$actividad->periodo->nombre_periodo.')';
+        }
+        if ($idPeriodo) {
+            $encabezado[] = 'Definitiva';
+        }
+        $filas[] = $encabezado;
+
+        foreach ($datos['estudiantes'] as $estudiante) {
+            $fila = [
+                $estudiante->codigo_estudiante,
+                trim($estudiante->usuario->nombres.' '.$estudiante->usuario->apellidos),
+            ];
+            foreach ($datos['actividades'] as $actividad) {
+                $fila[] = $datos['notas'][$estudiante->id_estudiante][$actividad->id_actividad] ?? '';
+            }
+            if ($idPeriodo) {
+                $fila[] = $datos['definitivas'][$estudiante->id_estudiante] ?? '';
+            }
+            $filas[] = $fila;
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Planilla');
+        $sheet->fromArray($filas, null, 'A1');
+        $sheet->getStyle('A1:'.$sheet->getHighestColumn().'1')->getFont()->setBold(true);
+        if ($idPeriodo) {
+            $sheet->getStyle($sheet->getHighestColumn().'1:'.$sheet->getHighestColumn().$sheet->getHighestRow())->getFont()->setBold(true);
+        }
+        foreach (range('A', $sheet->getHighestColumn()) as $columna) {
+            $sheet->getColumnDimension($columna)->setAutoSize(true);
+        }
+
+        $nombre = 'planilla-'.\Illuminate\Support\Str::slug($asignacion->materia->nombre_materia.'-'.$asignacion->curso->nombre_curso).'.xlsx';
+        $ruta = sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid('planilla_', true).'.xlsx';
+        (new Xlsx($spreadsheet))->save($ruta);
+
+        return response()->download($ruta, $nombre)->deleteFileAfterSend(true);
+    }
+
+    private function construirPlanilla(AsignacionAcademica $asignacion, ?int $idPeriodo): array
+    {
+        $query = $asignacion->actividades()->where('estado', 'activa')->with(['periodo', 'tipo']);
+
+        if ($idPeriodo) {
+            $query->where('id_periodo', $idPeriodo);
+        }
+
+        $actividades = $query->orderBy('fecha_creacion')->get();
+
+        $estudiantes = $asignacion->curso->matriculas()
+            ->where('estado_matricula', 'activa')
+            ->with('estudiante.usuario')
+            ->get()
+            ->pluck('estudiante');
+
+        $todasLasNotas = Nota::whereIn('id_actividad', $actividades->pluck('id_actividad'))->get();
+
+        $notas = [];
+        foreach ($todasLasNotas as $nota) {
+            $notas[$nota->id_estudiante][$nota->id_actividad] = $nota->nota;
+        }
+
+        $definitivas = [];
+        if ($idPeriodo) {
+            foreach ($estudiantes as $estudiante) {
+                $sumaPonderada = 0.0;
+                $sumaPorcentajes = 0.0;
+
+                foreach ($actividades as $actividad) {
+                    $nota = $notas[$estudiante->id_estudiante][$actividad->id_actividad] ?? null;
+
+                    if ($nota !== null) {
+                        $sumaPonderada += $nota * $actividad->porcentaje;
+                        $sumaPorcentajes += $actividad->porcentaje;
+                    }
+                }
+
+                $definitivas[$estudiante->id_estudiante] = $sumaPorcentajes > 0 ? round($sumaPonderada / $sumaPorcentajes, 2) : null;
+            }
+        }
+
+        return [
+            'actividades' => $actividades,
+            'estudiantes' => $estudiantes,
+            'notas' => $notas,
+            'definitivas' => $definitivas,
+        ];
     }
 
     public function guardarNotas(Request $request, Actividad $actividad): JsonResponse

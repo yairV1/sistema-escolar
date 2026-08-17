@@ -1,4 +1,4 @@
-@extends(in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel')
+@extends(in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : (auth()->user()?->rolSlug === 'docente' ? 'layouts.docente' : 'layouts.panel'))
 
 @section('title', 'Historial de asistencia — '.$asignacion->materia->nombre_materia)
 

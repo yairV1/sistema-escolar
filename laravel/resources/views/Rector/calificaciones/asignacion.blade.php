@@ -1,4 +1,4 @@
-@extends(in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : 'layouts.panel')
+@extends(in_array(auth()->user()?->rolSlug, ['admin', 'rector']) ? 'layouts.rector' : (auth()->user()?->rolSlug === 'docente' ? 'layouts.docente' : 'layouts.panel'))
 
 @section('title', $asignacion->materia->nombre_materia.' — '.$asignacion->curso->nombre_curso)
 
@@ -30,7 +30,16 @@
             <div class="col-6 col-md-3 d-grid">
                 <a href="{{ route('calificaciones.asignaciones.show', $asignacion) }}" class="btn btn-outline-secondary btn-sm">Limpiar filtro</a>
             </div>
-            <div class="col-12 col-md-5 d-flex justify-content-md-end">
+            <div class="col-12 col-md-5 d-flex justify-content-md-end gap-2">
+                @if ($actividades->isEmpty())
+                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Todavía no hay actividades registradas">
+                        <i class="fas fa-table me-1"></i> Planilla
+                    </button>
+                @else
+                    <a href="{{ route('calificaciones.asignaciones.planilla', $asignacion) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-table me-1"></i> Planilla
+                    </a>
+                @endif
                 @if ($periodos->isEmpty() || $tiposActividad->isEmpty())
                     <button type="button" class="btn btn-primary btn-sm" disabled title="Necesitás al menos un periodo y un tipo de actividad activos (Calificaciones → Periodos / Tipos de actividad)">
                         <i class="fas fa-plus me-1"></i> Nueva actividad

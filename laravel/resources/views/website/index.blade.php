@@ -6,9 +6,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <meta name="solicitud-admision-url" content="{{ route('solicitudes-admision.store') }}" />
   <title>{{ $colegioConfiguracion->nombre_colegio }} | Educando el Futuro</title>
+  <link rel="icon" href="{{ $colegioConfiguracion->logoUrl ?? asset('favicon.ico') }}">
   <link rel="stylesheet" href="{{ asset('assets/webSite/css/styleCole.css') }}" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ asset('vendor/fonts/fonts.css') }}" />
+  <link rel="stylesheet" href="{{ asset('vendor/iconos/css/all.min.css') }}" />
 </head>
 <body>
 
@@ -17,7 +18,11 @@
     <div class="nav-container">
       <a href="#inicio" class="nav-logo">
         <div class="logo-icon">
-          <i class="fas fa-graduation-cap"></i>
+          @if ($colegioConfiguracion->logo_url)
+            <img src="{{ $colegioConfiguracion->logo_url }}" alt="{{ $colegioConfiguracion->nombre_colegio }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+          @else
+            <i class="fas fa-graduation-cap"></i>
+          @endif
         </div>
         <span class="logo-text">{{ $colegioConfiguracion->nombre_colegio }}</span>
       </a>
@@ -62,10 +67,14 @@
     </div>
     <div class="hero-image-wrap">
       <div class="hero-image">
-        <div class="img-placeholder">
-          <i class="fas fa-school"></i>
-          <p>Foto del colegio</p>
-        </div>
+        @if ($contenido['hero_imagen'] ?? null)
+          <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($contenido['hero_imagen']) }}" alt="{{ $colegioConfiguracion->nombre_colegio }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+        @else
+          <div class="img-placeholder">
+            <i class="fas fa-school"></i>
+            <p>Foto del colegio</p>
+          </div>
+        @endif
       </div>
       <div class="floating-card card-1">
         <i class="fas fa-star"></i>
@@ -136,7 +145,7 @@
           <article class="noticia-card{{ $i === 0 ? ' featured' : '' }}">
             <div class="noticia-img">
               @if ($noticia->imagen)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($noticia->imagen) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($noticia->imagen) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
               @else
                 <div class="img-placeholder small"><i class="fas fa-newspaper"></i></div>
               @endif
@@ -157,6 +166,25 @@
     </div>
   </section>
 
+  @if ($colegioConfiguracion->imagenes->isNotEmpty())
+    <!-- ========== NUESTRAS INSTALACIONES ========== -->
+    <section class="galeria" id="instalaciones">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Conócenos</span>
+          <h2>Nuestras <span class="highlight">Instalaciones</span></h2>
+        </div>
+        <div class="galeria-grid">
+          @foreach ($colegioConfiguracion->imagenes as $i => $foto)
+            <div class="galeria-item{{ $i === 0 ? ' big' : '' }}">
+              <img src="{{ $foto->imagen_url }}" alt="{{ $foto->descripcion }}" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </section>
+  @endif
+
   <!-- ========== GALERÍA ========== -->
   <section class="galeria" id="galeria">
     <div class="container">
@@ -168,7 +196,7 @@
         @foreach ($galeria as $i => $foto)
           <div class="galeria-item{{ $i === 0 ? ' big' : '' }}">
             @if ($foto->imagen)
-              <img src="{{ \Illuminate\Support\Facades\Storage::url($foto->imagen) }}" alt="{{ $foto->descripcion }}" style="width:100%;height:100%;object-fit:cover;">
+              <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($foto->imagen) }}" alt="{{ $foto->descripcion }}" style="width:100%;height:100%;object-fit:cover;">
             @else
               <div class="img-placeholder"><i class="fas fa-image"></i><p>{{ $foto->descripcion }}</p></div>
             @endif
@@ -294,7 +322,13 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="nav-logo">
-            <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="logo-icon">
+              @if ($colegioConfiguracion->logo_url)
+                <img src="{{ $colegioConfiguracion->logo_url }}" alt="{{ $colegioConfiguracion->nombre_colegio }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+              @else
+                <i class="fas fa-graduation-cap"></i>
+              @endif
+            </div>
             <span class="logo-text">{{ $colegioConfiguracion->nombre_colegio }}</span>
           </div>
           <p>Formando líderes con valores desde 1985. Una institución comprometida con la excelencia educativa y el desarrollo humano integral.</p>

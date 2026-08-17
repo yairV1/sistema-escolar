@@ -25,7 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // EnsureSessionFresh): solo actúa si sesion_valida_desde está
         // poblado, lo que hoy únicamente ocurre cuando un SuperAdmin cambia
         // el rol o los permisos de alguien.
-        $middleware->appendToGroup('web', [\App\Core\Http\Middleware\EnsureSessionFresh::class]);
+        $middleware->appendToGroup('web', [
+            \App\Core\Http\Middleware\EnsureSessionFresh::class,
+            \App\Core\Http\Middleware\SetLocale::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
