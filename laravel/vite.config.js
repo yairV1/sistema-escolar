@@ -45,6 +45,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    // El repo se despliega bajo una subcarpeta cuyo nombre cambia por
+    // máquina (/colegio/, /sistema-escolar/...). Con base absoluta ('/')
+    // Vite escribe url(/build/assets/...) dentro del CSS compilado —
+    // resuelve contra la raíz del dominio y 404 apenas hay subcarpeta.
+    // Con base relativa, esas referencias quedan relativas al propio
+    // archivo CSS y funcionan sin importar la subcarpeta. Los <script>/
+    // <link> que emite @vite() no dependen de esto: los arma Laravel con
+    // asset(), que ya es consciente de la request.
+    base: './',
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],
