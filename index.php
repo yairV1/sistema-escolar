@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Shim de front controller: expone Laravel en /colegio/ sin el prefijo
- * /laravel/public/, sin modificar laravel/public/index.php (estructura
- * interna de Laravel intacta).
+ * Shim de front controller: expone Laravel en /<carpeta-del-proyecto>/ sin
+ * el prefijo /laravel/public/, sin modificar laravel/public/index.php
+ * (estructura interna de Laravel intacta).
  *
  * El .htaccess de esta carpeta reescribe internamente cualquier ruta que
  * no sea un archivo real ni empiece con /legacy/ hacia este archivo.
@@ -12,9 +12,14 @@
  * y Laravel/Symfony usa SCRIPT_NAME para calcular la ruta interna — con
  * ese desfase, cualquier URL devuelve 404. Corregimos SCRIPT_NAME acá
  * para que coincida con la URL pública antes de cargar Laravel.
+ *
+ * El nombre de esta carpeta (basename(__DIR__)) se toma dinámicamente,
+ * no hardcodeado: el mismo repo vive como /colegio/ en unas máquinas y
+ * /sistema-escolar/ en otras, y este shim funciona igual en cualquiera
+ * de las dos sin tocar código.
  */
 
-$_SERVER['SCRIPT_NAME'] = '/colegio/index.php';
+$_SERVER['SCRIPT_NAME'] = '/'.basename(__DIR__).'/index.php';
 $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/laravel/public/index.php';
 
 chdir(__DIR__ . '/laravel/public');

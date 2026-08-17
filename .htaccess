@@ -1,10 +1,16 @@
 # =============================================================
 # Rewrite interno para exponer Laravel sin el prefijo /laravel/public/.
-# Todo bajo /colegio/ se reescribe por detrás hacia laravel/public/,
+# Todo bajo esta carpeta se reescribe por detrás hacia laravel/public/,
 # sin que el navegador vea ese cambio.
+#
+# Sin RewriteBase ni nombre de carpeta hardcodeado a propósito: el mismo
+# repo vive como /colegio/ en unas máquinas y /sistema-escolar/ en otras.
+# %1 (abajo) captura ese nombre real de la URL entrante en vez de darlo
+# por sabido, así que esto funciona igual sin importar cómo se llame.
 # =============================================================
 RewriteEngine On
-RewriteBase /colegio/
+RewriteCond %{REQUEST_URI} ^/([^/]+)/
+RewriteRule ^ - [E=CARPETA_PROYECTO:%1]
 
 # Deja pasar archivos o carpetas reales tal cual (scripts/, docs/, y
 # cualquier otra cosa que exista físicamente acá).
@@ -14,7 +20,7 @@ RewriteRule ^ - [L]
 
 # Assets estáticos que sí existen dentro de laravel/public/ (build/, etc.):
 # se sirven directo desde ahí, sin pasar por PHP.
-RewriteCond %{DOCUMENT_ROOT}/colegio/laravel/public/$1 -f
+RewriteCond %{DOCUMENT_ROOT}/%{ENV:CARPETA_PROYECTO}/laravel/public/$1 -f
 RewriteRule ^(.*)$ laravel/public/$1 [L]
 
 # Cualquier otra ruta (las rutas reales de Laravel) pasa por el shim de

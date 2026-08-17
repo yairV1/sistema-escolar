@@ -6,9 +6,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <meta name="solicitud-admision-url" content="{{ route('solicitudes-admision.store') }}" />
   <title>{{ $colegioConfiguracion->nombre_colegio }} | Educando el Futuro</title>
+  <link rel="icon" href="{{ $colegioConfiguracion->logoUrl ?? asset('favicon.ico') }}">
   <link rel="stylesheet" href="{{ asset('assets/webSite/css/styleCole.css') }}" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ asset('vendor/fonts/fonts.css') }}" />
+  <link rel="stylesheet" href="{{ asset('vendor/iconos/css/all.min.css') }}" />
 </head>
 <body>
 
