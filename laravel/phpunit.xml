@@ -12,6 +12,13 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
+    <!-- Las pruebas con SQL propio de MariaDB (FIELD, DATE_FORMAT…) llevan #[Group('mariadb')]:
+         se excluyen aquí (SQLite) y se ejecutan con phpunit.mariadb.xml contra colegio_tests. -->
+    <groups>
+        <exclude>
+            <group>mariadb</group>
+        </exclude>
+    </groups>
     <source>
         <include>
             <directory>app</directory>

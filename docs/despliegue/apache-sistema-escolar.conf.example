@@ -1,0 +1,87 @@
+# =====================================================================
+# Sistema Escolar — Configuración de Apache 2.4 (EJEMPLO)
+#
+# Regla de oro: el servidor web publica ÚNICAMENTE laravel/public.
+# Nada más del repositorio (.env, .git, storage/, vendor/, config/,
+# docs/, logs) debe quedar dentro de la raíz pública.
+#
+# Reemplaza /RUTA/AL/PROYECTO por la ruta real del repositorio y
+# elige UNA de las dos variantes. El .htaccess de la raíz del repo y
+# el shim index.php de la raíz NO se usan con estas configuraciones.
+#
+# Requiere: mod_rewrite, mod_dir, mod_alias, mod_authz_core y PHP
+# (mod_php o PHP-FPM vía proxy_fcgi).
+# =====================================================================
+
+
+# >>> VHOST ------------------------------------------------------------
+# Variante 1 (recomendada): dominio propio.
+# URL resultante: http://sistema-escolar.test/   (APP_URL igual)
+# Para pruebas locales agrega a /etc/hosts:  127.0.0.1 sistema-escolar.test
+<VirtualHost *:80>
+    ServerName sistema-escolar.test
+    DocumentRoot "/RUTA/AL/PROYECTO/laravel/public"
+
+    # Todo el repositorio queda cerrado de forma explícita…
+    <Directory "/RUTA/AL/PROYECTO">
+        AllowOverride None
+        Options None
+        Require all denied
+    </Directory>
+
+    # …y solo se abre la carpeta pública. FollowSymLinks es necesario
+    # para public/storage -> storage/app/public (php artisan storage:link).
+    <Directory "/RUTA/AL/PROYECTO/laravel/public">
+        AllowOverride All
+        Options -Indexes -MultiViews +FollowSymLinks
+        Require all granted
+    </Directory>
+
+    ErrorLog  "logs/sistema-escolar-error_log"
+    CustomLog "logs/sistema-escolar-access_log" common
+</VirtualHost>
+# <<< VHOST ------------------------------------------------------------
+
+
+# >>> ALIAS ------------------------------------------------------------
+# Variante 2: conservar la URL /sistema-escolar/ dentro de un servidor
+# existente (p. ej. XAMPP), SIN poner el repositorio dentro de htdocs/.
+# URL resultante: http://localhost/sistema-escolar/
+# APP_URL debe ser http://localhost/sistema-escolar
+#
+# Con Alias, el .htaccess de Laravel no puede reescribir hacia index.php
+# sin RewriteBase; FallbackResource hace el mismo trabajo sin .htaccess.
+Alias "/sistema-escolar" "/RUTA/AL/PROYECTO/laravel/public"
+
+<Directory "/RUTA/AL/PROYECTO">
+    AllowOverride None
+    Options None
+    Require all denied
+</Directory>
+
+<Directory "/RUTA/AL/PROYECTO/laravel/public">
+    AllowOverride None
+    Options -Indexes -MultiViews +FollowSymLinks
+    Require all granted
+    DirectoryIndex index.php
+    FallbackResource /sistema-escolar/index.php
+    # Ocultos (.htaccess, .gitignore…) nunca se sirven
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</Directory>
+# <<< ALIAS ------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------
+# Endurecimiento global recomendado (httpd.conf). Revisar antes de
+# aplicar en un servidor compartido con otros proyectos.
+# ---------------------------------------------------------------------
+# ServerTokens Prod
+# ServerSignature Off
+# TraceEnable Off
+# Y en php.ini:  expose_php = Off
+#
+# Las cabeceras de seguridad (CSP, frame-ancestors, nosniff,
+# Referrer-Policy, HSTS) se definirán en una fase posterior, empezando
+# en modo Report-Only para no romper scripts existentes.

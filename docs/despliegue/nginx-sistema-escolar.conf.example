@@ -1,0 +1,48 @@
+# =====================================================================
+# Sistema Escolar — Configuración de nginx + PHP-FPM (EJEMPLO)
+#
+# La raíz pública es ÚNICAMENTE laravel/public. nginx no lee .htaccess:
+# toda la protección vive aquí. Reemplaza /RUTA/AL/PROYECTO, el dominio
+# y el socket de PHP-FPM por los reales.
+# =====================================================================
+server {
+    listen 80;
+    server_name sistema-escolar.example;           # PENDIENTE: dominio real
+    root /RUTA/AL/PROYECTO/laravel/public;
+    index index.php;
+
+    charset utf-8;
+    server_tokens off;
+    client_max_body_size 12m;   # adjuntos de 10 MB (config/calendario.php) + margen
+
+    # Ocultos (.env, .git, .htaccess…) nunca se sirven. Se permite solo
+    # /.well-known/ para la validación de certificados (ACME).
+    location ~ /\.(?!well-known/) {
+        deny all;
+        return 404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    # Solo se ejecuta el front controller: ningún otro .php es ejecutable.
+    location = /index.php {
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;   # PENDIENTE: socket real
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+    }
+
+    location ~ \.php$ {
+        return 404;
+    }
+
+    error_page 404 /index.php;
+}
+
+# En producción: escuchar en 443 con TLS y redirigir 80 -> 443.
+# HSTS y demás cabeceras de seguridad: fase posterior (ver docs/seguridad).

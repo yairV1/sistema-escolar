@@ -1,28 +1,57 @@
 # =============================================================
-# Rewrite interno para exponer Laravel sin el prefijo /laravel/public/.
-# Todo bajo esta carpeta se reescribe por detrás hacia laravel/public/,
-# sin que el navegador vea ese cambio.
+# DEFENSA EN PROFUNDIDAD — NO es la configuración segura definitiva.
 #
-# Sin RewriteBase ni nombre de carpeta hardcodeado a propósito: el mismo
-# repo vive como /colegio/ en unas máquinas y /sistema-escolar/ en otras.
-# %1 (abajo) captura ese nombre real de la URL entrante en vez de darlo
-# por sabido, así que esto funciona igual sin importar cómo se llame.
+# Lo correcto es que el servidor web publique SOLO laravel/public
+# (ver docs/despliegue/apache-sistema-escolar.conf.example). Este
+# archivo existe para el caso en que la raíz del repositorio quede
+# publicada (p. ej. XAMPP con el repo dentro de htdocs/): en ese caso
+# funciona como lista blanca y nada interno es descargable.
+#
+# Expone Laravel sin el prefijo /laravel/public/ mediante el shim
+# index.php. Sin RewriteBase ni nombre de carpeta hardcodeado: el mismo
+# repo vive como /colegio/ o /sistema-escolar/ según la máquina.
 # =============================================================
-RewriteEngine On
-RewriteCond %{REQUEST_URI} ^/([^/]+)/
-RewriteRule ^ - [E=CARPETA_PROYECTO:%1]
 
-# Deja pasar archivos o carpetas reales tal cual (scripts/, docs/, y
-# cualquier otra cosa que exista físicamente acá).
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+# Sin listados de carpetas ni negociación de contenido.
+Options -Indexes -MultiViews
 
-# Assets estáticos que sí existen dentro de laravel/public/ (build/, etc.):
-# se sirven directo desde ahí, sin pasar por PHP.
-RewriteCond %{DOCUMENT_ROOT}/%{ENV:CARPETA_PROYECTO}/laravel/public/$1 -f
-RewriteRule ^(.*)$ laravel/public/$1 [L]
+# Si mod_rewrite no está disponible, las reglas de abajo no se aplican
+# y la carpeta quedaría servida "tal cual": se falla cerrado.
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
 
-# Cualquier otra ruta (las rutas reales de Laravel) pasa por el shim de
-# index.php, que corrige SCRIPT_NAME antes de cargar Laravel.
-RewriteRule ^ index.php [L]
+# Bloqueo por nombre de archivo, válido en cualquier subcarpeta y aunque
+# mod_rewrite esté desactivado: ocultos (.env, .git*, .htaccess…),
+# volcados, logs, respaldos y archivos de dependencias/herramientas.
+<FilesMatch "(^\.|\.(env|log|sql|sqlite|sqlite3|db|bak|backup|old|orig|save|swp|swo|lock|ya?ml|ini|md|bat|sh|dist|neon)$|^(artisan|composer\.json|package\.json|vite\.config\.js|phpunit\.xml|estructura\.txt)$)">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_URI} ^/([^/]+)/
+    RewriteRule ^ - [E=CARPETA_PROYECTO:%1]
+
+    # 1. Todo lo interno responde 404 (no se confirma que exista):
+    #    - cualquier segmento oculto (.git/, .env, .well-known…)
+    #    - laravel/ excepto laravel/public/
+    #    - documentación y herramientas del repositorio
+    RewriteRule (^|/)\. - [R=404,L]
+    RewriteRule ^laravel(/(?!public(/|$)).*)?$ - [R=404,L]
+    RewriteRule ^(docs|scripts)(/|$) - [R=404,L]
+    RewriteRule ^(estructura\.txt|README\.md)$ - [R=404,L]
+
+    # 2. El shim que carga Laravel.
+    RewriteRule ^index\.php$ - [L]
+
+    # 3. Archivos que existan dentro de laravel/public/ (build/, vendor/,
+    #    storage/, favicon…): se sirven directo, sin pasar por PHP.
+    RewriteCond %{DOCUMENT_ROOT}/%{ENV:CARPETA_PROYECTO}/laravel/public/$1 -f
+    RewriteRule ^(.*)$ laravel/public/$1 [L]
+
+    # 4. Cualquier otra ruta va a Laravel (que responde 404 si no existe).
+    #    Ya NO se sirve "cualquier archivo real" de la raíz del repositorio.
+    RewriteRule ^ index.php [L]
+</IfModule>

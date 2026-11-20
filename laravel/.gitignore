@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Credenciales locales de la base de pruebas (colegio_tests): nunca al repositorio
+.env.testing
