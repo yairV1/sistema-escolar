@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <meta name="solicitud-admision-url" content="{{ route('solicitudes-admision.store') }}" />
+  <meta name="solicitud-admision-url" content="{{ $urlAdmision }}" />
   <title>{{ $colegioConfiguracion->nombre_colegio }} | Educando el Futuro</title>
   <link rel="icon" href="{{ $colegioConfiguracion->logoUrl ?? asset('favicon.ico') }}">
   <link rel="stylesheet" href="{{ asset('assets/webSite/css/styleCole.css') }}" />
@@ -37,7 +37,7 @@
         <li><a href="#noticias" class="nav-link">Noticias</a></li>
         <li><a href="#galeria" class="nav-link">Galería</a></li>
         <li><a href="#contacto" class="nav-link">Contacto</a></li>
-        <li><a href="{{ route('login') }}" class="btn-ingresar">Ingresar</a></li>
+        <li><a href="{{ $urlIngresar }}" class="btn-ingresar">Ingresar</a></li>
       </ul>
     </div>
   </nav>
@@ -251,20 +251,17 @@
                 <label for="grado">Grado a ingresar</label>
                 <select id="grado" name="grado_interes" required>
                   <option value="">Seleccionar...</option>
-                  <option>Preescolar</option>
-                  <option>Grado 1°</option>
-                  <option>Grado 2°</option>
-                  <option>Grado 3°</option>
-                  <option>Grado 4°</option>
-                  <option>Grado 5°</option>
-                  <option>Grado 6°</option>
-                  <option>Grado 7°</option>
-                  <option>Grado 8°</option>
-                  <option>Grado 9°</option>
-                  <option>Grado 10°</option>
-                  <option>Grado 11°</option>
+                  {{-- B7: solo los grados que ofrece ESTA institución --}}
+                  @foreach ($grados as $grado)
+                    <option>{{ $grado }}</option>
+                  @endforeach
                 </select>
               </div>
+            </div>
+            {{-- B7: campo trampa para bots; las personas no lo ven ni lo rellenan --}}
+            <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;">
+              <label for="sitio_web_contacto">No completar</label>
+              <input type="text" id="sitio_web_contacto" name="sitio_web_contacto" tabindex="-1" autocomplete="off" />
             </div>
             <div class="form-group">
               <label for="mensaje">Mensaje adicional (opcional)</label>
