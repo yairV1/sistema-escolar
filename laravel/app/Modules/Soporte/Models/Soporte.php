@@ -3,13 +3,18 @@
 namespace App\Modules\Soporte\Models;
 
 use App\Modules\Auth\Models\Usuario;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Soporte extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'remitente';
+
     protected $table = 'soportes';
 
     protected $primaryKey = 'id_soporte';
@@ -32,7 +37,7 @@ class Soporte extends Model
     protected function imagenUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->imagen ? Storage::disk('public')->url($this->imagen) : null,
+            get: fn () => $this->imagen ? route('soportes.archivo', $this) : null,
         );
     }
 

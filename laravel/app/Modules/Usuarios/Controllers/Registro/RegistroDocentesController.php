@@ -4,6 +4,7 @@ namespace App\Modules\Usuarios\Controllers\Registro;
 
 use App\Core\Http\Controllers\Controller;
 use App\Modules\GestionAcademica\Models\Materia;
+use App\Modules\Instituciones\Support\TenantContext;
 use App\Modules\Usuarios\Models\Profesor;
 use App\Modules\Usuarios\Requests\Registro\DocenteStoreRequest;
 use App\Modules\Usuarios\Requests\Registro\DocenteUpdateRequest;
@@ -19,7 +20,7 @@ class RegistroDocentesController extends Controller
         return view('Rector.usuarios.registro.docentes', [
             'currentPage' => 'RegistroDocentes',
             'profesor' => null,
-            'materias' => Materia::where('estado', 'activo')->orderBy('nombre_materia')->get(),
+            'materias' => Materia::deInstitucion()->where('estado', 'activo')->orderBy('nombre_materia')->get(),
         ]);
     }
 
@@ -47,17 +48,21 @@ class RegistroDocentesController extends Controller
 
     public function edit(Profesor $profesor): View
     {
+        TenantContext::asegurar($profesor->usuario?->id_institucion);
+
         $profesor->load(['usuario', 'materias']);
 
         return view('Rector.usuarios.registro.docentes', [
             'currentPage' => 'RegistroDocentes',
             'profesor' => $profesor,
-            'materias' => Materia::where('estado', 'activo')->orderBy('nombre_materia')->get(),
+            'materias' => Materia::deInstitucion()->where('estado', 'activo')->orderBy('nombre_materia')->get(),
         ]);
     }
 
     public function show(Profesor $profesor): View
     {
+        TenantContext::asegurar($profesor->usuario?->id_institucion);
+
         $profesor->load([
             'usuario',
             'materias',
@@ -69,6 +74,8 @@ class RegistroDocentesController extends Controller
 
     public function update(DocenteUpdateRequest $request, Profesor $profesor): JsonResponse
     {
+        TenantContext::asegurar($profesor->usuario?->id_institucion);
+
         try {
             DocenteRegistroService::actualizar($profesor, $request->validated());
         } catch (QueryException $e) {

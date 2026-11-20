@@ -2,6 +2,8 @@
 
 namespace App\Modules\Calificaciones\Requests;
 
+use App\Modules\Instituciones\Support\UnicoEnInstitucion;
+use App\Modules\Calificaciones\Models\TipoActividad;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TipoActividadRequest extends FormRequest
@@ -14,7 +16,7 @@ class TipoActividadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_tipo' => ['required', 'string', 'max:50'],
+            'nombre_tipo' => ['required', 'string', 'max:50', UnicoEnInstitucion::regla(TipoActividad::class, ['nombre_tipo'], $this->route('tipoActividad'), 'Ya existe un tipo de actividad con ese nombre.')],
             'descripcion' => ['nullable', 'string', 'max:200'],
         ];
     }

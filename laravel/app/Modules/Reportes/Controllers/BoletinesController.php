@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipArchive;
+use App\Modules\Instituciones\Support\TenantGuard;
 
 class BoletinesController extends Controller
 {
@@ -27,7 +28,7 @@ class BoletinesController extends Controller
 
         $boletines = collect();
         if ($idCurso && $idPeriodo) {
-            $boletines = Boletin::where('id_periodo', $idPeriodo)
+            $boletines = Boletin::deInstitucion()->where('id_periodo', $idPeriodo)
                 ->whereHas('estudiante.matriculas', fn ($q) => $q->where('id_curso', $idCurso)->where('estado_matricula', 'activa'))
                 ->with('estudiante.usuario')
                 ->orderByRaw('promedio_general IS NULL, promedio_general DESC')
@@ -36,8 +37,8 @@ class BoletinesController extends Controller
 
         return view('Rector.reportes.boletines.index', [
             'currentPage' => 'Boletines',
-            'cursos' => Curso::where('estado', 'activo')->orderBy('nombre_curso')->get(),
-            'periodos' => Periodo::orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
+            'cursos' => Curso::deInstitucion()->where('estado', 'activo')->orderBy('nombre_curso')->get(),
+            'periodos' => Periodo::deInstitucion()->orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
             'idCurso' => $idCurso,
             'idPeriodo' => $idPeriodo,
             'boletines' => $boletines,
@@ -47,11 +48,11 @@ class BoletinesController extends Controller
     public function generar(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'id_curso' => ['required', 'integer', 'exists:cursos,id_curso'],
-            'id_periodo' => ['required', 'integer', 'exists:periodos_academicos,id_periodo'],
+            'id_curso' => ['required', 'integer', TenantGuard::existe(Curso::class)],
+            'id_periodo' => ['required', 'integer', TenantGuard::existe(Periodo::class)],
         ]);
 
-        $curso = Curso::findOrFail($data['id_curso']);
+        $curso = Curso::deInstitucion()->findOrFail($data['id_curso']);
         $idPeriodo = (int) $data['id_periodo'];
 
         $idsEstudiantes = $curso->matriculas()->where('estado_matricula', 'activa')->pluck('id_estudiante');
@@ -137,7 +138,7 @@ class BoletinesController extends Controller
         $pdf = Pdf::loadView('Rector.reportes.boletines.pdf', [
             'boletin' => $boletin,
             'curso' => $curso,
-            'colegio' => ColegioConfiguracion::query()->find(1),
+            'colegio' => ColegioConfiguracion::actual(),   // B6: el colegio de la sesión, no la fila 1
         ]);
 
         return $pdf->download(self::nombreArchivoPdf($boletin->estudiante->codigo_estudiante, $boletin->periodo->nombre_periodo));
@@ -146,14 +147,14 @@ class BoletinesController extends Controller
     public function pdfMasivo(Request $request): BinaryFileResponse
     {
         $data = $request->validate([
-            'id_curso' => ['required', 'integer', 'exists:cursos,id_curso'],
-            'id_periodo' => ['required', 'integer', 'exists:periodos_academicos,id_periodo'],
+            'id_curso' => ['required', 'integer', TenantGuard::existe(Curso::class)],
+            'id_periodo' => ['required', 'integer', TenantGuard::existe(Periodo::class)],
         ]);
 
-        $curso = Curso::findOrFail($data['id_curso']);
+        $curso = Curso::deInstitucion()->findOrFail($data['id_curso']);
         $idPeriodo = (int) $data['id_periodo'];
 
-        $boletines = Boletin::where('id_periodo', $idPeriodo)
+        $boletines = Boletin::deInstitucion()->where('id_periodo', $idPeriodo)
             ->whereHas('estudiante.matriculas', fn ($q) => $q->where('id_curso', $curso->id_curso)->where('estado_matricula', 'activa'))
             ->with(['estudiante.usuario', 'periodo', 'detalle.asignacion.materia', 'detalle.asignacion.profesor.usuario'])
             ->orderByRaw('puesto_curso IS NULL, puesto_curso')
@@ -161,7 +162,7 @@ class BoletinesController extends Controller
 
         abort_if($boletines->isEmpty(), 404, 'No hay boletines generados para este curso y periodo.');
 
-        $colegio = ColegioConfiguracion::query()->find(1);
+        $colegio = ColegioConfiguracion::actual();
 
         $zipPath = tempnam(sys_get_temp_dir(), 'boletines_');
         $zip = new ZipArchive();

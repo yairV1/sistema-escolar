@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
+use App\Modules\Instituciones\Support\TenantContext;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Port de app/models/Acudiente.php (legacy): buscarOCrear() es idempotente
@@ -16,6 +19,11 @@ use Illuminate\Support\Facades\Hash;
  */
 class Acudiente extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'usuario';
+
     protected $table = 'acudientes';
 
     protected $primaryKey = 'id_acudiente';
@@ -43,13 +51,22 @@ class Acudiente extends Model
     {
         $usuario = Usuario::where('numero_documento', $datos['numero_documento'])->first();
 
+        // Etapa 1: nunca vincular a una cuenta de otra institución (el acudiente
+        // vería al estudiante de otro colegio). Con documento único global, un
+        // acudiente con hijos en dos colegios requiere la Etapa 2.
+        if ($usuario && ! TenantContext::esDeLaActual($usuario->id_institucion)) {
+            throw ValidationException::withMessages([
+                'acudiente_numero_documento' => 'No es posible vincular este acudiente. Verifica el documento o comunícate con el soporte de la plataforma.',
+            ]);
+        }
+
         if ($usuario) {
             $existente = static::where('id_usuario', $usuario->id_usuario)->first();
             if ($existente) {
                 return $existente->id_acudiente;
             }
         } else {
-            $usuario = Usuario::create([
+            $usuario = Usuario::forceCreate([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
                 'tipo_documento' => $datos['tipo_documento'],

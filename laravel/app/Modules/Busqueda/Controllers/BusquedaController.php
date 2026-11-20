@@ -22,7 +22,8 @@ class BusquedaController extends Controller
             return response()->json(['estudiantes' => [], 'docentes' => [], 'cursos' => []]);
         }
 
-        $idInstitucion = auth()->user()->id_institucion;
+        // ?? 0: where(col, null) sería IS NULL (registros sin institución). 0 no existe.
+        $idInstitucion = auth()->user()->id_institucion ?? 0;
         $like = '%'.$termino.'%';
 
         $estudiantes = Estudiante::with('usuario')

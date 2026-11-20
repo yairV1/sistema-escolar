@@ -6,9 +6,15 @@ use App\Modules\GestionAcademica\Models\AsignacionAcademica;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Actividad extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'asignacion.curso';
+
     protected $table = 'actividades';
 
     protected $primaryKey = 'id_actividad';

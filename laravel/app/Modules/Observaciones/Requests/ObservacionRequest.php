@@ -4,6 +4,9 @@ namespace App\Modules\Observaciones\Requests;
 
 use App\Modules\Observaciones\Models\Observacion;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Usuarios\Models\Estudiante;
+use App\Modules\Usuarios\Models\Profesor;
 
 class ObservacionRequest extends FormRequest
 {
@@ -15,8 +18,8 @@ class ObservacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_estudiante' => ['required', 'integer', 'exists:estudiantes,id_estudiante'],
-            'id_profesor' => ['required', 'integer', 'exists:profesores,id_profesor'],
+            'id_estudiante' => ['required', 'integer', TenantGuard::existe(Estudiante::class)],
+            'id_profesor' => ['required', 'integer', TenantGuard::existe(Profesor::class)],
             'tipo_observacion' => ['required', 'in:'.implode(',', Observacion::TIPOS)],
             'descripcion' => ['required', 'string'],
             'fecha' => ['required', 'date'],

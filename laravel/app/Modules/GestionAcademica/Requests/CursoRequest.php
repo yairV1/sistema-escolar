@@ -3,6 +3,8 @@
 namespace App\Modules\GestionAcademica\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Usuarios\Models\Profesor;
 
 class CursoRequest extends FormRequest
 {
@@ -25,7 +27,7 @@ class CursoRequest extends FormRequest
             'nivel_academico' => ['required', 'in:preescolar,primaria,secundaria,media'],
             'jornada' => ['required', 'in:manana,tarde,noche,unica'],
             'anio_lectivo' => ['required', 'integer', 'digits:4', 'min:2000', 'max:2100'],
-            'id_director_grupo' => ['nullable', 'integer', 'exists:profesores,id_profesor'],
+            'id_director_grupo' => ['nullable', 'integer', TenantGuard::existe(Profesor::class)],
         ];
     }
 

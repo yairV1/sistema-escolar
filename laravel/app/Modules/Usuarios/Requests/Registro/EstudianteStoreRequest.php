@@ -4,6 +4,8 @@ namespace App\Modules\Usuarios\Requests\Registro;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Matriculas\Models\SolicitudAdmision;
 
 class EstudianteStoreRequest extends FormRequest
 {
@@ -30,7 +32,7 @@ class EstudianteStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_solicitud' => ['nullable', 'integer', 'exists:solicitudes_admision,id_solicitud'],
+            'id_solicitud' => ['nullable', 'integer', TenantGuard::existe(SolicitudAdmision::class)],
 
             // Paso 1 — Datos personales
             'primer_nombre' => ['required', 'string', 'max:100'],

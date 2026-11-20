@@ -6,9 +6,15 @@ use App\Modules\GestionAcademica\Models\Curso;
 use App\Modules\Usuarios\Models\Estudiante;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Matricula extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'curso';
+
     protected $table = 'matriculas';
 
     protected $primaryKey = 'id_matricula';

@@ -9,7 +9,6 @@ use App\Modules\Calendario\Requests\EventoRequest;
 use App\Modules\Calendario\Services\EventoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class EventoController extends Controller
 {
@@ -62,7 +61,7 @@ class EventoController extends Controller
             'adjuntos' => $evento->adjuntos->map(fn ($a) => [
                 'id_adjunto' => $a->id_adjunto,
                 'nombre_original' => $a->nombre_original,
-                'url' => Storage::disk('public')->url($a->ruta),
+                'url' => route('calendario.adjuntos.show', $a),
                 'tamano_bytes' => $a->tamano_bytes,
             ]),
             'comentarios' => $evento->comentarios->map(fn ($c) => [

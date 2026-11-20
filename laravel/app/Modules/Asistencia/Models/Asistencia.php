@@ -6,9 +6,15 @@ use App\Modules\GestionAcademica\Models\AsignacionAcademica;
 use App\Modules\Usuarios\Models\Estudiante;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Asistencia extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'asignacion.curso';
+
     protected $table = 'asistencia';
 
     protected $primaryKey = 'id_asistencia';

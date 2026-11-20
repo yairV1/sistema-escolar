@@ -11,12 +11,13 @@ use App\Modules\Usuarios\Models\Estudiante;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use App\Modules\Instituciones\Support\TenantContext;
 
 class EstadisticasController extends Controller
 {
     public function index(): View
     {
-        $asistenciaPromedio = Asistencia::selectRaw('SUM(estado_asistencia = "presente") / COUNT(*) * 100 as pct')->value('pct');
+        $asistenciaPromedio = Asistencia::deInstitucion()->selectRaw('SUM(estado_asistencia = "presente") / COUNT(*) * 100 as pct')->value('pct');
 
         $rankingCursos = DB::table('boletines')
             ->join('estudiantes', 'boletines.id_estudiante', '=', 'estudiantes.id_estudiante')
@@ -25,6 +26,7 @@ class EstadisticasController extends Controller
                     ->where('matriculas.estado_matricula', '=', 'activa');
             })
             ->join('cursos', 'matriculas.id_curso', '=', 'cursos.id_curso')
+            ->where('cursos.id_institucion', TenantContext::idActual() ?? 0)
             ->where('boletines.estado', 'publicado')
             ->whereNotNull('boletines.promedio_general')
             ->groupBy('cursos.id_curso', 'cursos.nombre_curso')
@@ -35,12 +37,12 @@ class EstadisticasController extends Controller
         return view('Rector.reportes.estadisticas.index', [
             'currentPage' => 'Estadisticas',
             'resumen' => [
-                'estudiantes' => Estudiante::where('estado_academico', 'activo')->count(),
-                'docentes' => Profesor::where('estado_laboral', 'activo')->count(),
-                'cursos' => Curso::where('estado', 'activo')->count(),
+                'estudiantes' => Estudiante::deInstitucion()->where('estado_academico', 'activo')->count(),
+                'docentes' => Profesor::deInstitucion()->where('estado_laboral', 'activo')->count(),
+                'cursos' => Curso::deInstitucion()->where('estado', 'activo')->count(),
                 'en_riesgo' => Estudiante::idsEnRiesgo()->count(),
             ],
-            'promedioInstitucional' => round((float) Boletin::where('estado', 'publicado')->avg('promedio_general'), 2),
+            'promedioInstitucional' => round((float) Boletin::deInstitucion()->where('estado', 'publicado')->avg('promedio_general'), 2),
             'asistenciaPromedio' => round((float) $asistenciaPromedio, 1),
             'distribucionNotas' => [
                 'bajo' => BoletinDetalle::where('nota_definitiva', '<', 3.0)->count(),

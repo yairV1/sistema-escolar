@@ -25,7 +25,7 @@ class ActividadOccurrenceSource implements CalendarioOccurrenceSource
         Usuario $usuario,
         array $filtros
     ): array {
-        $categoria = EventoCategoria::where('slug', 'actividades')->first();
+        $categoria = EventoCategoria::deInstitucion($usuario->id_institucion)->where('slug', 'actividades')->first();
         if (! $categoria || ! $this->visibilidad->puedeVerCategoria($usuario, $categoria)) {
             return [];
         }

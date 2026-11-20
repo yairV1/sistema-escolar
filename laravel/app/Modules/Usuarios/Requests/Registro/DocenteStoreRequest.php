@@ -2,6 +2,8 @@
 
 namespace App\Modules\Usuarios\Requests\Registro;
 
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\GestionAcademica\Models\Materia;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DocenteStoreRequest extends FormRequest
@@ -26,7 +28,7 @@ class DocenteStoreRequest extends FormRequest
             'especialidad' => ['nullable', 'string', 'max:100'],
             'fecha_ingreso' => ['nullable', 'date'],
             'materias' => ['nullable', 'array'],
-            'materias.*' => ['integer', 'exists:materias,id_materia'],
+            'materias.*' => ['integer', TenantGuard::existe(Materia::class)],
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Calendario\Controllers;
 
+use App\Core\Archivos\ArchivoPrivado;
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Calendario\Models\Evento;
 use App\Modules\Calendario\Models\EventoAdjunto;
@@ -9,7 +10,7 @@ use App\Modules\Calendario\Requests\EventoAdjuntoRequest;
 use App\Modules\Calendario\Services\EventoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EventoAdjuntoController extends Controller
 {
@@ -25,10 +26,17 @@ class EventoAdjuntoController extends Controller
             'adjunto' => [
                 'id_adjunto' => $adjunto->id_adjunto,
                 'nombre_original' => $adjunto->nombre_original,
-                'url' => Storage::disk('public')->url($adjunto->ruta),
+                'url' => route('calendario.adjuntos.show', $adjunto),
                 'tamano_bytes' => $adjunto->tamano_bytes,
             ],
         ]);
+    }
+
+    public function show(Request $request, EventoAdjunto $adjunto, ArchivoPrivado $archivos): BinaryFileResponse
+    {
+        abort_unless($request->user()->can('view', $adjunto->evento), 404);
+
+        return $archivos->inline($adjunto->ruta, 'eventos');
     }
 
     public function destroy(Request $request, EventoAdjunto $adjunto): JsonResponse

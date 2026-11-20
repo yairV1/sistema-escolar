@@ -5,9 +5,15 @@ namespace App\Modules\Comunicados\Models;
 use App\Modules\Auth\Models\Usuario;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Notificacion extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'destino';
+
     protected $table = 'notificaciones';
 
     protected $primaryKey = 'id_notificacion';

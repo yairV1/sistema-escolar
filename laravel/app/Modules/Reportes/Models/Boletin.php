@@ -7,9 +7,15 @@ use App\Modules\Usuarios\Models\Estudiante;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Boletin extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'estudiante.usuario';
+
     protected $table = 'boletines';
 
     protected $primaryKey = 'id_boletin';

@@ -25,13 +25,13 @@ class RecordatorioEventoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Recordatorio: '.$this->evento->titulo.' — '.ColegioConfiguracion::singleton()->nombre_colegio,
+            subject: 'Recordatorio: '.$this->evento->titulo.' — '.ColegioConfiguracion::deInstitucion($this->evento->idInstitucionPropia())->nombre_colegio,
         );
     }
 
     public function content(): Content
     {
-        $configuracion = ColegioConfiguracion::singleton();
+        $configuracion = ColegioConfiguracion::deInstitucion($this->evento->idInstitucionPropia());
         $opciones = config('calendario.recordatorio_opciones_minutos');
 
         return new Content(

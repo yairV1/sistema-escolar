@@ -28,7 +28,7 @@ class SuperAdminInicialSeeder extends Seeder
 
         $passwordTemporal = str()->password(16);
 
-        Usuario::create([
+        Usuario::forceCreate([
             'nombres' => 'Super',
             'apellidos' => 'Admin',
             'tipo_documento' => 'CC',

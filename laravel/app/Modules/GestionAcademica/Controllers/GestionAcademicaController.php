@@ -43,7 +43,7 @@ class GestionAcademicaController extends Controller
 
     private function renderTab(Request $request, string $tab, string $titulo): View
     {
-        $cursosParaHorario = $tab === 'horarios' ? Curso::where('estado', 'activo')->orderByDesc('anio_lectivo')->orderBy('nombre_curso')->get() : null;
+        $cursosParaHorario = $tab === 'horarios' ? Curso::deInstitucion()->where('estado', 'activo')->orderByDesc('anio_lectivo')->orderBy('nombre_curso')->get() : null;
         $cursoHorarioId = $tab === 'horarios' ? (int) ($request->query('curso') ?: optional($cursosParaHorario->first())->id_curso) : null;
 
         return view('Rector.gestion-academica.index', [
@@ -51,13 +51,13 @@ class GestionAcademicaController extends Controller
             'titulo' => $titulo,
             'tab' => $tab,
             'filtros' => $request->only(['q', 'estado', 'curso', 'anio', 'nivel']),
-            'profesores' => Profesor::with('usuario')->where('estado_laboral', 'activo')->get(),
-            'todasLasMaterias' => $tab === 'asignaciones' ? Materia::where('estado', 'activo')->orderBy('nombre_materia')->get() : null,
-            'todosLosCursos' => $tab === 'asignaciones' ? Curso::where('estado', 'activo')->orderBy('nombre_curso')->get() : null,
+            'profesores' => Profesor::deInstitucion()->with('usuario')->where('estado_laboral', 'activo')->get(),
+            'todasLasMaterias' => $tab === 'asignaciones' ? Materia::deInstitucion()->where('estado', 'activo')->orderBy('nombre_materia')->get() : null,
+            'todosLosCursos' => $tab === 'asignaciones' ? Curso::deInstitucion()->where('estado', 'activo')->orderBy('nombre_curso')->get() : null,
             'materias' => $tab === 'materias' ? $this->buscarMaterias($request) : null,
             'resumenMaterias' => $tab === 'materias' ? $this->resumenMaterias() : null,
             'materiasPadre' => $tab === 'materias'
-                ? Materia::whereNull('id_materia_padre')->where('estado', 'activo')->orderBy('nombre_materia')->get()
+                ? Materia::deInstitucion()->whereNull('id_materia_padre')->where('estado', 'activo')->orderBy('nombre_materia')->get()
                 : null,
             'cursos' => $tab === 'cursos' ? $this->buscarCursos($request) : null,
             'resumenCursos' => $tab === 'cursos' ? $this->resumenCursos() : null,
@@ -66,10 +66,10 @@ class GestionAcademicaController extends Controller
             'cursosParaHorario' => $cursosParaHorario,
             'cursoHorarioId' => $cursoHorarioId,
             'asignacionesHorario' => $tab === 'horarios' && $cursoHorarioId
-                ? AsignacionAcademica::where('id_curso', $cursoHorarioId)->where('estado', 'activo')->with(['materia', 'profesor.usuario'])->get()
+                ? AsignacionAcademica::deInstitucion()->where('id_curso', $cursoHorarioId)->where('estado', 'activo')->with(['materia', 'profesor.usuario'])->get()
                 : collect(),
             'horariosCurso' => $tab === 'horarios' && $cursoHorarioId
-                ? Horario::whereHas('asignacion', fn ($q) => $q->where('id_curso', $cursoHorarioId))
+                ? Horario::deInstitucion()->whereHas('asignacion', fn ($q) => $q->where('id_curso', $cursoHorarioId))
                     ->where('estado', 'activo')
                     ->with(['asignacion.materia', 'asignacion.profesor.usuario'])
                     ->orderByRaw("FIELD(dia_semana,'lunes','martes','miercoles','jueves','viernes','sabado')")
@@ -113,7 +113,7 @@ class GestionAcademicaController extends Controller
 
     private function buscarMaterias(Request $request)
     {
-        $query = Materia::query()->with('padre');
+        $query = Materia::query()->deInstitucion()->with('padre');
 
         if ($q = $request->query('q')) {
             $query->where('nombre_materia', 'like', "%{$q}%");
@@ -136,15 +136,15 @@ class GestionAcademicaController extends Controller
     private function resumenMaterias(): array
     {
         return [
-            'total' => Materia::count(),
-            'activas' => Materia::where('estado', 'activo')->count(),
-            'inactivas' => Materia::where('estado', 'inactivo')->count(),
+            'total' => Materia::deInstitucion()->count(),
+            'activas' => Materia::deInstitucion()->where('estado', 'activo')->count(),
+            'inactivas' => Materia::deInstitucion()->where('estado', 'inactivo')->count(),
         ];
     }
 
     private function buscarCursos(Request $request)
     {
-        $query = Curso::query()->with('director.usuario');
+        $query = Curso::query()->deInstitucion()->with('director.usuario');
 
         if ($q = $request->query('q')) {
             $query->where('nombre_curso', 'like', "%{$q}%");
@@ -165,15 +165,15 @@ class GestionAcademicaController extends Controller
     private function resumenCursos(): array
     {
         return [
-            'total' => Curso::count(),
-            'activos' => Curso::where('estado', 'activo')->count(),
-            'inactivos' => Curso::where('estado', 'inactivo')->count(),
+            'total' => Curso::deInstitucion()->count(),
+            'activos' => Curso::deInstitucion()->where('estado', 'activo')->count(),
+            'inactivos' => Curso::deInstitucion()->where('estado', 'inactivo')->count(),
         ];
     }
 
     private function buscarAsignaciones(Request $request)
     {
-        $query = AsignacionAcademica::query()->with(['profesor.usuario', 'materia', 'curso']);
+        $query = AsignacionAcademica::query()->deInstitucion()->with(['profesor.usuario', 'materia', 'curso']);
 
         if ($curso = $request->query('curso')) {
             $query->where('id_curso', $curso);
@@ -194,14 +194,15 @@ class GestionAcademicaController extends Controller
     private function resumenAsignaciones(): array
     {
         return [
-            'total' => AsignacionAcademica::count(),
-            'activas' => AsignacionAcademica::where('estado', 'activo')->count(),
-            'inactivas' => AsignacionAcademica::where('estado', 'inactivo')->count(),
+            'total' => AsignacionAcademica::deInstitucion()->count(),
+            'activas' => AsignacionAcademica::deInstitucion()->where('estado', 'activo')->count(),
+            'inactivas' => AsignacionAcademica::deInstitucion()->where('estado', 'inactivo')->count(),
         ];
     }
 
     public function storeMateria(MateriaRequest $request): JsonResponse
     {
+        Materia::asegurarCreable();
         try {
             $materia = Materia::create($request->validated() + ['estado' => 'activo']);
         } catch (QueryException $e) {
@@ -213,6 +214,7 @@ class GestionAcademicaController extends Controller
 
     public function updateMateria(MateriaRequest $request, Materia $materia): JsonResponse
     {
+        $materia->asegurarModificable();
         try {
             $materia->update($request->validated());
         } catch (QueryException $e) {
@@ -224,6 +226,7 @@ class GestionAcademicaController extends Controller
 
     public function desactivarMateria(Materia $materia): JsonResponse
     {
+        $materia->asegurarModificable();
         $materia->update(['estado' => 'inactivo']);
 
         return response()->json(['success' => true, 'message' => 'Asignatura desactivada correctamente.']);
@@ -231,6 +234,7 @@ class GestionAcademicaController extends Controller
 
     public function activarMateria(Materia $materia): JsonResponse
     {
+        $materia->asegurarModificable();
         $materia->update(['estado' => 'activo']);
 
         return response()->json(['success' => true, 'message' => 'Asignatura reactivada correctamente.']);

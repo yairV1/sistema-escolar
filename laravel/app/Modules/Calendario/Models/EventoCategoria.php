@@ -3,11 +3,17 @@
 namespace App\Modules\Calendario\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use App\Modules\Instituciones\Support\CatalogoInstitucional;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EventoCategoria extends Model
 {
+    /** Etapa 2 · B5: catálogo institucional; las filas sin institución son plantillas globales de solo lectura. */
+    use CatalogoInstitucional;
+
+    public const PLANTILLA_GLOBAL = true;
+
     protected $table = 'evento_categorias';
 
     protected $primaryKey = 'id_categoria';
@@ -38,6 +44,12 @@ class EventoCategoria extends Model
     public function eventos(): HasMany
     {
         return $this->hasMany(Evento::class, 'id_categoria', 'id_categoria');
+    }
+
+    /** Las categorías de sistema (Clases, Actividades) son plantillas en cualquier esquema. */
+    public function esPlantilla(): bool
+    {
+        return (bool) $this->es_sistema || ($this->tieneColumnaInstitucion() && $this->getAttribute('id_institucion') === null);
     }
 
     public function scopeActivas(Builder $query): Builder
