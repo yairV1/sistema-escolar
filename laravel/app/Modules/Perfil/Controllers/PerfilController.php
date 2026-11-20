@@ -2,17 +2,34 @@
 
 namespace App\Modules\Perfil\Controllers;
 
+use App\Core\Archivos\ArchivoPrivado;
 use App\Core\Http\Controllers\Controller;
+use App\Modules\Auth\Models\Usuario;
+use App\Modules\Auth\Services\CambioDeContrasena;
 use App\Shared\Fixtures\PortalFamiliaFixtures;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PerfilController extends Controller
 {
+    public function foto(Request $request, Usuario $usuario, ArchivoPrivado $archivos): BinaryFileResponse
+    {
+        $actor = $request->user();
+        $esPropia = $actor->id_usuario === $usuario->id_usuario;
+        $mismaInstitucion = ! $actor->esSuperAdmin()
+            && $actor->id_institucion !== null
+            && (int) $actor->id_institucion === (int) $usuario->id_institucion;
+
+        abort_unless($esPropia || $mismaInstitucion, 404);
+        abort_unless($usuario->foto_perfil, 404);
+
+        return $archivos->inline($usuario->foto_perfil, 'perfiles');
+    }
+
     public function show(): View
     {
         $usuario = auth()->user();
@@ -49,12 +66,8 @@ class PerfilController extends Controller
         unset($data['foto_perfil'], $data['foto_perfil_removido']);
 
         if ($request->hasFile('foto_perfil')) {
-            if ($usuario->foto_perfil) {
-                Storage::disk('public')->delete($usuario->foto_perfil);
-            }
-            $data['foto_perfil'] = $request->file('foto_perfil')->store('perfiles', 'public');
+            $data['foto_perfil'] = $request->file('foto_perfil')->store('perfiles', 'private');
         } elseif ($request->boolean('foto_perfil_removido') && $usuario->foto_perfil) {
-            Storage::disk('public')->delete($usuario->foto_perfil);
             $data['foto_perfil'] = null;
         }
 
@@ -63,7 +76,7 @@ class PerfilController extends Controller
         return response()->json(['success' => true, 'message' => 'Perfil actualizado correctamente.']);
     }
 
-    public function updatePassword(Request $request): JsonResponse
+    public function updatePassword(Request $request, CambioDeContrasena $cambio): JsonResponse
     {
         $usuario = auth()->user();
 
@@ -76,9 +89,14 @@ class PerfilController extends Controller
             return response()->json(['success' => false, 'message' => 'La contraseña actual no es correcta.'], 422);
         }
 
-        $usuario->update(['password' => Hash::make($data['password_nueva'])]);
+        // Auditado + invalida las demás sesiones y cookies «recordarme» (incidente 2026-11-19).
+        $cambio->aplicar($usuario, $data['password_nueva'], CambioDeContrasena::ORIGEN_PERFIL);
 
-        return response()->json(['success' => true, 'message' => 'Contraseña actualizada correctamente.']);
+        // Esta sesión sigue válida: nuevo id y marca de autenticación = momento del cambio.
+        $request->session()->regenerate();
+        $request->session()->put('auth_at', $usuario->sesion_valida_desde->timestamp);
+
+        return response()->json(['success' => true, 'message' => 'Contraseña actualizada correctamente. Se cerraron las demás sesiones abiertas.']);
     }
 
     /**
