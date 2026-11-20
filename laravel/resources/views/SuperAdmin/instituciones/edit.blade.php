@@ -18,12 +18,6 @@
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-body">
-                @include('SuperAdmin.instituciones.partials._campos-rector')
-            </div>
-        </div>
-
         <div class="mt-4">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
         </div>
