@@ -24,10 +24,29 @@ class Etapa2ArchivoLegadoTest extends TestCase
         return require database_path('migrations/etapa2/b10/2026_11_20_100000_etapa2_b10_archivo_legado.php');
     }
 
+    /**
+     * Esta clase aplica DDL (migraciones de B10 y B8), así que no puede usar la
+     * transacción de RefreshDatabase (en MariaDB el DDL la confirmaría). Para ser
+     * aislada e independiente del orden: verifica la base de pruebas, parte de una
+     * base recién migrada y, al terminar (también si la prueba falla), la deja
+     * recién migrada y SIN datos, que es el estado que esperan las demás clases.
+     */
+    private function baseLimpia(string $momento): void
+    {
+        \App\Core\Seguridad\GuardiaBaseDePruebas::asegurar(DB::connection(), "Etapa2ArchivoLegadoTest ({$momento})");
+        Artisan::call('migrate:fresh', ['--force' => true]);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->baseLimpia('limpieza final');
+        parent::tearDown();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
-        Artisan::call('migrate:fresh', ['--force' => true]);
+        $this->baseLimpia('preparación');
         $this->escenario = EscenarioDosColegios::crear();
         $this->migracionArchivo()->up();
         if (! DB::table('colegio_configuracion')->exists()) {
