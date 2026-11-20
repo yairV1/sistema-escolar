@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         \App\Modules\Calendario\Console\Commands\EnviarRecordatoriosEventos::class,
+        \App\Modules\Instituciones\Console\Commands\AuditarPertenenciaCommand::class,
+        \App\Modules\Instituciones\Console\Commands\PoblarPertenenciaCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
@@ -28,6 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', [
             \App\Core\Http\Middleware\EnsureSessionFresh::class,
             \App\Core\Http\Middleware\SetLocale::class,
+            // Etapa 1: todo modelo institucional de la URL debe ser de la
+            // institución del usuario (404 si no). Va después de
+            // SubstituteBindings (ya incluido en "web").
+            \App\Core\Http\Middleware\EnsureRecursosDeInstitucion::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
