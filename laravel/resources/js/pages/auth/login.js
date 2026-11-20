@@ -1,6 +1,5 @@
 import { toast } from '../../components/alerts/toast';
 import { confirmLogout } from '../../components/alerts/sweetAlert';
-import { initPasswordToggle } from '../../components/forms/passwordToggle';
 import {
     wireLiveValidation,
     setFieldError,
@@ -14,6 +13,49 @@ function setLoading(button, loading) {
     button.disabled = loading;
 }
 
+/**
+ * Botón "Mostrar/Ocultar" dentro del campo de contraseña + avatar animado.
+ * El avatar refleja lo que pasa en el formulario:
+ *   mira  → escribiendo el usuario (sigue el texto con la mirada)
+ *   tapa  → escribiendo la contraseña oculta (se tapa los ojos)
+ *   espia → la contraseña está visible (baja las manos y mira)
+ *   reposo → nada enfocado (parpadea de vez en cuando)
+ */
+function initPasswordYAvatar(form, usuario, password) {
+    const toggle = form.querySelector('#togglePassword');
+    const mono = document.getElementById('authMono');
+
+    const actualizarMono = () => {
+        if (!mono) return;
+        const activo = document.activeElement;
+        let estado = 'reposo';
+        if (password.type === 'text' && (activo === password || activo === toggle)) estado = 'espia';
+        else if (activo === password || activo === toggle) estado = 'tapa';
+        else if (activo === usuario) estado = 'mira';
+        mono.dataset.estado = estado;
+
+        // La mirada se desplaza según cuánto se ha escrito en el usuario.
+        const avance = Math.min(usuario.value.length, 30) / 30;
+        mono.style.setProperty('--mirada', `${(avance * 2 - 1) * 1.2}px`);
+    };
+
+    toggle?.addEventListener('click', () => {
+        const visible = password.type === 'text';
+        password.type = visible ? 'password' : 'text';
+        toggle.textContent = visible ? 'Mostrar' : 'Ocultar';
+        toggle.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+        toggle.setAttribute('aria-pressed', String(!visible));
+        password.focus();
+        actualizarMono();
+    });
+
+    [usuario, password, toggle].forEach((el) => {
+        el?.addEventListener('focus', actualizarMono);
+        el?.addEventListener('blur', () => setTimeout(actualizarMono, 0));
+    });
+    usuario.addEventListener('input', actualizarMono);
+}
+
 function initLoginForm() {
     const form = document.getElementById('loginForm');
     if (!form) return;
@@ -23,7 +65,7 @@ function initLoginForm() {
     const remember = form.querySelector('#remember');
     const submitBtn = form.querySelector('#btnLogin');
 
-    initPasswordToggle(document.getElementById('togglePassword'), password);
+    initPasswordYAvatar(form, usuario, password);
     wireLiveValidation(usuario);
     wireLiveValidation(password);
 

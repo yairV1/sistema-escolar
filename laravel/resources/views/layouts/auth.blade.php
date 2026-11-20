@@ -22,64 +22,68 @@
     @vite(['resources/css/app.scss', 'resources/js/app.js'])
     @stack('scripts')
 </head>
-<body>
-    <div class="container-fluid vh-100 p-0">
-        <div class="row g-0 h-100">
-            <div class="col-lg-6 d-none d-lg-flex auth-visual text-white flex-column justify-content-between p-5">
-                <a href="{{ url('/') }}" class="text-white-50 text-decoration-none small d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-arrow-left"></i> Volver al sitio
-                </a>
+@php
+    // Foto del panel visual: la imagen de portada que el colegio configure.
+    // Sin foto, el panel usa una escena en CSS con la paleta institucional.
+    $authFoto = $colegioConfiguracion->imagen_hero
+        ? \Illuminate\Support\Facades\Storage::disk('public')->url($colegioConfiguracion->imagen_hero)
+        : null;
+@endphp
+<body class="auth-shell">
+    <div class="auth-ambiente" aria-hidden="true"></div>
 
-                <div>
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-4 mb-3"
-                         style="width:58px;height:58px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);">
-                        <i class="bi bi-mortarboard-fill fs-4"></i>
-                    </div>
-                    <h1 class="font-serif fw-semibold mb-2">{{ $colegioConfiguracion->nombre_colegio }}</h1>
-                    <p class="text-white-50 mb-4">Portal académico institucional</p>
-
-                    <div class="d-flex flex-column gap-3">
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                                 style="width:38px;height:38px;background:rgba(255,255,255,.12);">
-                                <i class="bi bi-shield-check"></i>
-                            </div>
-                            <div>
-                                <h4 class="h6 mb-0">Acceso seguro</h4>
-                                <p class="text-white-50 small mb-0">Tus datos y los de tus estudiantes, protegidos.</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                                 style="width:38px;height:38px;background:rgba(255,255,255,.12);">
-                                <i class="bi bi-graph-up"></i>
-                            </div>
-                            <div>
-                                <h4 class="h6 mb-0">Seguimiento en tiempo real</h4>
-                                <p class="text-white-50 small mb-0">Notas, asistencia y observaciones al día.</p>
-                            </div>
-                        </div>
-                    </div>
+    <main class="auth-stage">
+        <div class="auth-card">
+            <aside class="auth-visual {{ $authFoto ? 'con-foto' : '' }}"
+                   @if ($authFoto) style="--auth-foto: url('{{ $authFoto }}')" @endif>
+                <div class="auth-visual-escena" aria-hidden="true">
+                    <span class="orbe orbe-1"></span>
+                    <span class="orbe orbe-2"></span>
+                    <span class="orbe orbe-3"></span>
+                    <span class="colina colina-1"></span>
+                    <span class="colina colina-2"></span>
                 </div>
 
-                <p class="text-white-50 small mb-0">&copy; {{ date('Y') }} {{ $colegioConfiguracion->nombre_colegio }}</p>
-            </div>
+                <div class="auth-marca">
+                    @if ($colegioConfiguracion->logoUrl)
+                        <img src="{{ $colegioConfiguracion->logoUrl }}" alt="" class="auth-marca-logo">
+                    @else
+                        <span class="auth-marca-logo auth-marca-icono"><i class="bi bi-mortarboard-fill"></i></span>
+                    @endif
+                    <span class="auth-marca-nombre">{{ $colegioConfiguracion->nombre_colegio }}</span>
+                </div>
 
-            <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5 position-relative">
-                <button type="button"
-                        class="btn btn-outline-secondary rounded-circle position-absolute top-0 end-0 m-3 m-md-4"
-                        style="width:40px;height:40px;"
-                        data-theme-toggle
-                        aria-label="Cambiar tema">
-                    <i class="bi bi-moon-stars theme-icon-light"></i>
-                    <i class="bi bi-sun theme-icon-dark"></i>
-                </button>
+                <div class="auth-visual-pie">
+                    <p class="auth-visual-frase">Portal académico institucional</p>
+                    <ul class="auth-visual-puntos">
+                        <li><i class="bi bi-shield-check"></i> Acceso seguro</li>
+                        <li><i class="bi bi-graph-up"></i> Notas y asistencia al día</li>
+                    </ul>
+                </div>
+            </aside>
 
-                <div class="w-100" style="max-width: 420px;">
+            <section class="auth-panel">
+                <div class="auth-panel-barra">
+                    <a href="{{ url('/') }}" class="auth-circulo" aria-label="Volver al sitio" title="Volver al sitio">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <button type="button" class="auth-circulo" data-theme-toggle aria-label="Cambiar tema">
+                        <i class="bi bi-moon-stars theme-icon-light"></i>
+                        <i class="bi bi-sun theme-icon-dark"></i>
+                    </button>
+                </div>
+
+                <div class="auth-panel-cuerpo">
                     @yield('content')
                 </div>
-            </div>
+
+                <p class="auth-legal">&copy; {{ date('Y') }} {{ $colegioConfiguracion->nombre_colegio }}</p>
+            </section>
         </div>
-    </div>
+    </main>
+
+    {{-- Los modales van fuera de .auth-stage: su z-index crea un contexto de
+         apilamiento que dejaría el modal debajo del backdrop de Bootstrap. --}}
+    @stack('modales')
 </body>
 </html>
