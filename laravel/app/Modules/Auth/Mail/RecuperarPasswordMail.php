@@ -22,7 +22,7 @@ class RecuperarPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Recupera tu contraseña — '.ColegioConfiguracion::singleton()->nombre_colegio,
+            subject: 'Recupera tu contraseña — '.ColegioConfiguracion::deInstitucion($this->usuario->id_institucion)->nombre_colegio,
         );
     }
 
@@ -33,7 +33,7 @@ class RecuperarPasswordMail extends Mailable
             with: [
                 'nombre' => trim($this->usuario->nombres.' '.$this->usuario->apellidos),
                 'enlace' => $this->enlace,
-                'colegioNombre' => ColegioConfiguracion::singleton()->nombre_colegio,
+                'colegioNombre' => ColegioConfiguracion::deInstitucion($this->usuario->id_institucion)->nombre_colegio,
             ],
         );
     }

@@ -40,7 +40,7 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
         Usuario $usuario,
         array $filtros
     ): array {
-        $categoria = EventoCategoria::where('slug', 'clases')->first();
+        $categoria = EventoCategoria::deInstitucion($usuario->id_institucion)->where('slug', 'clases')->first();
         if (! $categoria || ! $this->visibilidad->puedeVerCategoria($usuario, $categoria)) {
             return [];
         }
@@ -54,7 +54,7 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
             return [];
         }
 
-        $claveCache = $this->claveCache($desde, $hasta, $cursosVisibles, $filtros);
+        $claveCache = $this->claveCache($desde, $hasta, $cursosVisibles, $filtros, $usuario->id_institucion);
 
         // Se cachean los DTO (no arrays): son readonly y serializan sin
         // problema, y así el contrato de la interfaz no cambia según haya
@@ -62,7 +62,7 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
         return Cache::remember(
             $claveCache,
             now()->addHours(6),
-            fn () => $this->calcularOcurrencias($desde, $hasta, $cursosVisibles, $filtros, $categoria)
+            fn () => $this->calcularOcurrencias($desde, $hasta, $cursosVisibles, $filtros, $categoria, $usuario->id_institucion)
         );
     }
 
@@ -73,12 +73,13 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
      * a que expire, y sin necesidad de Cache::tags (el driver `database`
      * no las soporta).
      */
-    private function claveCache(CarbonImmutable $desde, CarbonImmutable $hasta, ?array $cursosVisibles, array $filtros): string
+    private function claveCache(CarbonImmutable $desde, CarbonImmutable $hasta, ?array $cursosVisibles, array $filtros, ?int $idInstitucion): string
     {
         $version = Cache::get('calendario:horarios_version', 1);
         $huellaFiltros = md5(json_encode([$cursosVisibles, $filtros['curso'] ?? null, $filtros['categorias'] ?? null]));
 
-        return "calendario:horarios:v{$version}:{$desde->toDateString()}:{$hasta->toDateString()}:{$huellaFiltros}";
+        // Etapa 2 · B5: la institución forma parte de la clave (sus periodos definen las ventanas)
+        return "calendario:horarios:v{$version}:i".($idInstitucion ?? 0).":{$desde->toDateString()}:{$hasta->toDateString()}:{$huellaFiltros}";
     }
 
     private function calcularOcurrencias(
@@ -86,7 +87,8 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
         CarbonImmutable $hasta,
         ?array $cursosVisibles,
         array $filtros,
-        EventoCategoria $categoria
+        EventoCategoria $categoria,
+        ?int $idInstitucion
     ): array {
         $horarios = Horario::query()
             ->where('estado', 'activo')
@@ -106,7 +108,7 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
             return [];
         }
 
-        $ventanasPorAnio = $this->ventanasDePeriodoPorAnio($horarios);
+        $ventanasPorAnio = $this->ventanasDePeriodoPorAnio($horarios, $idInstitucion);
 
         $items = [];
         foreach ($horarios as $horario) {
@@ -155,11 +157,12 @@ class HorarioOccurrenceSource implements CalendarioOccurrenceSource
     }
 
     /** @return Collection<int, Collection<int, array{fecha_inicio: string, fecha_fin: string}>> */
-    private function ventanasDePeriodoPorAnio(Collection $horarios): Collection
+    private function ventanasDePeriodoPorAnio(Collection $horarios, ?int $idInstitucion): Collection
     {
         $anios = $horarios->pluck('asignacion.anio_lectivo')->filter()->unique()->values();
 
-        return Periodo::whereIn('anio_lectivo', $anios)
+        // Etapa 2 · B5: solo los periodos de la institución del usuario (y los aún compartidos)
+        return Periodo::deInstitucion($idInstitucion)->whereIn('anio_lectivo', $anios)
             ->get(['anio_lectivo', 'fecha_inicio', 'fecha_fin'])
             ->groupBy('anio_lectivo');
     }

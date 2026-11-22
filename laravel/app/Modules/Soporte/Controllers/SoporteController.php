@@ -2,6 +2,7 @@
 
 namespace App\Modules\Soporte\Controllers;
 
+use App\Core\Archivos\ArchivoPrivado;
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Auth\Models\Usuario;
 use App\Modules\Soporte\Models\Soporte;
@@ -11,6 +12,7 @@ use App\Modules\Soporte\Requests\SoporteStoreRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SoporteController extends Controller
 {
@@ -27,7 +29,7 @@ class SoporteController extends Controller
             'id_usuario' => auth()->id(),
             'asunto' => $request->string('asunto'),
             'mensaje' => $request->string('mensaje'),
-            'imagen' => $request->hasFile('imagen') ? $request->file('imagen')->store('soporte', 'public') : null,
+            'imagen' => $request->hasFile('imagen') ? $request->file('imagen')->store('soporte', 'private') : null,
             'estado' => 'nuevo',
         ]);
 
@@ -37,6 +39,20 @@ class SoporteController extends Controller
             'success' => true,
             'message' => 'Tu soporte fue enviado. El equipo del sistema lo revisará pronto.',
         ]);
+    }
+
+    public function archivo(Request $request, Soporte $soporte, ArchivoPrivado $archivos): BinaryFileResponse
+    {
+        $actor = $request->user();
+        abort_unless(
+            $actor->esSuperAdmin()
+                || ($actor->rolSlug === 'admin'
+                    && (int) $actor->id_institucion === (int) $soporte->idInstitucionPropia()),
+            404
+        );
+        abort_unless($soporte->imagen, 404);
+
+        return $archivos->inline($soporte->imagen, 'soporte');
     }
 
     public function misSolicitudes(): View
@@ -56,7 +72,11 @@ class SoporteController extends Controller
     {
         $estado = $request->query('estado');
 
-        $soportes = Soporte::query()
+        // SuperAdmin: mesa de ayuda de toda la plataforma. Cualquier otro rol
+        // con acceso (admin institucional): solo los soportes de su institución.
+        $acotar = fn ($q) => auth()->user()->esSuperAdmin() ? $q : $q->deInstitucion();
+
+        $soportes = $acotar(Soporte::query())
             ->with('remitente')
             ->when($estado, fn ($query) => $query->where('estado', $estado))
             ->orderByDesc('created_at')
@@ -67,9 +87,9 @@ class SoporteController extends Controller
             'soportes' => $soportes,
             'estadoSeleccionado' => $estado,
             'kpis' => [
-                'nuevos' => Soporte::where('estado', 'nuevo')->count(),
-                'leidos' => Soporte::where('estado', 'leido')->count(),
-                'resueltos' => Soporte::where('estado', 'resuelto')->count(),
+                'nuevos' => $acotar(Soporte::query())->where('estado', 'nuevo')->count(),
+                'leidos' => $acotar(Soporte::query())->where('estado', 'leido')->count(),
+                'resueltos' => $acotar(Soporte::query())->where('estado', 'resuelto')->count(),
             ],
         ]);
     }

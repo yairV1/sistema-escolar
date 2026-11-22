@@ -9,6 +9,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Usuarios\Models\Estudiante;
 
 class AsistenciaController extends Controller
 {
@@ -46,10 +48,19 @@ class AsistenciaController extends Controller
         $data = $request->validate([
             'fecha' => ['required', 'date'],
             'registros' => ['required', 'array'],
-            'registros.*.id_estudiante' => ['required', 'integer', 'exists:estudiantes,id_estudiante'],
+            'registros.*.id_estudiante' => ['required', 'integer', TenantGuard::existe(Estudiante::class)],
             'registros.*.estado_asistencia' => ['required', Rule::in(Asistencia::ESTADOS)],
             'registros.*.observacion' => ['nullable', 'string', 'max:300'],
         ]);
+
+        // Mismo control que en las notas: solo estudiantes del curso (todo o nada).
+        if ($asignacion->estudiantesFueraDelCurso(array_column($data['registros'], 'id_estudiante')) !== []) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hay estudiantes que no están matriculados en este curso. No se guardó la asistencia.',
+                'errors' => ['registros' => ['Estudiantes no válidos para este curso.']],
+            ], 422);
+        }
 
         foreach ($data['registros'] as $fila) {
             Asistencia::updateOrCreate(

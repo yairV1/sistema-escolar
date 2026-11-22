@@ -10,9 +10,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
+use App\Modules\Instituciones\Support\TenantContext;
 
 class Estudiante extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'usuario';
+
     protected $table = 'estudiantes';
 
     protected $primaryKey = 'id_estudiante';
@@ -68,12 +75,17 @@ class Estudiante extends Model
      */
     public static function idsEnRiesgo(?int $idInstitucion = null): Collection
     {
-        $porPromedio = static::whereHas('boletines', fn ($q) => $q->where('promedio_general', '<', 3.5))
-            ->when($idInstitucion, fn ($q) => $q->whereHas('usuario', fn ($qu) => $qu->where('id_institucion', $idInstitucion)))
+        // Etapa 1: siempre acotado. Sin institución explícita se usa la del
+        // usuario autenticado; sin ninguna, no devuelve nada (antes: todos los
+        // colegios).
+        $idInstitucion ??= TenantContext::idActual();
+
+        $porPromedio = static::deInstitucion($idInstitucion)
+            ->whereHas('boletines', fn ($q) => $q->where('promedio_general', '<', 3.5))
             ->pluck('id_estudiante');
 
         $porAsistencia = Asistencia::select('id_estudiante')
-            ->when($idInstitucion, fn ($q) => $q->whereHas('estudiante.usuario', fn ($qu) => $qu->where('id_institucion', $idInstitucion)))
+            ->whereIn('id_estudiante', static::deInstitucion($idInstitucion)->select('id_estudiante'))
             ->groupBy('id_estudiante')
             ->havingRaw('SUM(estado_asistencia = "presente") / COUNT(*) < 0.8')
             ->pluck('id_estudiante');

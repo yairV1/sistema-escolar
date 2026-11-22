@@ -3,6 +3,7 @@
 namespace App\Modules\GestionAcademica\Models;
 
 use App\Modules\Usuarios\Models\Profesor;
+use App\Modules\Instituciones\Support\CatalogoInstitucional;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Materia extends Model
 {
+    /** Etapa 2 · B5: catálogo institucional; sin plantillas (las filas sin institución son compartidas/pendientes, solo lectura). */
+    use CatalogoInstitucional;
+
+    public const PLANTILLA_GLOBAL = false;
+
     protected $table = 'materias';
 
     protected $primaryKey = 'id_materia';

@@ -1,0 +1,11 @@
+# =============================================================
+# Segunda barrera (defensa en profundidad).
+#
+# Nada dentro de laravel/ es público, salvo laravel/public/, que
+# reabre el acceso en su propio .htaccess ("Require all granted").
+#
+# Solo actúa si el servidor publica una carpeta por encima de esta
+# (p. ej. XAMPP con el repo en htdocs/). Con la configuración correcta
+# (DocumentRoot = laravel/public) este archivo nunca se consulta.
+# =============================================================
+Require all denied

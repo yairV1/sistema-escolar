@@ -3,6 +3,8 @@
 namespace App\Modules\GestionAcademica\Requests;
 
 use App\Modules\GestionAcademica\Models\Materia;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Instituciones\Support\UnicoEnInstitucion;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -16,10 +18,10 @@ class MateriaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_materia' => ['required', 'string', 'max:100'],
+            'nombre_materia' => ['required', 'string', 'max:100', UnicoEnInstitucion::regla(Materia::class, ['nombre_materia'], $this->route('materia'), 'Ya existe una asignatura con ese nombre.')],
             'descripcion' => ['nullable', 'string', 'max:1000'],
             'intensidad_horaria' => ['required', 'integer', 'min:1', 'max:40'],
-            'id_materia_padre' => ['nullable', 'integer', 'exists:materias,id_materia'],
+            'id_materia_padre' => ['nullable', 'integer', TenantGuard::existe(Materia::class)],
         ];
     }
 
@@ -39,7 +41,7 @@ class MateriaRequest extends FormRequest
                 return;
             }
 
-            $padre = Materia::find($idPadre);
+            $padre = Materia::deInstitucion()->find($idPadre);
             if ($padre && $padre->id_materia_padre) {
                 $validator->errors()->add('id_materia_padre', 'Esa asignatura ya es una sub-asignatura; solo se permite un nivel.');
             }

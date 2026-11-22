@@ -8,6 +8,8 @@ use App\Modules\Auth\Models\Usuario;
 use App\Modules\Instituciones\Models\Institucion;
 use App\Modules\Instituciones\Requests\InstitucionStoreRequest;
 use App\Modules\Instituciones\Requests\InstitucionUpdateRequest;
+use App\Modules\Instituciones\Support\RequisitosProvisionamientoInstitucion;
+use App\Modules\Instituciones\Support\SlugInstitucion;
 use App\Modules\Planes\Models\Plan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,22 +48,44 @@ class InstitucionController extends Controller
     public function create(): View
     {
         $this->authorize('create', Institucion::class);
+        $requisitosPendientes = RequisitosProvisionamientoInstitucion::pendientes();
 
         return view('SuperAdmin.instituciones.create', [
             'currentPage' => 'SuperAdminInstituciones',
-            'planes' => Plan::where('estado', 'activo')->orderBy('orden')->get(),
+            'requisitosPendientes' => $requisitosPendientes,
+            'planes' => $requisitosPendientes === []
+                ? Plan::where('estado', 'activo')->orderBy('orden')->get()
+                : collect(),
         ]);
     }
 
-    /** Crea la institución junto con su rector (id_rol=2, ver Usuario::ROLE_SLUGS) en una sola transacción. */
+    /** Crea en una transacción la institución, su configuración y el administrador inicial (id_rol=1). */
     public function store(InstitucionStoreRequest $request): JsonResponse
     {
         $this->authorize('create', Institucion::class);
 
-        $d = $request->validated();
-        $plan = Plan::findOrFail($d['id_plan']);
+        $requisitosPendientes = RequisitosProvisionamientoInstitucion::pendientes();
+        if ($requisitosPendientes !== []) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El aprovisionamiento está bloqueado: aplica y verifica B2–B8 en una ventana de mantenimiento antes de crear colegios.',
+                'requisitos' => $requisitosPendientes,
+            ], 409);
+        }
 
-        $institucion = DB::transaction(function () use ($d, $plan) {
+        $d = $request->validated();
+
+        $institucion = DB::transaction(function () use ($d) {
+            $plan = Plan::query()
+                ->where('id_plan', $d['id_plan'])
+                ->where('estado', 'activo')
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (! DB::table('roles')->where('id_rol', 1)->where('estado', 'activo')->exists()) {
+                abort(409, 'No está disponible el rol institucional Administrador.');
+            }
+
             $institucion = Institucion::create([
                 'nombre' => $d['nombre'],
                 'slug' => $d['slug'],
@@ -76,34 +100,55 @@ class InstitucionController extends Controller
                 'fecha_inicio' => $d['fecha_inicio'] ?? null,
                 'fecha_vencimiento' => $d['fecha_vencimiento'] ?? null,
                 'plan' => Str::slug($plan->nombre),
-                'estado' => 'activa',
+                'estado' => $d['estado'] ?? 'activa',
             ]);
 
-            Usuario::create([
-                'nombres' => $d['rector_nombres'],
-                'apellidos' => $d['rector_apellidos'],
-                'tipo_documento' => $d['rector_tipo_documento'],
-                'numero_documento' => $d['rector_numero_documento'],
-                'correo' => $d['rector_correo'],
-                'telefono' => $d['rector_telefono'] ?? null,
-                'password' => Hash::make($d['rector_numero_documento']),
-                'id_rol' => 2, // Rector — ver Usuario::ROLE_SLUGS
+            DB::table('colegio_configuracion')->insert([
+                'id_institucion' => $institucion->id_institucion,
+                'nombre_colegio' => $institucion->nombre,
+                'direccion' => $institucion->direccion,
+                'ciudad' => $institucion->ciudad,
+                'pais' => $institucion->pais,
+                'telefono' => $institucion->telefono,
+                'email_institucional' => $institucion->email_contacto,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $administrador = Usuario::forceCreate([
+                'nombres' => $d['administrador_nombres'],
+                'apellidos' => $d['administrador_apellidos'],
+                'tipo_documento' => $d['administrador_tipo_documento'],
+                'numero_documento' => $d['administrador_numero_documento'],
+                'correo' => $d['administrador_correo'],
+                'telefono' => $d['administrador_telefono'] ?? null,
+                'password' => Hash::make(Str::random(64)),
+                'id_rol' => 1,
+                'id_institucion' => $institucion->id_institucion,
+            ]);
+
+            $this->auditLogger->record('institucion.crear', $institucion, [], [
+                'nombre' => $institucion->nombre,
+                'slug' => $institucion->slug,
+                'estado' => $institucion->estado,
+                'id_plan' => $institucion->id_plan,
+            ]);
+            $this->auditLogger->record('institucion.administrador.asignar', $administrador, [], [
+                'id_rol' => 1,
                 'id_institucion' => $institucion->id_institucion,
             ]);
 
             return $institucion;
         });
 
-        $this->auditLogger->record('institucion.crear', $institucion, [], $institucion->toArray());
-
         return response()->json([
             'success' => true,
-            'message' => 'Institución creada correctamente.',
+            'message' => 'Institución y administrador creados. El administrador debe establecer su contraseña mediante recuperación de acceso.',
             'redirect' => route('superadmin.instituciones.show', $institucion),
         ]);
     }
 
-    /** Pestañas por query string (?tab=info|usuarios|metricas|configuracion), mismo patrón que Soporte/index.blade.php. */
+    /** La vista central solo muestra información institucional y métricas agregadas. */
     public function show(Institucion $institucion, Request $request): View
     {
         $this->authorize('view', $institucion);
@@ -113,8 +158,10 @@ class InstitucionController extends Controller
         return view('SuperAdmin.instituciones.show', [
             'currentPage' => 'SuperAdminInstituciones',
             'institucion' => $institucion,
-            'tab' => $request->query('tab', 'info'),
-            'usuarios' => $institucion->usuarios()->with('rol')->paginate(15, ['*'], 'usuarios_page'),
+            'tab' => in_array($request->query('tab'), ['info', 'metricas'], true)
+                ? $request->query('tab')
+                : 'info',
+            'slugCanonico' => SlugInstitucion::esCanonico($institucion->slug),
         ]);
     }
 
@@ -126,20 +173,23 @@ class InstitucionController extends Controller
             'currentPage' => 'SuperAdminInstituciones',
             'institucion' => $institucion,
             'planes' => Plan::where('estado', 'activo')->orderBy('orden')->get(),
-            'rector' => $institucion->usuarios()->where('id_rol', 2)->first(),
         ]);
     }
 
-    /** Actualiza la institución y su rector (id_rol=2); si la institución no tenía rector todavía, lo crea. */
+    /** Actualiza únicamente los datos institucionales permitidos, sin consultar ni cambiar usuarios. */
     public function update(InstitucionUpdateRequest $request, Institucion $institucion): JsonResponse
     {
         $this->authorize('update', $institucion);
 
         $d = $request->validated();
-        $plan = Plan::findOrFail($d['id_plan']);
-        $antes = $institucion->toArray();
+        DB::transaction(function () use ($d, $institucion) {
+            $plan = Plan::query()
+                ->where('id_plan', $d['id_plan'])
+                ->where('estado', 'activo')
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        DB::transaction(function () use ($d, $plan, $institucion) {
+            $antes = $institucion->only(['nombre', 'slug', 'estado', 'id_plan']);
             $institucion->update([
                 'nombre' => $d['nombre'],
                 'slug' => $d['slug'],
@@ -156,29 +206,13 @@ class InstitucionController extends Controller
                 'plan' => Str::slug($plan->nombre),
             ]);
 
-            $datosRector = [
-                'nombres' => $d['rector_nombres'],
-                'apellidos' => $d['rector_apellidos'],
-                'tipo_documento' => $d['rector_tipo_documento'],
-                'numero_documento' => $d['rector_numero_documento'],
-                'correo' => $d['rector_correo'],
-                'telefono' => $d['rector_telefono'] ?? null,
-            ];
-
-            $rector = $institucion->usuarios()->where('id_rol', 2)->first();
-            if ($rector) {
-                $rector->update($datosRector);
-            } else {
-                Usuario::create([
-                    ...$datosRector,
-                    'password' => Hash::make($d['rector_numero_documento']),
-                    'id_rol' => 2,
-                    'id_institucion' => $institucion->id_institucion,
-                ]);
-            }
+            $this->auditLogger->record(
+                'institucion.editar',
+                $institucion,
+                $antes,
+                $institucion->fresh()->only(['nombre', 'slug', 'estado', 'id_plan']),
+            );
         });
-
-        $this->auditLogger->record('institucion.editar', $institucion, $antes, $institucion->fresh()->toArray());
 
         return response()->json([
             'success' => true,
@@ -191,19 +225,28 @@ class InstitucionController extends Controller
     {
         $this->authorize('activate', $institucion);
 
-        $institucion->update(['estado' => 'activa']);
-        $this->auditLogger->record('institucion.activar', $institucion);
-
-        return response()->json(['success' => true, 'message' => 'Institución activada.']);
+        return $this->cambiarEstado($institucion, 'activa', 'institucion.activar', 'Institución activada.');
     }
 
     public function desactivar(Institucion $institucion): JsonResponse
     {
         $this->authorize('deactivate', $institucion);
 
-        $institucion->update(['estado' => 'suspendida']);
-        $this->auditLogger->record('institucion.suspender', $institucion);
+        return $this->cambiarEstado($institucion, 'suspendida', 'institucion.suspender', 'Institución suspendida.');
+    }
 
-        return response()->json(['success' => true, 'message' => 'Institución suspendida.']);
+    private function cambiarEstado(Institucion $institucion, string $estado, string $accion, string $mensaje): JsonResponse
+    {
+        $anterior = $institucion->estado;
+        if ($anterior === $estado) {
+            return response()->json(['success' => true, 'message' => 'La institución ya tiene ese estado.']);
+        }
+
+        DB::transaction(function () use ($institucion, $estado, $accion, $anterior) {
+            $institucion->update(['estado' => $estado]);
+            $this->auditLogger->record($accion, $institucion, ['estado' => $anterior], ['estado' => $estado]);
+        });
+
+        return response()->json(['success' => true, 'message' => $mensaje]);
     }
 }

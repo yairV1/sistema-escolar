@@ -18,18 +18,20 @@ class ComunicadoMail extends Mailable
         public string $titulo,
         public string $mensaje,
         public string $tipoNotificacion,
+        // B6: colegio del remitente, fijado al construir (el correo puede enviarse en cola, sin sesión)
+        public ?int $idInstitucion = null,
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->titulo.' — '.ColegioConfiguracion::singleton()->nombre_colegio,
+            subject: $this->titulo.' — '.ColegioConfiguracion::deInstitucion($this->idInstitucion)->nombre_colegio,
         );
     }
 
     public function content(): Content
     {
-        $configuracion = ColegioConfiguracion::singleton();
+        $configuracion = ColegioConfiguracion::deInstitucion($this->idInstitucion);
 
         return new Content(
             view: 'emails.comunicado',

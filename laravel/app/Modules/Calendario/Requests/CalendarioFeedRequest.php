@@ -3,8 +3,11 @@
 namespace App\Modules\Calendario\Requests;
 
 use Carbon\CarbonImmutable;
+use App\Modules\Calendario\Models\EventoCategoria;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
+use App\Modules\GestionAcademica\Models\Curso;
+use App\Modules\Instituciones\Support\TenantGuard;
 
 class CalendarioFeedRequest extends FormRequest
 {
@@ -21,9 +24,9 @@ class CalendarioFeedRequest extends FormRequest
         return [
             'desde' => ['required', 'date_format:Y-m-d'],
             'hasta' => ['required', 'date_format:Y-m-d', 'after_or_equal:desde'],
-            'curso' => ['nullable', 'integer', 'exists:cursos,id_curso'],
+            'curso' => ['nullable', 'integer', TenantGuard::existe(Curso::class)],
             'categorias' => ['nullable', 'array'],
-            'categorias.*' => ['integer', 'exists:evento_categorias,id_categoria'],
+            'categorias.*' => ['integer', TenantGuard::existe(EventoCategoria::class)],
         ];
     }
 

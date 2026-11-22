@@ -32,6 +32,8 @@ function initInstitucionForm() {
             if (response?.status === 422 && response.data.errors) {
                 applyServerErrors(form, response.data.errors);
                 toast.error('Revisa los campos marcados.');
+            } else if (response?.status === 409) {
+                toast.error(response.data.message || 'El aprovisionamiento está bloqueado por requisitos pendientes.');
             } else {
                 toast.error('No se pudo guardar. Intenta de nuevo.');
             }

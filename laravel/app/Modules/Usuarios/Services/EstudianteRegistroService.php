@@ -29,7 +29,7 @@ class EstudianteRegistroService
             $apellidos = trim($d['primer_apellido'].' '.($d['segundo_apellido'] ?? ''));
             $correo = $d['correo_estudiante'] ?? ($d['numero_documento'].'@estudiantes.sancristobal.edu.co');
 
-            $usuario = Usuario::create([
+            $usuario = Usuario::forceCreate([
                 'nombres' => $nombres,
                 'apellidos' => $apellidos,
                 'tipo_documento' => $d['tipo_documento'],

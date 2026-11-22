@@ -19,7 +19,7 @@ class CalendarioController extends Controller
 
     public function index(Request $request): View
     {
-        $categorias = EventoCategoria::query()->activas()->orderBy('orden')->get();
+        $categorias = EventoCategoria::query()->deInstitucion()->activas()->orderBy('orden')->get();
         $usuario = $request->user();
 
         return view('Rector.calendario.index', [

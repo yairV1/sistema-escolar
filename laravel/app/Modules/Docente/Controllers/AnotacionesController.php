@@ -52,7 +52,7 @@ class AnotacionesController extends Controller
                 'disciplinarias' => Observacion::where('id_profesor', $profesor->id_profesor)->where('tipo_observacion', 'disciplinaria')->count(),
                 'positivas' => Observacion::where('id_profesor', $profesor->id_profesor)->where('tipo_observacion', 'positiva')->count(),
             ],
-            'estudiantes' => Estudiante::where('estado_academico', 'activo')->with('usuario')->get(),
+            'estudiantes' => Estudiante::deInstitucion()->where('estado_academico', 'activo')->with('usuario')->get(),
         ]);
     }
 

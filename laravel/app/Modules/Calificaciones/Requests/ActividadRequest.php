@@ -2,6 +2,9 @@
 
 namespace App\Modules\Calificaciones\Requests;
 
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Calificaciones\Models\Periodo;
+use App\Modules\Calificaciones\Models\TipoActividad;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ActividadRequest extends FormRequest
@@ -14,8 +17,8 @@ class ActividadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_periodo' => ['required', 'integer', 'exists:periodos_academicos,id_periodo'],
-            'id_tipo_actividad' => ['required', 'integer', 'exists:tipos_actividad,id_tipo_actividad'],
+            'id_periodo' => ['required', 'integer', TenantGuard::existe(Periodo::class)],
+            'id_tipo_actividad' => ['required', 'integer', TenantGuard::existe(TipoActividad::class)],
             'titulo' => ['required', 'string', 'max:200'],
             'descripcion' => ['nullable', 'string'],
             'porcentaje' => ['required', 'numeric', 'min:0', 'max:100'],

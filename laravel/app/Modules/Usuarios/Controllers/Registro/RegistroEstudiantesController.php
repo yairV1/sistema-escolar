@@ -4,6 +4,7 @@ namespace App\Modules\Usuarios\Controllers\Registro;
 
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Matriculas\Models\SolicitudAdmision;
+use App\Modules\Instituciones\Support\TenantContext;
 use App\Modules\Usuarios\Models\Estudiante;
 use App\Modules\Usuarios\Requests\Registro\EstudianteStoreRequest;
 use App\Modules\Usuarios\Requests\Registro\EstudianteUpdateRequest;
@@ -20,7 +21,7 @@ class RegistroEstudiantesController extends Controller
     {
         $solicitud = null;
         if ($idSolicitud = $request->query('solicitud')) {
-            $solicitud = SolicitudAdmision::where('estado', '!=', 'convertida')->find($idSolicitud);
+            $solicitud = SolicitudAdmision::deInstitucion()->where('estado', '!=', 'convertida')->find($idSolicitud);
         }
 
         return view('Rector.usuarios.registro.estudiantes', [
@@ -51,6 +52,8 @@ class RegistroEstudiantesController extends Controller
 
     public function edit(Estudiante $estudiante): View
     {
+        TenantContext::asegurar($estudiante->usuario?->id_institucion);
+
         return view('Rector.usuarios.registro.estudiantes', [
             'currentPage' => 'RegistroEstudiantes',
             'estudiante' => $estudiante,
@@ -61,6 +64,8 @@ class RegistroEstudiantesController extends Controller
 
     public function show(Estudiante $estudiante): View
     {
+        TenantContext::asegurar($estudiante->usuario?->id_institucion);
+
         return view('Rector.usuarios.registro.estudiantes.show', [
             'currentPage' => 'RegistroEstudiantes',
             'estudiante' => $estudiante,
@@ -92,6 +97,8 @@ class RegistroEstudiantesController extends Controller
 
     public function update(EstudianteUpdateRequest $request, Estudiante $estudiante): JsonResponse
     {
+        TenantContext::asegurar($estudiante->usuario?->id_institucion);
+
         try {
             EstudianteRegistroService::actualizar($estudiante, $request->validated());
         } catch (QueryException $e) {

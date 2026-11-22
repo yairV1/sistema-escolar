@@ -14,7 +14,7 @@ class MatriculasController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Matricula::query()->with(['estudiante.usuario', 'curso']);
+        $query = Matricula::query()->deInstitucion()->with(['estudiante.usuario', 'curso']);
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {
@@ -46,17 +46,17 @@ class MatriculasController extends Controller
         return view('Rector.matriculas.index', [
             'currentPage' => 'Matriculas',
             'filtros' => $request->only(['q', 'estado', 'curso', 'anio']),
-            'cursos' => Curso::orderBy('nivel_academico')->orderBy('nombre_curso')->get(),
-            'anios' => Matricula::query()->distinct()->orderByDesc('anio_lectivo')->pluck('anio_lectivo'),
+            'cursos' => Curso::deInstitucion()->orderBy('nivel_academico')->orderBy('nombre_curso')->get(),
+            'anios' => Matricula::query()->deInstitucion()->distinct()->orderByDesc('anio_lectivo')->pluck('anio_lectivo'),
             'matriculas' => $matriculas,
-            'solicitudes' => SolicitudAdmision::whereIn('estado', ['pendiente', 'contactada'])
+            'solicitudes' => SolicitudAdmision::deInstitucion()->whereIn('estado', ['pendiente', 'contactada'])
                 ->orderByDesc('created_at')
                 ->get(),
             'resumen' => [
-                'total' => Matricula::count(),
-                'activas' => Matricula::where('estado_matricula', 'activa')->count(),
-                'pendientes' => Matricula::where('estado_matricula', 'pendiente')->count(),
-                'retiradasCanceladas' => Matricula::whereIn('estado_matricula', ['retirada', 'cancelada'])->count(),
+                'total' => Matricula::deInstitucion()->count(),
+                'activas' => Matricula::deInstitucion()->where('estado_matricula', 'activa')->count(),
+                'pendientes' => Matricula::deInstitucion()->where('estado_matricula', 'pendiente')->count(),
+                'retiradasCanceladas' => Matricula::deInstitucion()->whereIn('estado_matricula', ['retirada', 'cancelada'])->count(),
             ],
         ]);
     }

@@ -155,6 +155,13 @@ class EventoCategoriaSeeder extends Seeder
             $categoria['created_at'] = $ahora;
             $categoria['updated_at'] = $ahora;
 
+            // Idempotencia explícita por slug (no solo por el índice único):
+            // con el único compuesto (id_institucion, slug) de la Etapa 2, las
+            // plantillas (id_institucion NULL) ya no chocan entre sí y
+            // insertOrIgnore duplicaría las categorías al volver a sembrar.
+            if (DB::table('evento_categorias')->where('slug', $categoria['slug'])->exists()) {
+                continue;
+            }
             DB::table('evento_categorias')->insertOrIgnore($categoria);
         }
     }

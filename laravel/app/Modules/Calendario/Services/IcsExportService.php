@@ -20,7 +20,7 @@ class IcsExportService
     public function generar(Usuario $usuario, CarbonImmutable $desde, CarbonImmutable $hasta): string
     {
         $items = $this->feed->feed($desde, $hasta, $usuario);
-        $nombreColegio = ColegioConfiguracion::singleton()->nombre_colegio;
+        $nombreColegio = ColegioConfiguracion::deInstitucion($usuario->id_institucion)->nombre_colegio;   // B6: el colegio del dueño del feed
 
         $lineas = [
             'BEGIN:VCALENDAR',

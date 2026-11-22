@@ -15,7 +15,7 @@ class ObservacionesController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Observacion::query()->with(['estudiante.usuario', 'profesor.usuario']);
+        $query = Observacion::query()->deInstitucion()->with(['estudiante.usuario', 'profesor.usuario']);
 
         if ($q = $request->query('q')) {
             $query->whereHas('estudiante', function ($eq) use ($q) {
@@ -43,13 +43,13 @@ class ObservacionesController extends Controller
             'filtros' => $request->only(['q', 'tipo', 'estado']),
             'observaciones' => $observaciones,
             'resumen' => [
-                'total' => Observacion::count(),
-                'activas' => Observacion::where('estado', 'activa')->count(),
-                'disciplinarias' => Observacion::where('tipo_observacion', 'disciplinaria')->count(),
-                'positivas' => Observacion::where('tipo_observacion', 'positiva')->count(),
+                'total' => Observacion::deInstitucion()->count(),
+                'activas' => Observacion::deInstitucion()->where('estado', 'activa')->count(),
+                'disciplinarias' => Observacion::deInstitucion()->where('tipo_observacion', 'disciplinaria')->count(),
+                'positivas' => Observacion::deInstitucion()->where('tipo_observacion', 'positiva')->count(),
             ],
-            'estudiantes' => Estudiante::where('estado_academico', 'activo')->with('usuario')->get(),
-            'profesores' => Profesor::where('estado_laboral', 'activo')->with('usuario')->get(),
+            'estudiantes' => Estudiante::deInstitucion()->where('estado_academico', 'activo')->with('usuario')->get(),
+            'profesores' => Profesor::deInstitucion()->where('estado_laboral', 'activo')->with('usuario')->get(),
         ]);
     }
 

@@ -6,9 +6,15 @@ use App\Modules\Usuarios\Models\Estudiante;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Observacion extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'estudiante.usuario';
+
     protected $table = 'observaciones';
 
     protected $primaryKey = 'id_observacion';

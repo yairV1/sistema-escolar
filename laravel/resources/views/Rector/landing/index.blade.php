@@ -8,7 +8,16 @@
         <p class="text-secondary small mb-3">
             <i class="fas fa-circle-info me-1"></i>
             Los cambios se reflejan en la página pública del colegio de inmediato.
+            @isset($urlSitio)
+                <a href="{{ $urlSitio }}" target="_blank" rel="noopener" class="ms-1">Ver el sitio de tu colegio</a>
+            @endisset
         </p>
+
+        @if ($edicionBloqueada ?? false)
+            <div class="alert alert-warning small" role="alert" data-edicion-bloqueada>
+                <i class="fas fa-lock me-1"></i> {{ $edicionBloqueada }}
+            </div>
+        @endif
 
         <ul class="nav nav-tabs mb-3">
             <li class="nav-item">

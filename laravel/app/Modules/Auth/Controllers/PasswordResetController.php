@@ -8,6 +8,7 @@ use App\Modules\Auth\Models\PasswordReset;
 use App\Modules\Auth\Models\Usuario;
 use App\Modules\Auth\Requests\ForgotPasswordRequest;
 use App\Modules\Auth\Requests\ResetPasswordRequest;
+use App\Modules\Auth\Services\CambioDeContrasena;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -44,7 +45,7 @@ class PasswordResetController extends Controller
         ]);
     }
 
-    public function storeReset(ResetPasswordRequest $request): JsonResponse
+    public function storeReset(ResetPasswordRequest $request, CambioDeContrasena $cambio): JsonResponse
     {
         $reset = PasswordReset::validoPorToken($request->string('token'));
 
@@ -56,7 +57,8 @@ class PasswordResetController extends Controller
         }
 
         $usuario = Usuario::find($reset->id_usuario);
-        $usuario->update(['password' => Hash::make($request->string('password'))]);
+        // Auditado + invalida todas las sesiones y cookies «recordarme» (incidente 2026-11-19).
+        $cambio->aplicar($usuario, (string) $request->string('password'), CambioDeContrasena::ORIGEN_RECUPERACION);
         $reset->marcarUsado();
 
         return response()->json([

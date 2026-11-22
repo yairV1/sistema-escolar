@@ -5,9 +5,15 @@ namespace App\Modules\Calendario\Models;
 use App\Modules\Auth\Models\Usuario;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class EventoComentario extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'evento.creador';
+
     protected $table = 'evento_comentarios';
 
     protected $primaryKey = 'id_comentario';

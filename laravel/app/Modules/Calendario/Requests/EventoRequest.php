@@ -7,6 +7,10 @@ use App\Modules\Calendario\Models\EventoCategoria;
 use App\Modules\GestionAcademica\Models\Horario;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Modules\GestionAcademica\Models\AsignacionAcademica;
+use App\Modules\GestionAcademica\Models\Curso;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Auth\Models\Usuario;
 
 /**
  * Un solo Request para crear y editar (igual convención que MateriaRequest/
@@ -29,7 +33,7 @@ class EventoRequest extends FormRequest
             // a una categoría donde nunca tuvo permiso de crear.
             $nuevaCategoriaId = (int) $this->input('id_categoria');
             if ($nuevaCategoriaId && $nuevaCategoriaId !== $evento->id_categoria) {
-                $nuevaCategoria = EventoCategoria::find($nuevaCategoriaId);
+                $nuevaCategoria = EventoCategoria::deInstitucion()->find($nuevaCategoriaId);
 
                 return $nuevaCategoria ? $this->user()->can('create', [Evento::class, $nuevaCategoria]) : true;
             }
@@ -37,7 +41,7 @@ class EventoRequest extends FormRequest
             return true;
         }
 
-        $categoria = EventoCategoria::find($this->input('id_categoria'));
+        $categoria = EventoCategoria::deInstitucion()->find($this->input('id_categoria'));
         if (! $categoria) {
             return true; // el 422 de 'exists' abajo es el error correcto, no un 403 engañoso.
         }
@@ -48,7 +52,7 @@ class EventoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_categoria' => ['required', 'integer', 'exists:evento_categorias,id_categoria'],
+            'id_categoria' => ['required', 'integer', TenantGuard::existe(EventoCategoria::class)],
             'titulo' => ['required', 'string', 'max:150'],
             'descripcion' => ['nullable', 'string'],
             'fecha_inicio' => ['required', 'date_format:Y-m-d'],
@@ -60,9 +64,9 @@ class EventoRequest extends FormRequest
             'prioridad' => ['required', 'in:baja,media,alta,urgente'],
             'visibilidad' => ['required', 'in:privado,publico,compartido'],
             'participantes' => ['nullable', 'array', 'required_if:visibilidad,compartido'],
-            'participantes.*' => ['integer', Rule::exists('usuarios', 'id_usuario')->whereIn('id_rol', [1, 2, 3, 4, 5])],
-            'id_curso' => ['nullable', 'integer', 'exists:cursos,id_curso'],
-            'id_asignacion' => ['nullable', 'integer', 'exists:asignaciones_academicas,id_asignacion'],
+            'participantes.*' => ['integer', TenantGuard::existe(Usuario::class, fn ($q) => $q->whereIn('id_rol', [1, 2, 3, 4, 5]))],
+            'id_curso' => ['nullable', 'integer', TenantGuard::existe(Curso::class)],
+            'id_asignacion' => ['nullable', 'integer', TenantGuard::existe(AsignacionAcademica::class)],
             'salon' => ['nullable', 'string', 'max:60'],
             'ubicacion' => ['nullable', 'string', 'max:150'],
             'tipo_recurrencia' => ['required', 'in:'.implode(',', Evento::TIPOS_RECURRENCIA)],

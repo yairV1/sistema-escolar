@@ -18,7 +18,7 @@ class EventoCategoriaController extends Controller
     {
         return view('Rector.calendario.categorias.index', [
             'currentPage' => 'CalendarioCategorias',
-            'categorias' => EventoCategoria::orderBy('orden')->orderBy('nombre')->get(),
+            'categorias' => EventoCategoria::deInstitucion()->orderBy('orden')->orderBy('nombre')->get(),
             'coloresDisponibles' => EventoCategoriaRequest::COLORES_VALIDOS,
             'rolesDisponibles' => Usuario::allRoleSlugs(),
         ]);
@@ -26,6 +26,7 @@ class EventoCategoriaController extends Controller
 
     public function store(EventoCategoriaRequest $request): JsonResponse
     {
+        EventoCategoria::asegurarCreable();
         $datos = $request->validated();
         $datos['slug'] = $this->generarSlugUnico($datos['nombre']);
         $datos['estado'] = 'activo';
@@ -42,6 +43,7 @@ class EventoCategoriaController extends Controller
 
     public function update(EventoCategoriaRequest $request, EventoCategoria $categoria): JsonResponse
     {
+        $categoria->asegurarModificable();   // plantillas (sistema o globales): solo lectura
         $datos = $request->validated();
 
         // Categorías del sistema (Clases, Actividades) no se crean/editan por CRUD:
@@ -61,6 +63,7 @@ class EventoCategoriaController extends Controller
 
     public function desactivar(EventoCategoria $categoria): JsonResponse
     {
+        $categoria->asegurarModificable();
         if ($categoria->es_sistema) {
             return response()->json(['success' => false, 'message' => 'Las categorías del sistema no se pueden desactivar.'], 422);
         }
@@ -72,6 +75,7 @@ class EventoCategoriaController extends Controller
 
     public function activar(EventoCategoria $categoria): JsonResponse
     {
+        $categoria->asegurarModificable();
         $categoria->update(['estado' => 'activo']);
 
         return response()->json(['success' => true, 'message' => 'Categoría reactivada correctamente.']);

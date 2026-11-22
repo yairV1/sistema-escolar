@@ -1,11 +1,11 @@
 <?php
 
-use App\Modules\Auth\Controllers\LoginController;
-use App\Modules\Auth\Controllers\PasswordResetController;
-use App\Modules\Auth\Controllers\TwoFactorChallengeController;
 use App\Modules\Acudiente\Controllers\AcudienteController;
 use App\Modules\Auditoria\Controllers\AuditoriaController;
+use App\Modules\Auth\Controllers\LoginController;
+use App\Modules\Auth\Controllers\PasswordResetController;
 use App\Modules\Auth\Controllers\RolController;
+use App\Modules\Auth\Controllers\TwoFactorChallengeController;
 use App\Modules\Busqueda\Controllers\BusquedaController;
 use App\Modules\Calendario\Controllers\CalendarioController;
 use App\Modules\Calendario\Controllers\CalendarioExportController;
@@ -48,13 +48,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [WebsiteController::class, 'index'])->name('home');
 
-Route::post('/solicitudes-admision', [SolicitudAdmisionController::class, 'store'])
-    ->middleware('throttle:5,1')
+// Etapa 2 · B7: sitio público y admisiones por institución (resuelta por slug en el servidor)
+Route::get('/sitio/{slug}', [WebsiteController::class, 'sitio'])->name('sitio.show');
+Route::get('/sitio/{slug}/ingresar', [WebsiteController::class, 'ingresar'])->middleware('guest')->name('sitio.ingresar');
+Route::post('/sitio/{slug}/admision', [SolicitudAdmisionController::class, 'store'])
+    ->middleware('throttle:admisiones')
+    ->name('sitio.admision');
+
+// Ruta antigua: solo con PORTAL_PUBLICO_SLUG configurado (si no, 404); nunca la institución 1 por defecto
+Route::post('/solicitudes-admision', [SolicitudAdmisionController::class, 'storePortal'])
+    ->middleware('throttle:admisiones')
     ->name('solicitudes-admision.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'store']);
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
 
     Route::post('/forgot-password', [PasswordResetController::class, 'storeForgot'])->name('password.email');
     Route::get('/reset-password', [PasswordResetController::class, 'create'])->name('password.reset');
@@ -123,6 +131,7 @@ Route::middleware('auth')->group(function () {
 // SuperAdmin — ver docs/arquitectura/10-superadmin-plataforma.md.
 Route::middleware(['auth', 'role:admin,superadmin'])->prefix('soportes')->name('soportes.')->group(function () {
     Route::get('/', [SoporteController::class, 'index'])->name('index');
+    Route::get('/{soporte}/archivo', [SoporteController::class, 'archivo'])->name('archivo');
     Route::get('/{soporte}', [SoporteController::class, 'show'])->name('show');
     Route::post('/{soporte}/resolver', [SoporteController::class, 'resolver'])->name('resolver');
 });
@@ -274,6 +283,8 @@ Route::middleware('auth')->prefix('perfil')->name('perfil.')->group(function () 
     });
 });
 
+Route::middleware('auth')->get('/usuarios/{usuario}/foto', [PerfilController::class, 'foto'])->name('perfil.foto');
+
 // Panel-wide, no una acción de calendario — hoy Calendario es el único
 // productor de Notification, ver NotificacionPanelController.
 Route::middleware('auth')->prefix('notificaciones')->name('notificaciones.')->group(function () {
@@ -308,6 +319,7 @@ Route::middleware(['auth', 'role:admin,rector'])->prefix('calendario/categorias'
 Route::middleware('auth')->prefix('calendario')->name('calendario.')->group(function () {
     Route::get('/', [CalendarioController::class, 'index'])->name('index');
     Route::get('/feed', [CalendarioController::class, 'feed'])->name('feed');
+    Route::get('/adjuntos/{adjunto}', [EventoAdjuntoController::class, 'show'])->name('adjuntos.show');
 
     // Registradas antes del wildcard /{evento}: si fueran después, GET
     // /calendario/exportar resolvería {evento}="exportar" en vez de llegar

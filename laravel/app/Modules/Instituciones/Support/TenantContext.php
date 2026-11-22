@@ -28,4 +28,29 @@ class TenantContext
     {
         return Auth::user()?->id_institucion;
     }
+
+    /**
+     * ¿El recurso pertenece a la institución del usuario autenticado?
+     * Niega por defecto: si el usuario no tiene institución (SuperAdmin,
+     * invitado) o el recurso no la tiene, la respuesta es false.
+     */
+    public static function esDeLaActual(?int $idInstitucionRecurso): bool
+    {
+        $actual = static::idActual();
+
+        return $actual !== null
+            && $idInstitucionRecurso !== null
+            && (int) $idInstitucionRecurso === (int) $actual;
+    }
+
+    /**
+     * Corta la petición con 404 (no 403, para no confirmar que el recurso
+     * existe) si no pertenece a la institución del usuario autenticado.
+     * Contención de la Etapa 0: se aplica explícitamente en los controladores
+     * hasta que la Etapa 1 centralice la autorización por recurso.
+     */
+    public static function asegurar(?int $idInstitucionRecurso): void
+    {
+        abort_unless(static::esDeLaActual($idInstitucionRecurso), 404);
+    }
 }

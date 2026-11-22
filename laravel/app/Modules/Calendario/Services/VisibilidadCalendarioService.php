@@ -12,6 +12,7 @@ use App\Modules\Usuarios\Models\Acudiente;
 use App\Modules\Usuarios\Models\Estudiante;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Modules\Instituciones\Support\TenantContext;
 
 /**
  * Punto único de "qué cursos puede ver este usuario en el calendario" y
@@ -34,8 +35,14 @@ class VisibilidadCalendarioService
      */
     public function cursosVisibles(Usuario $usuario): ?array
     {
+        // Etapa 1: "todos" significa todos los cursos de SU institución (antes:
+        // de todas). Se usa la institución del propio usuario —no la sesión—
+        // porque el feed ICS llega sin usuario autenticado.
         if (in_array($usuario->rolSlug, self::ROLES_VEN_TODO, true)) {
-            return null;
+            return Curso::deInstitucion($usuario->id_institucion ?? 0)
+                ->pluck('id_curso')
+                ->map(fn ($id) => (int) $id)
+                ->all();
         }
 
         return match ($usuario->rolSlug) {
@@ -84,6 +91,11 @@ class VisibilidadCalendarioService
             return false;
         }
 
+        // Un evento público solo es público dentro de la institución de quien lo creó.
+        if (! $usuario->id_institucion || (int) $evento->creador?->id_institucion !== (int) $usuario->id_institucion) {
+            return false;
+        }
+
         if (! $evento->categoria || ! $this->puedeVerCategoria($usuario, $evento->categoria)) {
             return false;
         }
@@ -103,6 +115,7 @@ class VisibilidadCalendarioService
     {
         return Usuario::query()
             ->where('estado_usuario', 'activo')
+            ->where('id_institucion', TenantContext::idActual() ?? 0)
             ->whereIn('id_rol', [1, 2, 3, 4, 5])
             ->orderBy('nombres')
             ->get(['id_usuario', 'nombres', 'apellidos', 'id_rol']);

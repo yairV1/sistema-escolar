@@ -5,6 +5,7 @@ namespace App\Modules\Auth\Models;
 use App\Modules\GestionAcademica\Models\AsignacionAcademica;
 use App\Modules\Instituciones\Models\Institucion;
 use App\Modules\Instituciones\Support\BelongsToInstitucion;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Tabla central de autenticación, heredada del sistema legacy PHP.
@@ -21,9 +21,15 @@ use Illuminate\Support\Facades\Storage;
  */
 class Usuario extends Authenticatable
 {
-    use Notifiable;
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = '';
+
     /** Autocompleta id_institucion al crear (Estudiante/Docente/Acudiente/Administrativo) con la del rector/admin autenticado — ver App\Modules\Instituciones\Support\BelongsToInstitucion. SuperAdmin (sin institución) y las altas de InstitucionController (que ya la pasan explícita) quedan intactos. */
     use BelongsToInstitucion;
+
+    use Notifiable;
 
     protected $table = 'usuarios';
 
@@ -39,8 +45,8 @@ class Usuario extends Authenticatable
         'correo',
         'telefono',
         'password',
-        'id_rol',
-        'id_institucion',
+        // id_rol e id_institucion NO son asignables en masa (Etapa 1): se asignan
+        // explícitamente con forceCreate()/forceFill() en los servicios autorizados.
         'estado_usuario',
         'foto_perfil',
         'idioma',
@@ -114,7 +120,7 @@ class Usuario extends Authenticatable
     protected function fotoPerfilUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->foto_perfil ? Storage::disk('public')->url($this->foto_perfil) : null,
+            get: fn () => $this->foto_perfil ? route('perfil.foto', $this) : null,
         );
     }
 
@@ -193,8 +199,19 @@ class Usuario extends Authenticatable
         return $this->two_factor_confirmed_at !== null;
     }
 
+    /**
+     * Docente: solo sus propias asignaciones. Panel administrativo: solo las
+     * asignaciones de SU institución (resuelta por el curso). Antes cualquier
+     * Directivo gestionaba asignaciones de cualquier colegio (IDOR, Etapa 0).
+     */
     public function puedeGestionarAsignacion(AsignacionAcademica $asignacion): bool
     {
-        return $this->tienePanelAdmin() || $this->profesor?->id_profesor === $asignacion->id_profesor;
+        if ($this->profesor && $this->profesor->id_profesor === $asignacion->id_profesor) {
+            return true;
+        }
+
+        return $this->tienePanelAdmin()
+            && $this->id_institucion !== null
+            && (int) $asignacion->curso?->id_institucion === (int) $this->id_institucion;
     }
 }

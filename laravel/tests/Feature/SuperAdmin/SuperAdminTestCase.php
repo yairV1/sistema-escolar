@@ -28,7 +28,7 @@ abstract class SuperAdminTestCase extends TestCase
         static $contador = 0;
         $contador++;
 
-        return Usuario::create([
+        return Usuario::forceCreate([
             'nombres' => 'Test',
             'apellidos' => "Usuario{$contador}",
             'tipo_documento' => 'CC',

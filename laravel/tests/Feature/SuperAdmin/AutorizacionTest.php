@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\SuperAdmin;
 
+use App\Modules\Instituciones\Models\Institucion;
 use Illuminate\Support\Facades\DB;
 
 class AutorizacionTest extends SuperAdminTestCase
@@ -13,6 +14,24 @@ class AutorizacionTest extends SuperAdminTestCase
         $response = $this->actingAs($admin)->get('/superadmin/instituciones');
 
         $response->assertForbidden();
+    }
+
+    public function test_administradores_y_rectores_no_pueden_usar_operaciones_centrales(): void
+    {
+        $institucion = Institucion::create([
+            'nombre' => 'Institución privada',
+            'slug' => 'institucion-privada',
+            'plan' => 'basico',
+            'estado' => 'activa',
+        ]);
+
+        foreach ([1, 2] as $rol) {
+            $usuario = $this->crearUsuario($rol, $institucion->id_institucion);
+
+            $this->actingAs($usuario)->get('/superadmin/instituciones')->assertForbidden();
+            $this->actingAs($usuario)->postJson('/superadmin/instituciones', [])->assertForbidden();
+            $this->actingAs($usuario)->postJson("/superadmin/instituciones/{$institucion->id_institucion}/desactivar")->assertForbidden();
+        }
     }
 
     public function test_un_superadmin_con_permisos_accede_al_listado_de_instituciones(): void

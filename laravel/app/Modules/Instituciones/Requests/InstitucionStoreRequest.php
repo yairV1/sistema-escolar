@@ -2,6 +2,7 @@
 
 namespace App\Modules\Instituciones\Requests;
 
+use App\Modules\Instituciones\Support\SlugInstitucion;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +17,7 @@ class InstitucionStoreRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'string', 'max:150'],
-            'slug' => ['required', 'string', 'max:150', 'alpha_dash', 'unique:instituciones,slug'],
+            'slug' => ['required', 'string', 'max:120', SlugInstitucion::regla()],
             'nit' => ['nullable', 'string', 'max:50'],
             'email_contacto' => ['nullable', 'email', 'max:150'],
             'telefono' => ['nullable', 'string', 'max:30'],
@@ -27,17 +28,14 @@ class InstitucionStoreRequest extends FormRequest
             'limite_usuarios' => ['nullable', 'integer', 'min:1'],
             'fecha_inicio' => ['nullable', 'date'],
             'fecha_vencimiento' => ['nullable', 'date', 'after:fecha_inicio'],
+            'estado' => ['nullable', Rule::in(['activa', 'suspendida'])],
 
-            // Toda institución se crea con su rector — mismo shape de campos
-            // que AdministrativoStoreRequest (registro de personal desde el
-            // panel institucional), unique: global porque `usuarios` es una
-            // sola tabla para toda la plataforma, no por institución.
-            'rector_nombres' => ['required', 'string', 'max:150'],
-            'rector_apellidos' => ['required', 'string', 'max:150'],
-            'rector_tipo_documento' => ['required', 'in:CC,CE,PAS'],
-            'rector_numero_documento' => ['required', 'string', 'max:50', 'unique:usuarios,numero_documento'],
-            'rector_correo' => ['required', 'email', 'max:150', 'unique:usuarios,correo'],
-            'rector_telefono' => ['nullable', 'regex:/^[0-9+\s-]{7,20}$/'],
+            'administrador_nombres' => ['required', 'string', 'max:150'],
+            'administrador_apellidos' => ['required', 'string', 'max:150'],
+            'administrador_tipo_documento' => ['required', 'in:CC,CE,PAS'],
+            'administrador_numero_documento' => ['required', 'string', 'max:50', 'unique:usuarios,numero_documento'],
+            'administrador_correo' => ['required', 'email', 'max:150', 'unique:usuarios,correo'],
+            'administrador_telefono' => ['nullable', 'regex:/^[0-9+\s-]{7,20}$/'],
         ];
     }
 }

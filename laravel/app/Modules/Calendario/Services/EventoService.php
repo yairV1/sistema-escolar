@@ -185,7 +185,7 @@ class EventoService
 
     public function adjuntar(Evento $evento, UploadedFile $archivo, Usuario $usuario): EventoAdjunto
     {
-        $ruta = $archivo->store("eventos/{$evento->id_evento}", 'public');
+        $ruta = $archivo->store("eventos/{$evento->id_evento}", 'private');
 
         return EventoAdjunto::create([
             'id_evento' => $evento->id_evento,
@@ -199,7 +199,9 @@ class EventoService
 
     public function quitarAdjunto(EventoAdjunto $adjunto): void
     {
-        Storage::disk('public')->delete($adjunto->ruta);
+        if (Storage::disk('private')->exists($adjunto->ruta)) {
+            Storage::disk('private')->delete($adjunto->ruta);
+        }
         $adjunto->delete();
     }
 

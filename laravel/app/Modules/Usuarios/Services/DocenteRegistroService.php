@@ -23,7 +23,7 @@ class DocenteRegistroService
             $nombres = trim($d['primer_nombre'].' '.($d['segundo_nombre'] ?? ''));
             $apellidos = trim($d['primer_apellido'].' '.($d['segundo_apellido'] ?? ''));
 
-            $usuario = Usuario::create([
+            $usuario = Usuario::forceCreate([
                 'nombres' => $nombres,
                 'apellidos' => $apellidos,
                 'tipo_documento' => $d['tipo_documento'],

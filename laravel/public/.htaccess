@@ -1,9 +1,16 @@
+# Única carpeta pública: reabre el acceso que laravel/.htaccess niega
+# para todo el resto de laravel/ (ver ese archivo).
+Require all granted
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
+
+    # Los uploads heredados de datos personales se entregan por rutas autenticadas.
+    RewriteRule ^storage/(perfiles|soporte|eventos)(/|$) - [F,NC,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

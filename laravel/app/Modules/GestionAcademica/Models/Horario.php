@@ -4,9 +4,15 @@ namespace App\Modules\GestionAcademica\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 class Horario extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'asignacion.curso';
+
     protected $table = 'horarios';
 
     protected $primaryKey = 'id_horario';

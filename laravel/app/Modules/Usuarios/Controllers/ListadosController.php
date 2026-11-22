@@ -5,6 +5,7 @@ namespace App\Modules\Usuarios\Controllers;
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Auth\Models\Usuario;
 use App\Modules\GestionAcademica\Models\Curso;
+use App\Modules\Instituciones\Support\TenantContext;
 use App\Modules\Usuarios\Models\Estudiante;
 use App\Modules\Usuarios\Models\Profesor;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +24,7 @@ class ListadosController extends Controller
             'tab' => 'estudiantes',
             'titulo' => 'Estudiantes',
             'filtros' => $request->only(['q', 'estado', 'curso']),
-            'cursos' => Curso::orderBy('nivel_academico')->orderBy('nombre_curso')->get(),
+            'cursos' => Curso::deInstitucion()->orderBy('nivel_academico')->orderBy('nombre_curso')->get(),
             'estudiantes' => $this->buscarEstudiantes($request),
             'resumenEstudiantes' => $this->resumenEstudiantes(),
             'idsEnRiesgo' => Estudiante::idsEnRiesgo(),
@@ -56,7 +57,7 @@ class ListadosController extends Controller
 
     private function buscarEstudiantes(Request $request)
     {
-        $query = Estudiante::query()
+        $query = Estudiante::query()->deInstitucion()
             ->with(['usuario', 'matriculas' => fn ($q) => $q->latest('fecha_matricula')->with('curso')]);
 
         if ($q = $request->query('q')) {
@@ -92,16 +93,16 @@ class ListadosController extends Controller
     private function resumenEstudiantes(): array
     {
         return [
-            'total' => Estudiante::count(),
-            'activos' => Estudiante::where('estado_academico', 'activo')->count(),
-            'inactivos' => Estudiante::where('estado_academico', 'inactivo')->count(),
+            'total' => Estudiante::deInstitucion()->count(),
+            'activos' => Estudiante::deInstitucion()->where('estado_academico', 'activo')->count(),
+            'inactivos' => Estudiante::deInstitucion()->where('estado_academico', 'inactivo')->count(),
             'enRiesgo' => Estudiante::idsEnRiesgo()->count(),
         ];
     }
 
     private function buscarDocentes(Request $request)
     {
-        $query = Profesor::query()->with(['usuario', 'asignaciones.materia', 'asignaciones.curso']);
+        $query = Profesor::query()->deInstitucion()->with(['usuario', 'asignaciones.materia', 'asignaciones.curso']);
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {
@@ -130,16 +131,16 @@ class ListadosController extends Controller
     private function resumenDocentes(): array
     {
         return [
-            'total' => Profesor::count(),
-            'activos' => Profesor::where('estado_laboral', 'activo')->count(),
-            'licencia' => Profesor::where('estado_laboral', 'licencia')->count(),
-            'inactivos' => Profesor::whereIn('estado_laboral', ['retirado', 'vacaciones'])->count(),
+            'total' => Profesor::deInstitucion()->count(),
+            'activos' => Profesor::deInstitucion()->where('estado_laboral', 'activo')->count(),
+            'licencia' => Profesor::deInstitucion()->where('estado_laboral', 'licencia')->count(),
+            'inactivos' => Profesor::deInstitucion()->whereIn('estado_laboral', ['retirado', 'vacaciones'])->count(),
         ];
     }
 
     private function buscarAdministrativos(Request $request)
     {
-        $query = Usuario::query()->whereIn('id_rol', self::ROLES_ADMINISTRATIVOS);
+        $query = Usuario::query()->deInstitucion()->whereIn('id_rol', self::ROLES_ADMINISTRATIVOS);
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {
@@ -164,7 +165,7 @@ class ListadosController extends Controller
 
     private function resumenAdministrativos(): array
     {
-        $base = Usuario::whereIn('id_rol', self::ROLES_ADMINISTRATIVOS);
+        $base = Usuario::deInstitucion()->whereIn('id_rol', self::ROLES_ADMINISTRATIVOS);
 
         return [
             'total' => (clone $base)->count(),
@@ -181,6 +182,8 @@ class ListadosController extends Controller
      */
     public function desactivarEstudiante(Estudiante $estudiante): JsonResponse
     {
+        TenantContext::asegurar($estudiante->usuario?->id_institucion);
+
         $estudiante->update(['estado_academico' => 'inactivo']);
         $estudiante->usuario?->update(['estado_usuario' => 'inactivo']);
 
@@ -189,6 +192,8 @@ class ListadosController extends Controller
 
     public function desactivarDocente(Profesor $profesor): JsonResponse
     {
+        TenantContext::asegurar($profesor->usuario?->id_institucion);
+
         $profesor->update(['estado_laboral' => 'retirado']);
         $profesor->usuario?->update(['estado_usuario' => 'inactivo']);
 
@@ -197,6 +202,8 @@ class ListadosController extends Controller
 
     public function desactivarAdministrativo(Usuario $usuario): JsonResponse
     {
+        $this->asegurarAdministrativoPropio($usuario);
+
         $usuario->update(['estado_usuario' => 'inactivo']);
 
         return response()->json(['success' => true, 'message' => 'Usuario desactivado correctamente.']);
@@ -204,6 +211,8 @@ class ListadosController extends Controller
 
     public function activarEstudiante(Estudiante $estudiante): JsonResponse
     {
+        TenantContext::asegurar($estudiante->usuario?->id_institucion);
+
         $estudiante->update(['estado_academico' => 'activo']);
         $estudiante->usuario?->update(['estado_usuario' => 'activo']);
 
@@ -212,6 +221,8 @@ class ListadosController extends Controller
 
     public function activarDocente(Profesor $profesor): JsonResponse
     {
+        TenantContext::asegurar($profesor->usuario?->id_institucion);
+
         $profesor->update(['estado_laboral' => 'activo']);
         $profesor->usuario?->update(['estado_usuario' => 'activo']);
 
@@ -220,8 +231,21 @@ class ListadosController extends Controller
 
     public function activarAdministrativo(Usuario $usuario): JsonResponse
     {
+        $this->asegurarAdministrativoPropio($usuario);
+
         $usuario->update(['estado_usuario' => 'activo']);
 
         return response()->json(['success' => true, 'message' => 'Usuario reactivado correctamente.']);
+    }
+
+    /**
+     * Solo personal administrativo (roles 1–4) de la propia institución:
+     * este endpoint no puede (des)activar SuperAdmin, estudiantes, docentes,
+     * acudientes ni cuentas de otra institución (404).
+     */
+    private function asegurarAdministrativoPropio(Usuario $usuario): void
+    {
+        TenantContext::asegurar($usuario->id_institucion);
+        abort_unless(in_array((int) $usuario->id_rol, self::ROLES_ADMINISTRATIVOS, true), 404);
     }
 }

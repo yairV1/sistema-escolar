@@ -10,10 +10,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Instituciones\Support\PerteneceAInstitucion;
 
 /** Fila real de un evento del calendario (institucional/personal/etc), gestionada vía EventoService. */
 class Evento extends Model
 {
+    use PerteneceAInstitucion;
+
+    /** Cadena de relaciones hasta la institución (ver PerteneceAInstitucion). */
+    public const RUTA_INSTITUCION = 'creador';
+
     protected $table = 'eventos';
 
     protected $primaryKey = 'id_evento';

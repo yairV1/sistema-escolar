@@ -1,5 +1,5 @@
 <?php
-$colegioConfiguracion = \App\Modules\Colegio\Models\ColegioConfiguracion::singleton();
+$colegioConfiguracion = auth()->check() ? \App\Modules\Colegio\Models\ColegioConfiguracion::actual() : \App\Modules\Colegio\Models\ColegioConfiguracion::neutra();
 $usuario = auth()->user();
 $rutaSolicitada = '/'.request()->path();
 

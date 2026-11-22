@@ -8,6 +8,7 @@ use App\Modules\Comunicados\Mail\ComunicadoMail;
 use App\Modules\Comunicados\Models\Notificacion;
 use App\Modules\Comunicados\Requests\ComunicadoRequest;
 use App\Modules\Comunicados\Services\WhatsappCloudService;
+use App\Modules\Instituciones\Support\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,9 @@ class ComunicadosController extends Controller
 
     public function index(): View
     {
+        // Solo envíos dirigidos a usuarios de la propia institución.
         $comunicados = DB::table('notificaciones')
+            ->whereIn('id_usuario_destino', $this->usuariosDeLaInstitucion())
             ->select(
                 'titulo',
                 'mensaje',
@@ -55,6 +58,7 @@ class ComunicadosController extends Controller
         $filtros = $request->only(['titulo', 'tipo_notificacion', 'canal', 'fecha_envio']);
 
         $notificaciones = Notificacion::query()
+            ->whereIn('id_usuario_destino', $this->usuariosDeLaInstitucion())
             ->where('titulo', $filtros['titulo'] ?? null)
             ->where('tipo_notificacion', $filtros['tipo_notificacion'] ?? null)
             ->where('canal', $filtros['canal'] ?? null)
@@ -79,7 +83,11 @@ class ComunicadosController extends Controller
 
         $idsRoles = collect($data['audiencias'])->flatMap(fn ($a) => self::AUDIENCIAS[$a])->unique()->values();
 
+        // Solo usuarios de la institución de quien envía (validado aquí, en el
+        // servidor). Sin institución (p. ej. SuperAdmin) no hay destinatarios.
         $destinatarios = Usuario::where('estado_usuario', 'activo')
+            ->where('id_institucion', TenantContext::idActual())
+            ->whereNotNull('id_institucion')
             ->whereIn('id_rol', $idsRoles)
             ->get(['id_usuario', 'correo', 'telefono', 'notificaciones_email']);
 
@@ -142,7 +150,7 @@ class ComunicadosController extends Controller
             }
 
             try {
-                Mail::to($usuario->correo)->send(new ComunicadoMail($titulo, $mensaje, $tipoNotificacion));
+                Mail::to($usuario->correo)->send(new ComunicadoMail($titulo, $mensaje, $tipoNotificacion, TenantContext::idActual()));
             } catch (\Throwable $e) {
                 Log::warning('No se pudo enviar el comunicado por correo.', [
                     'id_usuario' => $usuario->id_usuario,
@@ -151,5 +159,18 @@ class ComunicadosController extends Controller
                 ]);
             }
         }
+    }
+
+    /**
+     * Subconsulta con los usuarios de la institución actual. Sin institución
+     * (SuperAdmin) no devuelve ninguno: el panel institucional no muestra
+     * comunicados de otros colegios.
+     */
+    private function usuariosDeLaInstitucion()
+    {
+        return Usuario::query()
+            ->select('id_usuario')
+            ->where('id_institucion', TenantContext::idActual())
+            ->whereNotNull('id_institucion');
     }
 }

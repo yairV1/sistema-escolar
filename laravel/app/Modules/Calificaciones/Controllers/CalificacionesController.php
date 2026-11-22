@@ -18,6 +18,8 @@ use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Modules\Instituciones\Support\TenantGuard;
+use App\Modules\Usuarios\Models\Estudiante;
 
 class CalificacionesController extends Controller
 {
@@ -39,7 +41,7 @@ class CalificacionesController extends Controller
 
     private function buscarPeriodos(Request $request)
     {
-        $query = Periodo::query();
+        $query = Periodo::query()->deInstitucion();
 
         if ($q = $request->query('q')) {
             $query->where('nombre_periodo', 'like', "%{$q}%");
@@ -60,15 +62,15 @@ class CalificacionesController extends Controller
     private function resumenPeriodos(): array
     {
         return [
-            'total' => Periodo::count(),
-            'activos' => Periodo::where('estado', 'activo')->count(),
-            'cerrados' => Periodo::where('estado', 'cerrado')->count(),
+            'total' => Periodo::deInstitucion()->count(),
+            'activos' => Periodo::deInstitucion()->where('estado', 'activo')->count(),
+            'cerrados' => Periodo::deInstitucion()->where('estado', 'cerrado')->count(),
         ];
     }
 
     private function buscarTiposActividad(Request $request)
     {
-        $query = TipoActividad::query();
+        $query = TipoActividad::query()->deInstitucion();
 
         if ($q = $request->query('q')) {
             $query->where('nombre_tipo', 'like', "%{$q}%");
@@ -85,9 +87,9 @@ class CalificacionesController extends Controller
     private function resumenTiposActividad(): array
     {
         return [
-            'total' => TipoActividad::count(),
-            'activos' => TipoActividad::where('estado', 'activo')->count(),
-            'inactivos' => TipoActividad::where('estado', 'inactivo')->count(),
+            'total' => TipoActividad::deInstitucion()->count(),
+            'activos' => TipoActividad::deInstitucion()->where('estado', 'activo')->count(),
+            'inactivos' => TipoActividad::deInstitucion()->where('estado', 'inactivo')->count(),
         ];
     }
 
@@ -107,8 +109,8 @@ class CalificacionesController extends Controller
             'currentPage' => 'Calificaciones',
             'asignacion' => $asignacion,
             'actividades' => $query->orderByDesc('fecha_creacion')->get(),
-            'periodos' => Periodo::orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
-            'tiposActividad' => TipoActividad::where('estado', 'activo')->orderBy('nombre_tipo')->get(),
+            'periodos' => Periodo::deInstitucion()->orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
+            'tiposActividad' => TipoActividad::deInstitucion()->where('estado', 'activo')->orderBy('nombre_tipo')->get(),
             'filtroPeriodo' => $idPeriodo,
         ]);
     }
@@ -146,7 +148,7 @@ class CalificacionesController extends Controller
         return view('Rector.calificaciones.planilla', [
             'currentPage' => 'Calificaciones',
             'asignacion' => $asignacion,
-            'periodos' => Periodo::orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
+            'periodos' => Periodo::deInstitucion()->orderByDesc('anio_lectivo')->orderBy('fecha_inicio')->get(),
             'filtroPeriodo' => $idPeriodo,
             ...$this->construirPlanilla($asignacion, $idPeriodo),
         ]);
@@ -260,9 +262,20 @@ class CalificacionesController extends Controller
 
         $data = $request->validate([
             'notas' => ['required', 'array'],
-            'notas.*.id_estudiante' => ['required', 'integer', 'exists:estudiantes,id_estudiante'],
+            'notas.*.id_estudiante' => ['required', 'integer', TenantGuard::existe(Estudiante::class)],
             'notas.*.nota' => ['nullable', 'numeric', 'min:0', 'max:5'],
         ]);
+
+        // Solo estudiantes matriculados en el curso de la actividad: rechaza
+        // ids de otros cursos o de otras instituciones (todo o nada).
+        $ajenos = $actividad->asignacion->estudiantesFueraDelCurso(array_column($data['notas'], 'id_estudiante'));
+        if ($ajenos !== []) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hay estudiantes que no están matriculados en este curso. No se guardó ninguna nota.',
+                'errors' => ['notas' => ['Estudiantes no válidos para este curso.']],
+            ], 422);
+        }
 
         foreach ($data['notas'] as $fila) {
             Nota::updateOrCreate(
@@ -276,6 +289,7 @@ class CalificacionesController extends Controller
 
     public function storePeriodo(PeriodoRequest $request): JsonResponse
     {
+        Periodo::asegurarCreable();
         try {
             $periodo = Periodo::create($request->validated() + ['estado' => $request->validated()['estado'] ?? 'pendiente']);
         } catch (QueryException $e) {
@@ -287,6 +301,7 @@ class CalificacionesController extends Controller
 
     public function updatePeriodo(PeriodoRequest $request, Periodo $periodo): JsonResponse
     {
+        $periodo->asegurarModificable();
         try {
             $periodo->update($request->validated());
         } catch (QueryException $e) {
@@ -298,6 +313,7 @@ class CalificacionesController extends Controller
 
     public function desactivarPeriodo(Periodo $periodo): JsonResponse
     {
+        $periodo->asegurarModificable();
         $periodo->update(['estado' => 'cerrado']);
 
         return response()->json(['success' => true, 'message' => 'Periodo cerrado correctamente.']);
@@ -305,6 +321,7 @@ class CalificacionesController extends Controller
 
     public function activarPeriodo(Periodo $periodo): JsonResponse
     {
+        $periodo->asegurarModificable();
         $periodo->update(['estado' => 'activo']);
 
         return response()->json(['success' => true, 'message' => 'Periodo reactivado correctamente.']);
@@ -312,6 +329,7 @@ class CalificacionesController extends Controller
 
     public function storeTipoActividad(TipoActividadRequest $request): JsonResponse
     {
+        TipoActividad::asegurarCreable();
         try {
             $tipo = TipoActividad::create($request->validated() + ['estado' => 'activo']);
         } catch (QueryException $e) {
@@ -323,6 +341,7 @@ class CalificacionesController extends Controller
 
     public function updateTipoActividad(TipoActividadRequest $request, TipoActividad $tipoActividad): JsonResponse
     {
+        $tipoActividad->asegurarModificable();
         try {
             $tipoActividad->update($request->validated());
         } catch (QueryException $e) {
@@ -334,6 +353,7 @@ class CalificacionesController extends Controller
 
     public function desactivarTipoActividad(TipoActividad $tipoActividad): JsonResponse
     {
+        $tipoActividad->asegurarModificable();
         $tipoActividad->update(['estado' => 'inactivo']);
 
         return response()->json(['success' => true, 'message' => 'Tipo de actividad desactivado correctamente.']);
@@ -341,6 +361,7 @@ class CalificacionesController extends Controller
 
     public function activarTipoActividad(TipoActividad $tipoActividad): JsonResponse
     {
+        $tipoActividad->asegurarModificable();
         $tipoActividad->update(['estado' => 'activo']);
 
         return response()->json(['success' => true, 'message' => 'Tipo de actividad reactivado correctamente.']);

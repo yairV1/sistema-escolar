@@ -6,9 +6,15 @@
 <div class="container-fluid p-3 p-md-4">
     <h1 class="h4 fw-semibold font-serif mb-1">Roles</h1>
     <p class="text-secondary small mb-3">
-        Los 7 roles institucionales son fijos y no se pueden crear ni eliminar desde aquí, solo editar su nombre,
-        descripción y estado. El estado es informativo por ahora: no afecta el acceso de los usuarios que tengan ese rol.
+        Los roles son comunes a toda la plataforma. Desactivar un rol impide iniciar sesión a todos los usuarios
+        que lo tengan, por eso su nombre, descripción y estado solo los administra el SuperAdmin.
     </p>
+    @if ($soloLectura)
+        <div class="alert alert-info small py-2" role="status">
+            <i class="fas fa-lock me-1" aria-hidden="true"></i>
+            Consulta en modo lectura. La columna «Usuarios asignados» cuenta solo los usuarios de tu institución.
+        </div>
+    @endif
 
     <div class="table-responsive">
         <table class="table table-hover align-middle">
@@ -18,7 +24,9 @@
                     <th>Descripción</th>
                     <th>Usuarios asignados</th>
                     <th>Estado</th>
-                    <th class="text-end">Acciones</th>
+                    @unless ($soloLectura)
+                        <th class="text-end">Acciones</th>
+                    @endunless
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +40,7 @@
                                 {{ $rol->estado === 'activo' ? 'Activo' : 'Inactivo' }}
                             </span>
                         </td>
+                        @unless ($soloLectura)
                         <td class="text-end">
                             <button type="button" class="btn btn-sm btn-outline-secondary" title="Editar"
                                     data-bs-toggle="modal" data-bs-target="#modalEditarRol{{ $rol->id_rol }}">
@@ -53,6 +62,7 @@
                                 </button>
                             @endif
                         </td>
+                        @endunless
                     </tr>
                 @endforeach
             </tbody>
@@ -62,8 +72,8 @@
 @endsection
 
 @push('modals')
-    {{-- Modales: editar rol (uno por fila) --}}
-    @foreach ($roles as $rol)
+    {{-- Modales: editar rol (uno por fila) — solo si se puede administrar el catálogo --}}
+    @foreach ($soloLectura ? [] : $roles as $rol)
     <div class="modal fade" id="modalEditarRol{{ $rol->id_rol }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

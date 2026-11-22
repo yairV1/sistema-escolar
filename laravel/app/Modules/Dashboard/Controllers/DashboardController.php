@@ -23,7 +23,8 @@ class DashboardController extends Controller
         // Fase A). estudiantes/profesores/matriculas/boletines/asistencia no
         // tienen columna propia: se filtran vía el usuario asociado. cursos
         // y solicitudes_admision sí la tienen (no cuelgan de ningún usuario).
-        $idInstitucion = auth()->user()->id_institucion;
+        // ?? 0: where(col, null) sería IS NULL (registros sin institución). 0 no existe.
+        $idInstitucion = auth()->user()->id_institucion ?? 0;
 
         $estudiantesMatriculados = Matricula::where('anio_lectivo', $anioActual)
             ->where('estado_matricula', 'activa')

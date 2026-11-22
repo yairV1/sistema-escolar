@@ -56,8 +56,10 @@ class EventoOccurrenceSource implements CalendarioOccurrenceSource
                         $sub->where('visibilidad', 'compartido')
                             ->whereHas('participantes', fn ($q) => $q->where('id_usuario', $usuario->id_usuario));
                     })
-                    ->orWhere(function ($sub) use ($cursosVisibles) {
+                    ->orWhere(function ($sub) use ($cursosVisibles, $usuario) {
                         $sub->where('visibilidad', 'publico')
+                            // Público = público dentro de la institución del creador.
+                            ->whereHas('creador', fn ($q) => $q->where('id_institucion', $usuario->id_institucion ?? 0))
                             ->whereHas('categoria', fn ($q) => $q->activas())
                             ->when(is_array($cursosVisibles), fn ($q) => $q->where(
                                 fn ($q2) => $q2->whereNull('id_curso')->orWhereIn('id_curso', $cursosVisibles)

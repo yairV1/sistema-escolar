@@ -13,10 +13,16 @@
                     Información institucional usada en comunicados, boletines y la página pública.
                 </p>
             </div>
-            <button type="submit" form="formConfiguracion" class="btn btn-primary" id="btnGuardarConfiguracion">
+            <button type="submit" form="formConfiguracion" class="btn btn-primary" id="btnGuardarConfiguracion" @disabled($edicionBloqueada ?? false)>
                 <i class="fas fa-save me-1"></i> Guardar cambios
             </button>
         </div>
+
+        @if ($edicionBloqueada ?? false)
+            <div class="alert alert-warning small" role="alert" data-edicion-bloqueada>
+                <i class="fas fa-lock me-1"></i> {{ $edicionBloqueada }}
+            </div>
+        @endif
 
         <form id="formConfiguracion" data-url="{{ route('configuracion-colegio.update') }}" enctype="multipart/form-data" novalidate>
 

@@ -20,8 +20,19 @@
         </a>
     </div>
 
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="align-self-center text-secondary">Sitio: /sitio/{{ $institucion->slug }}</span>
+        <span class="align-self-center text-secondary">Ingreso: /sitio/{{ $institucion->slug }}/ingresar</span>
+        @if ($slugCanonico && $institucion->estado === 'activa')
+            <a class="btn btn-sm btn-outline-primary" href="{{ route('sitio.show', $institucion->slug) }}" target="_blank" rel="noopener noreferrer">Abrir sitio</a>
+            <a class="btn btn-sm btn-outline-primary" href="{{ route('sitio.ingresar', $institucion->slug) }}" target="_blank" rel="noopener noreferrer">Abrir ingreso</a>
+        @else
+            <span class="small text-warning align-self-center">Enlaces no disponibles: slug legado no canónico o institución suspendida.</span>
+        @endif
+    </div>
+
     <ul class="nav nav-pills mb-3">
-        @foreach (['info' => 'Información general', 'usuarios' => 'Usuarios', 'metricas' => 'Uso y métricas'] as $clave => $etiqueta)
+        @foreach (['info' => 'Información general', 'metricas' => 'Uso y métricas agregadas'] as $clave => $etiqueta)
             <li class="nav-item">
                 <a class="nav-link {{ $tab === $clave ? 'active' : '' }}"
                    href="{{ route('superadmin.instituciones.show', [$institucion, 'tab' => $clave]) }}">{{ $etiqueta }}</a>
@@ -29,42 +40,7 @@
         @endforeach
     </ul>
 
-    @if ($tab === 'usuarios')
-        @if ($usuarios->isEmpty())
-            <div class="empty-state">
-                <div class="empty-icon"><i class="fas fa-users"></i></div>
-                <p class="mb-0">Esta institución aún no tiene usuarios registrados.</p>
-            </div>
-        @else
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($usuarios as $usuario)
-                            <tr>
-                                <td>{{ trim($usuario->nombres.' '.$usuario->apellidos) }}</td>
-                                <td>{{ $usuario->correo }}</td>
-                                <td>{{ $usuario->rol?->nombre_rol }}</td>
-                                <td>
-                                    <span class="badge text-bg-{{ $usuario->estado_usuario === 'activo' ? 'success' : 'secondary' }}">
-                                        {{ ucfirst($usuario->estado_usuario) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            {{ $usuarios->links('pagination::bootstrap-5') }}
-        @endif
-    @elseif ($tab === 'metricas')
+    @if ($tab === 'metricas')
         <div class="row g-3">
             <div class="col-6 col-md-3">
                 <div class="kpi-card bg-body-tertiary border h-100">
