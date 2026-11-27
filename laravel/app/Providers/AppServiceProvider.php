@@ -53,6 +53,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Fase 1 (P0-2): en producción nunca se muestran trazas, aunque APP_DEBUG
+        // quede en true por error. No sustituye a configurar el .env correctamente
+        // (php artisan seguridad:verificar-exposicion lo informa como bloqueante).
+        if ($this->app->environment('production') && config('app.debug')) {
+            config(['app.debug' => false]);
+            \Illuminate\Support\Facades\Log::critical('APP_DEBUG=true en producción: se forzó a false. Corrige el .env.');
+        }
+
         // Comandos destructivos (migrate:fresh/refresh/reset, db:wipe) solo
         // contra la base de pruebas autorizada, verificada sobre la conexión
         // efectiva (GuardiaBaseDePruebas). migrate:rollback queda permitido:

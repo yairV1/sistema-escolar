@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         \App\Modules\Calendario\Console\Commands\EnviarRecordatoriosEventos::class,
         \App\Modules\Instituciones\Console\Commands\AuditarPertenenciaCommand::class,
         \App\Modules\Instituciones\Console\Commands\PoblarPertenenciaCommand::class,
+        \App\Core\Seguridad\Console\VerificarExposicionCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
