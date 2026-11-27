@@ -6,6 +6,7 @@ use App\Core\Http\Controllers\Controller;
 use App\Modules\Auditoria\Services\AuditLogger;
 use App\Modules\Auth\Models\Rol;
 use App\Modules\Auth\Models\Usuario;
+use App\Modules\Auth\Services\RevocacionDeSesiones;
 use App\Modules\Instituciones\Models\Institucion;
 use App\Modules\SuperAdmin\Policies\UsuarioGlobalPolicy;
 use App\Modules\SuperAdmin\Requests\UsuarioGlobalCambiarRolRequest;
@@ -58,10 +59,10 @@ class UsuarioGlobalController extends Controller
         abort_unless($this->policy->cambiarRol($request->user()), 403);
 
         $antes = ['id_rol' => $usuario->id_rol];
-        $usuario->forceFill([
-            'id_rol' => $request->integer('id_rol'),
-            'sesion_valida_desde' => now(),
-        ])->save();
+        $usuario->forceFill(['id_rol' => $request->integer('id_rol')])->save();
+        // Sesiones y cookies «recordarme» anuladas (antes solo sesion_valida_desde:
+        // la cookie «recordarme» seguía restaurando la sesión).
+        app(RevocacionDeSesiones::class)->usuarios($usuario->id_usuario);
 
         $this->auditLogger->record('usuario.cambiar_rol', $usuario, $antes, ['id_rol' => $usuario->id_rol]);
 
@@ -75,10 +76,8 @@ class UsuarioGlobalController extends Controller
         $nuevoEstado = $usuario->estado_usuario === 'activo' ? 'inactivo' : 'activo';
         $antes = ['estado_usuario' => $usuario->estado_usuario];
 
-        $usuario->forceFill([
-            'estado_usuario' => $nuevoEstado,
-            'sesion_valida_desde' => now(),
-        ])->save();
+        $usuario->forceFill(['estado_usuario' => $nuevoEstado])->save();
+        app(RevocacionDeSesiones::class)->usuarios($usuario->id_usuario);
 
         $this->auditLogger->record('usuario.cambiar_estado', $usuario, $antes, ['estado_usuario' => $nuevoEstado]);
 

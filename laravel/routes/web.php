@@ -64,9 +64,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
 
-    Route::post('/forgot-password', [PasswordResetController::class, 'storeForgot'])->name('password.email');
+    Route::post('/forgot-password', [PasswordResetController::class, 'storeForgot'])->middleware('throttle:recuperacion')->name('password.email');
     Route::get('/reset-password', [PasswordResetController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [PasswordResetController::class, 'storeReset'])->name('password.update');
+    Route::post('/reset-password', [PasswordResetController::class, 'storeReset'])->middleware('throttle:recuperacion')->name('password.update');
 
     // Segundo paso del login para cuentas con 2FA confirmado — el usuario
     // aún no está autenticado (Auth::user() es null) hasta que el código se

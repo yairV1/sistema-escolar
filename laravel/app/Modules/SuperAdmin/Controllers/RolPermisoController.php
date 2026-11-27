@@ -6,6 +6,7 @@ use App\Core\Http\Controllers\Controller;
 use App\Modules\Auditoria\Services\AuditLogger;
 use App\Modules\Auth\Models\Permission;
 use App\Modules\Auth\Models\Rol;
+use App\Modules\Auth\Services\RevocacionDeSesiones;
 use App\Modules\SuperAdmin\Policies\RolPermisoPolicy;
 use App\Modules\SuperAdmin\Requests\RolPermisoUpdateRequest;
 use Illuminate\Http\JsonResponse;
@@ -66,7 +67,7 @@ class RolPermisoController extends Controller
 
                 if ($antes !== $idsPermisos) {
                     // Cualquier usuario con este rol pierde/gana permisos: su sesión activa se invalida (EnsureSessionFresh).
-                    DB::table('usuarios')->where('id_rol', $idRol)->update(['sesion_valida_desde' => now()]);
+                    app(RevocacionDeSesiones::class)->rol($idRol);
                     $this->auditLogger->record('rol.permisos.actualizar', new Rol(['id_rol' => $idRol]), ['permisos' => $antes], ['permisos' => $idsPermisos]);
                 }
             }
@@ -88,7 +89,7 @@ class RolPermisoController extends Controller
 
         $antes = ['estado' => $rol->estado];
         $rol->update(['estado' => 'inactivo']);
-        DB::table('usuarios')->where('id_rol', $rol->id_rol)->update(['sesion_valida_desde' => now()]);
+        app(RevocacionDeSesiones::class)->rol((int) $rol->id_rol);
         $this->auditLogger->record('rol.desactivar', $rol, $antes, ['estado' => 'inactivo']);
 
         return response()->json([

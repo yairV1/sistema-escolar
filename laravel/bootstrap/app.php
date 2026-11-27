@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         \App\Modules\Calendario\Console\Commands\EnviarRecordatoriosEventos::class,
         \App\Modules\Instituciones\Console\Commands\AuditarPertenenciaCommand::class,
         \App\Modules\Instituciones\Console\Commands\PoblarPertenenciaCommand::class,
+        \App\Core\Seguridad\Console\VerificarExposicionCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
@@ -23,11 +24,24 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Core\Http\Middleware\EnsurePermission::class,
         ]);
 
-        // No-op para los 7 roles institucionales existentes (ver
-        // EnsureSessionFresh): solo actúa si sesion_valida_desde está
-        // poblado, lo que hoy únicamente ocurre cuando un SuperAdmin cambia
-        // el rol o los permisos de alguien.
+        // Fase 1 (P1-4): proxies de confianza por entorno (TRUSTED_PROXIES),
+        // nunca «todos»; reemplaza el TrustProxies por defecto de Laravel.
+        $middleware->replace(
+            \Illuminate\Http\Middleware\TrustProxies::class,
+            \App\Core\Http\Middleware\ConfiarProxiesConfigurados::class,
+        );
+
+        // Fase 1 (P0-1/P1-4): cabecera Host limitada a los hosts del servidor
+        // (APP_URL + APP_TRUSTED_HOSTS) fuera de local/testing. Global y después
+        // de los proxies, para evaluar el host ya resuelto.
+        $middleware->append(\App\Core\Http\Middleware\ValidarHostConfiable::class);
+
         $middleware->appendToGroup('web', [
+            // Fase 1 (P1-1/P1-2): cuenta, rol e institución habilitados en cada
+            // petición autenticada (sesión o cookie «recordarme»).
+            \App\Core\Http\Middleware\EnsureCuentaHabilitada::class,
+            // Cierra sesiones iniciadas antes de sesion_valida_desde (cambio de
+            // contraseña, rol, permisos, desactivación o suspensión).
             \App\Core\Http\Middleware\EnsureSessionFresh::class,
             \App\Core\Http\Middleware\SetLocale::class,
             // Etapa 1: todo modelo institucional de la URL debe ser de la
