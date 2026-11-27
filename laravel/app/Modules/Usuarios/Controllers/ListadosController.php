@@ -4,6 +4,7 @@ namespace App\Modules\Usuarios\Controllers;
 
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Auth\Models\Usuario;
+use App\Modules\Auth\Services\RevocacionDeSesiones;
 use App\Modules\GestionAcademica\Models\Curso;
 use App\Modules\Instituciones\Support\TenantContext;
 use App\Modules\Usuarios\Models\Estudiante;
@@ -180,31 +181,39 @@ class ListadosController extends Controller
      * legacy exige la sesión PHP del sistema legacy, que un usuario
      * autenticado en Laravel no tiene.
      */
-    public function desactivarEstudiante(Estudiante $estudiante): JsonResponse
+    public function desactivarEstudiante(Estudiante $estudiante, RevocacionDeSesiones $revocacion): JsonResponse
     {
         TenantContext::asegurar($estudiante->usuario?->id_institucion);
 
         $estudiante->update(['estado_academico' => 'inactivo']);
         $estudiante->usuario?->update(['estado_usuario' => 'inactivo']);
+        // Fase 1 (P1-1): sus sesiones y cookies «recordarme» dejan de valer, aunque se reactive.
+        if ($estudiante->usuario) {
+            $revocacion->usuarios($estudiante->usuario->id_usuario);
+        }
 
         return response()->json(['success' => true, 'message' => 'Estudiante desactivado correctamente.']);
     }
 
-    public function desactivarDocente(Profesor $profesor): JsonResponse
+    public function desactivarDocente(Profesor $profesor, RevocacionDeSesiones $revocacion): JsonResponse
     {
         TenantContext::asegurar($profesor->usuario?->id_institucion);
 
         $profesor->update(['estado_laboral' => 'retirado']);
         $profesor->usuario?->update(['estado_usuario' => 'inactivo']);
+        if ($profesor->usuario) {
+            $revocacion->usuarios($profesor->usuario->id_usuario);
+        }
 
         return response()->json(['success' => true, 'message' => 'Docente desactivado correctamente.']);
     }
 
-    public function desactivarAdministrativo(Usuario $usuario): JsonResponse
+    public function desactivarAdministrativo(Usuario $usuario, RevocacionDeSesiones $revocacion): JsonResponse
     {
         $this->asegurarAdministrativoPropio($usuario);
 
         $usuario->update(['estado_usuario' => 'inactivo']);
+        $revocacion->usuarios($usuario->id_usuario);
 
         return response()->json(['success' => true, 'message' => 'Usuario desactivado correctamente.']);
     }

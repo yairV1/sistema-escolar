@@ -23,11 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Core\Http\Middleware\EnsurePermission::class,
         ]);
 
-        // No-op para los 7 roles institucionales existentes (ver
-        // EnsureSessionFresh): solo actúa si sesion_valida_desde está
-        // poblado, lo que hoy únicamente ocurre cuando un SuperAdmin cambia
-        // el rol o los permisos de alguien.
         $middleware->appendToGroup('web', [
+            // Fase 1 (P1-1/P1-2): cuenta, rol e institución habilitados en cada
+            // petición autenticada (sesión o cookie «recordarme»).
+            \App\Core\Http\Middleware\EnsureCuentaHabilitada::class,
+            // Cierra sesiones iniciadas antes de sesion_valida_desde (cambio de
+            // contraseña, rol, permisos, desactivación o suspensión).
             \App\Core\Http\Middleware\EnsureSessionFresh::class,
             \App\Core\Http\Middleware\SetLocale::class,
             // Etapa 1: todo modelo institucional de la URL debe ser de la

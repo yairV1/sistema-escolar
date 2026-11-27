@@ -6,6 +6,7 @@ use App\Core\Http\Controllers\Controller;
 use App\Modules\Auth\Models\Rol;
 use App\Modules\Auth\Models\Usuario;
 use App\Modules\Auth\Requests\RolRequest;
+use App\Modules\Auth\Services\RevocacionDeSesiones;
 use App\Modules\Instituciones\Support\TenantContext;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +50,7 @@ class RolController extends Controller
         }
 
         $rol->update(['estado' => 'inactivo']);
+        app(RevocacionDeSesiones::class)->rol((int) $rol->id_rol);
 
         return response()->json(['success' => true, 'message' => 'Rol desactivado correctamente.']);
     }

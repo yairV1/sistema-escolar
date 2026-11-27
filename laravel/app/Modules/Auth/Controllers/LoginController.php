@@ -50,10 +50,11 @@ class LoginController extends Controller
             ], 401);
         }
 
-        if (! $usuario->estaActivo()) {
+        // Cuenta, rol e institución (Fase 1: también institución suspendida).
+        if ($motivo = $usuario->motivoDeBloqueo()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tu cuenta se encuentra inactiva o bloqueada. Contacta al colegio.',
+                'message' => Usuario::mensajeDeBloqueo($motivo),
             ], 403);
         }
 

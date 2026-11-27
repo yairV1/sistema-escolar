@@ -46,6 +46,14 @@ class TwoFactorChallengeController extends Controller
             return response()->json(['success' => false, 'message' => 'No se pudo verificar la cuenta.'], 422);
         }
 
+        // Fase 1: la cuenta pudo desactivarse (o su institución suspenderse) entre
+        // el primer paso del login y este.
+        if ($motivo = $usuario->motivoDeBloqueo()) {
+            $request->session()->forget(['two_factor.id_usuario', 'two_factor.remember']);
+
+            return response()->json(['success' => false, 'message' => Usuario::mensajeDeBloqueo($motivo)], 403);
+        }
+
         $codigo = trim($request->string('codigo'));
         $valido = $this->twoFactor->verificar($usuario->two_factor_secret, $codigo)
             || $this->consumirCodigoRecuperacion($usuario, $codigo);

@@ -49,6 +49,8 @@ class CalendarioExportController extends Controller
     public function suscripcion(Usuario $usuario, string $token, IcsExportService $ics): Response
     {
         abort_unless($usuario->ics_token && hash_equals($usuario->ics_token, $token), 404);
+        // Fase 1: la suscripción (sin sesión) también se corta si la cuenta o su institución ya no están habilitadas.
+        abort_unless($usuario->estaActivo(), 404);
 
         [$desde, $hasta] = $this->rango();
         $contenido = $ics->generar($usuario, $desde, $hasta);

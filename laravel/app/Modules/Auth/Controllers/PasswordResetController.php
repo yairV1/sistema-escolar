@@ -57,6 +57,16 @@ class PasswordResetController extends Controller
         }
 
         $usuario = Usuario::find($reset->id_usuario);
+
+        // Fase 1 (P1-1/P1-2): un enlace emitido antes de desactivar la cuenta o
+        // suspender la institución ya no sirve. Mismo mensaje que un token inválido.
+        if (! $usuario || ! $usuario->estaActivo()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El enlace no es válido o ya expiró. Solicita uno nuevo.',
+            ], 400);
+        }
+
         // Auditado + invalida todas las sesiones y cookies «recordarme» (incidente 2026-11-19).
         $cambio->aplicar($usuario, (string) $request->string('password'), CambioDeContrasena::ORIGEN_RECUPERACION);
         $reset->marcarUsado();

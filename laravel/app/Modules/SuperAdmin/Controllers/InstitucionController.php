@@ -5,6 +5,7 @@ namespace App\Modules\SuperAdmin\Controllers;
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Auditoria\Services\AuditLogger;
 use App\Modules\Auth\Models\Usuario;
+use App\Modules\Auth\Services\RevocacionDeSesiones;
 use App\Modules\Instituciones\Models\Institucion;
 use App\Modules\Instituciones\Requests\InstitucionStoreRequest;
 use App\Modules\Instituciones\Requests\InstitucionUpdateRequest;
@@ -20,7 +21,7 @@ use Illuminate\View\View;
 
 class InstitucionController extends Controller
 {
-    public function __construct(private AuditLogger $auditLogger) {}
+    public function __construct(private AuditLogger $auditLogger, private RevocacionDeSesiones $revocacion) {}
 
     /** Requiere plataforma.instituciones.ver. */
     public function index(Request $request): View
@@ -244,6 +245,11 @@ class InstitucionController extends Controller
 
         DB::transaction(function () use ($institucion, $estado, $accion, $anterior) {
             $institucion->update(['estado' => $estado]);
+            // Fase 1 (P1-2): al dejar de estar activa, todas las sesiones y cookies
+            // «recordarme» de sus usuarios se anulan (no reviven al reactivarla).
+            if ($estado !== 'activa') {
+                $this->revocacion->institucion((int) $institucion->id_institucion);
+            }
             $this->auditLogger->record($accion, $institucion, ['estado' => $anterior], ['estado' => $estado]);
         });
 

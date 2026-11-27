@@ -175,7 +175,48 @@ class Usuario extends Authenticatable
      */
     public function estaActivo(): bool
     {
-        return $this->estado_usuario === 'activo' && $this->rol?->estado !== 'inactivo';
+        return $this->motivoDeBloqueo() === null;
+    }
+
+    public const BLOQUEO_CUENTA = 'cuenta';
+
+    public const BLOQUEO_ROL = 'rol';
+
+    public const BLOQUEO_INSTITUCION = 'institucion';
+
+    /**
+     * Fase 1 (P1-1/P1-2): por qué esta cuenta no puede operar, o null si puede.
+     * Falla cerrado:
+     *  - cuenta: estado_usuario distinto de 'activo' (inactivo, bloqueado…);
+     *  - rol: inexistente o no 'activo';
+     *  - institución: para todo rol institucional, debe existir y estar
+     *    'activa' (no 'suspendida' ni 'inactiva'). SuperAdmin no pertenece a
+     *    ninguna institución y no se evalúa por ella (capa separada).
+     * Las relaciones se cargan una sola vez por instancia (sin consultas repetidas).
+     */
+    public function motivoDeBloqueo(): ?string
+    {
+        if ($this->estado_usuario !== 'activo') {
+            return self::BLOQUEO_CUENTA;
+        }
+
+        if ($this->rol === null || $this->rol->estado !== 'activo') {
+            return self::BLOQUEO_ROL;
+        }
+
+        if (! $this->esSuperAdmin() && ($this->institucion === null || ! $this->institucion->estaActiva())) {
+            return self::BLOQUEO_INSTITUCION;
+        }
+
+        return null;
+    }
+
+    public static function mensajeDeBloqueo(?string $motivo): string
+    {
+        return match ($motivo) {
+            self::BLOQUEO_INSTITUCION => 'El acceso de tu institución está suspendido. Contacta a la administración del colegio.',
+            default => 'Tu cuenta se encuentra inactiva o bloqueada. Contacta al colegio.',
+        };
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Modules\Usuarios\Controllers\Registro;
 
 use App\Core\Http\Controllers\Controller;
 use App\Modules\Auth\Models\Usuario;
+use App\Modules\Auth\Services\RevocacionDeSesiones;
 use App\Modules\Instituciones\Support\TenantContext;
 use App\Modules\Usuarios\Requests\Registro\AdministrativoStoreRequest;
 use App\Modules\Usuarios\Requests\Registro\AdministrativoUpdateRequest;
@@ -74,6 +75,7 @@ class RegistroAdministrativosController extends Controller
         $this->asegurarAdministrativoPropio($usuario);
 
         $d = $request->validated();
+        $rolAnterior = (int) $usuario->id_rol;
 
         try {
             $usuario->forceFill([
@@ -94,6 +96,11 @@ class RegistroAdministrativosController extends Controller
             }
 
             throw $e;
+        }
+
+        // Fase 1 (P1-1): cambio de rol → sus sesiones y cookies «recordarme» se anulan.
+        if ((int) $usuario->id_rol !== $rolAnterior) {
+            app(RevocacionDeSesiones::class)->usuarios($usuario->id_usuario);
         }
 
         return response()->json([
