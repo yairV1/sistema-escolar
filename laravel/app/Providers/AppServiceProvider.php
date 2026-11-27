@@ -94,6 +94,26 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('2fa', fn ($request) => Limit::perMinute(6)->by($request->ip()));
 
+        // Fase 1 (P1-4): recuperación de contraseña (antes sin límite), para frenar
+        // el envío masivo y el sondeo de tokens. Siempre por IP (la real solo con
+        // TRUSTED_PROXIES bien configurado); además por correo en forgot-password y
+        // por token en reset-password, nunca por una clave común a todos.
+        RateLimiter::for('recuperacion', function ($request) {
+            $limites = [Limit::perMinute(5)->by('recuperacion-ip:'.$request->ip())];
+
+            $correo = mb_strtolower(trim((string) $request->input('correo')));
+            if ($correo !== '') {
+                $limites[] = Limit::perHour(5)->by('recuperacion-correo:'.hash('sha256', $correo));
+            }
+
+            $token = (string) $request->input('token');
+            if ($token !== '') {
+                $limites[] = Limit::perHour(10)->by('recuperacion-token:'.hash('sha256', $token));
+            }
+
+            return $limites;
+        });
+
         // Etapa 2 · B7: admisiones públicas por colegio — por IP y sitio, por minuto y por día.
         RateLimiter::for('admisiones', fn ($request) => [
             Limit::perMinute(5)->by('admision:'.$request->ip().'|'.$request->route('slug')),

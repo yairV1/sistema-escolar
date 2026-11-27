@@ -23,6 +23,18 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Core\Http\Middleware\EnsurePermission::class,
         ]);
 
+        // Fase 1 (P1-4): proxies de confianza por entorno (TRUSTED_PROXIES),
+        // nunca «todos»; reemplaza el TrustProxies por defecto de Laravel.
+        $middleware->replace(
+            \Illuminate\Http\Middleware\TrustProxies::class,
+            \App\Core\Http\Middleware\ConfiarProxiesConfigurados::class,
+        );
+
+        // Fase 1 (P0-1/P1-4): cabecera Host limitada a los hosts del servidor
+        // (APP_URL + APP_TRUSTED_HOSTS) fuera de local/testing. Global y después
+        // de los proxies, para evaluar el host ya resuelto.
+        $middleware->append(\App\Core\Http\Middleware\ValidarHostConfiable::class);
+
         $middleware->appendToGroup('web', [
             // Fase 1 (P1-1/P1-2): cuenta, rol e institución habilitados en cada
             // petición autenticada (sesión o cookie «recordarme»).
